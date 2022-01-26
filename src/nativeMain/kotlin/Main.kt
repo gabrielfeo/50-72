@@ -1,3 +1,3 @@
 fun main() {
-    println("Hello, Kotlin/Native!")
+    Formatter().format("")
 }
