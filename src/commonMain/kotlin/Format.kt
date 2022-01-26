@@ -33,9 +33,9 @@ private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) { // 
         if (str.startsWith('\n')) currentLineColumns = str.length - 1
         else currentLineColumns += str.length
     }
-    for (word in body.split(Regex("\\s"))) {
+    for (word in body.split(Regex("\\s+"))) {
         when {
-            this.isEmpty() || word.length >= 72 -> append(word)
+            currentLineColumns == 0 || word.length >= 72 -> append(word)
             currentLineColumns + word.length + WORD_SPACING_SIZE <= 72 -> append("$WORD_SPACING$word")
             else -> append("\n$word")
         }

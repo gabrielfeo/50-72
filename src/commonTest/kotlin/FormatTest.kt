@@ -68,4 +68,12 @@ class FormatTest {
     fun doesntFailGivenBodyLineAt72() {
         format(SUBJECT_50_BODY_72)
     }
+
+    @Test
+    fun reformatsMiscMessages() {
+        miscMessages.onEachIndexed { i, (original, expected) ->
+            val actual = format(original)
+            assertEquals(expected, actual, "Failed at case $i")
+        }
+    }
 }
