@@ -8,22 +8,26 @@ internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = """
 """
 
 class Formatter {
+
     fun format(message: String): String {
         val trimmed = message.trim()
         val indexOfFirstNewline = trimmed.indexOf('\n')
-        if (indexOfFirstNewline == -1) {
-            if (trimmed.length <= 50) return trimmed
-            else error(HEADING_OVER_50_MESSAGE)
-        } else if (indexOfFirstNewline > 50) {
-            error(HEADING_OVER_50_MESSAGE)
-        } else {
-            if (trimmed[indexOfFirstNewline + 1] != '\n') {
-                error(NO_SUBJECT_BODY_SEPARATOR_MESSAGE)
-            } else {
-                val bodyLines = trimmed.slice(53..trimmed.lastIndex).split('\n')
-                if (bodyLines.any { it.length > 72 }) error("")
-                else return trimmed
-            }
+        val hasBody = indexOfFirstNewline != -1
+        val subjectIsUpTo50Columns = (hasBody && indexOfFirstNewline in 1..50) || trimmed.length <= 50
+        val hasSubjectBodySeparator = hasBody && trimmed[indexOfFirstNewline + 1] == '\n'
+
+        require(subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
+        if (hasBody) {
+            require(hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
+            checkBodyLinesUpTo72(trimmed)
         }
+        return trimmed
     }
+
+    private fun checkBodyLinesUpTo72(message: String) {
+        val bodyLines = message.body.split('\n')
+        require(bodyLines.none { it.length > 72 })
+    }
+
+    private val CharSequence.body get() = slice(53..lastIndex)
 }
