@@ -12,7 +12,14 @@ class Formatter {
         val lines = message.split('\n')
         return when {
             lines.first().length in 1..50 -> when {
-                lines.size == 1 || lines[1].isEmpty() -> message
+                lines.size == 1 || lines[1].isEmpty() -> {
+                    for (line in lines.slice(2..lines.lastIndex)) {
+                        if (line.length !in 1..72) {
+                            error("")
+                        }
+                    }
+                    return message
+                }
                 else -> error(NO_SUBJECT_BODY_SEPARATOR_MESSAGE)
             }
             else -> error(HEADING_OVER_50_MESSAGE)

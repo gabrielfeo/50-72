@@ -2,6 +2,20 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
+const val SUBJECT_50 = "01234567890123456789012345678901234567890123456789"
+const val SUBJECT_51 = "012345678901234567890123456789012345678901234567890"
+
+const val SUBJECT_50_BODY_72 = """$SUBJECT_50
+
+012345678901234567890123456789012345678901234567890123456789012345678901
+012345678901234567890123456789012345678901234567890123456789012345678901"""
+
+const val SUBJECT_50_BODY_73 = """$SUBJECT_50
+
+012345678901234567890123456789012345678901234567890123456789012345678901
+0123456789012345678901234567890123456789012345678901234567890123456789012
+012345678901234567890123456789012345678901234567890123456789012345678901"""
+
 class FormatterTest {
 
     private val formatter = Formatter()
@@ -9,14 +23,14 @@ class FormatterTest {
     @Test
     fun failsGivenSubjectLineOver50() {
         val error = assertFails {
-            formatter.format(lineOf(51))
+            formatter.format(SUBJECT_51)
         }
         assertEquals(HEADING_OVER_50_MESSAGE, error.message)
     }
 
     @Test
     fun doesntFailGivenSubjectLineUpTo50() {
-        formatter.format(lineOf(50))
+        formatter.format(SUBJECT_50)
     }
 
     @Test
@@ -32,10 +46,15 @@ class FormatterTest {
         formatter.format("a\n\na")
     }
 
-    private fun lineOf(length: Int) = buildString {
-        append(length)
-        while (this.length < length) {
-            append('a')
+    @Test
+    fun failsGivenBodyLineOver72() { // TODO Re-format instead
+        assertFails {
+            formatter.format(SUBJECT_50_BODY_73)
         }
+    }
+
+    @Test
+    fun doesntFailGivenBodyLineUpTo72() {
+        formatter.format(SUBJECT_50_BODY_72)
     }
 }
