@@ -1,4 +1,3 @@
-
 internal const val HEADING_OVER_50_MESSAGE = """
     Heading line must not be over 50 columns. Please re-format the heading manually.
 """
@@ -13,26 +12,17 @@ private const val SUBJECT_BODY_SEPARATOR = "\n\n"
 
 class Formatter {
 
-    fun format(message: String): String {
-        val trimmed = message.trim()
-        val indexOfFirstNewline = trimmed.indexOf('\n')
-        fun String.subject() = slice(0 until indexOfFirstNewline).trim()
-        fun String.body() = slice(indexOfFirstNewline + 2..lastIndex).trim()
-
-        val hasBody = indexOfFirstNewline != -1
-        val subjectIsUpTo50Columns = (hasBody && indexOfFirstNewline in 1..50) || trimmed.length <= 50
-        val hasSubjectBodySeparator = hasBody && trimmed[indexOfFirstNewline + 1] == '\n'
-
-        require(subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
-        if (!hasBody) {
-            return trimmed
+    fun format(messageText: String): String {
+        val message = CommitMessage(messageText)
+        require(message.subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
+        if (!message.hasBody) {
+            return message.fullText
         }
-        require(hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
+        require(message.hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
         return buildString {
-            append(trimmed.subject())
+            append(message.subject())
             append(SUBJECT_BODY_SEPARATOR)
-            val body = trimmed.body()
-            appendBodyReformattedUpTo72Columns(body)
+            appendBodyReformattedUpTo72Columns(message.body())
         }
     }
 
@@ -51,4 +41,17 @@ class Formatter {
             }
         }
     }
+
+    private class CommitMessage(fullMessage: String) {
+        val fullText = fullMessage.trim()
+        private val indexOfFirstNewline = fullText.indexOf('\n')
+
+        val hasBody = indexOfFirstNewline != -1
+        val subjectIsUpTo50Columns = (hasBody && indexOfFirstNewline in 1..50) || fullText.length <= 50
+        val hasSubjectBodySeparator = hasBody && fullText[indexOfFirstNewline + 1] == '\n'
+
+        fun subject() = fullText.slice(0 until indexOfFirstNewline).trim()
+        fun body() = fullText.slice(indexOfFirstNewline + 2..fullText.lastIndex).trim()
+    }
+
 }
