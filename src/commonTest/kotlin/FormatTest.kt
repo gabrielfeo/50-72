@@ -34,67 +34,65 @@ lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
 lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
 ipsum ipsum"""
 
-class FormatterTest {
-
-    private val formatter = Formatter()
+class FormatTest {
 
     @Test
     fun failsGivenSingleLineOver50() {
         val error = assertFails {
-            formatter.format(SINGLE_LINE_51)
+            format(SINGLE_LINE_51)
         }
         assertEquals(HEADING_OVER_50_MESSAGE, error.message)
     }
 
     @Test
     fun doesntFailGivenSingleLineAt50() {
-        formatter.format(SINGLE_LINE_50)
+        format(SINGLE_LINE_50)
     }
 
     @Test
     fun doesntFailGivenSingleLineUnder50() {
-        formatter.format(SINGLE_LINE_40)
+        format(SINGLE_LINE_40)
     }
 
     @Test
     fun failsGivenSubjectLineOver50() {
         val error = assertFails {
-            formatter.format(SUBJECT_51_BODY_72)
+            format(SUBJECT_51_BODY_72)
         }
         assertEquals(HEADING_OVER_50_MESSAGE, error.message)
     }
 
     @Test
     fun doesntFailGivenSubjectLineAt50() {
-        formatter.format(SUBJECT_50_BODY_72)
+        format(SUBJECT_50_BODY_72)
     }
 
     @Test
     fun doesntFailGivenSubjectLineUnder50() {
-        formatter.format(SUBJECT_40_BODY_72)
+        format(SUBJECT_40_BODY_72)
     }
 
     @Test
     fun failsGivenNoSubjectBodySeparator() {
         val error = assertFails {
-            formatter.format("a\na")
+            format("a\na")
         }
         assertEquals(NO_SUBJECT_BODY_SEPARATOR_MESSAGE, error.message)
     }
 
     @Test
     fun doesntFailGivenNoSubjectBodySeparator() {
-        formatter.format("a\n\na")
+        format("a\n\na")
     }
 
     @Test
     fun reformatsBodyGivenBodyLineOver72() {
-        val reformatted = formatter.format(SUBJECT_50_BODY_73)
+        val reformatted = format(SUBJECT_50_BODY_73)
         assertEquals(SUBJECT_50_BODY_73_FIXED, reformatted)
     }
 
     @Test
     fun doesntFailGivenBodyLineUpTo72() {
-        formatter.format(SUBJECT_50_BODY_72)
+        format(SUBJECT_50_BODY_72)
     }
 }
