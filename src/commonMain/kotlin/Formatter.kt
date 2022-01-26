@@ -9,20 +9,21 @@ internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = """
 
 class Formatter {
     fun format(message: String): String {
-        val lines = message.split('\n')
-        return when {
-            lines.first().length in 1..50 -> when {
-                lines.size == 1 || lines[1].isEmpty() -> {
-                    for (line in lines.slice(2..lines.lastIndex)) {
-                        if (line.length !in 1..72) {
-                            error("")
-                        }
-                    }
-                    return message
-                }
-                else -> error(NO_SUBJECT_BODY_SEPARATOR_MESSAGE)
+        val trimmed = message.trim()
+        val indexOfFirstNewline = trimmed.indexOf('\n')
+        if (indexOfFirstNewline == -1) {
+            if (trimmed.length <= 50) return trimmed
+            else error(HEADING_OVER_50_MESSAGE)
+        } else if (indexOfFirstNewline > 50) {
+            error(HEADING_OVER_50_MESSAGE)
+        } else {
+            if (trimmed[indexOfFirstNewline + 1] != '\n') {
+                error(NO_SUBJECT_BODY_SEPARATOR_MESSAGE)
+            } else {
+                val bodyLines = trimmed.slice(53..trimmed.lastIndex).split('\n')
+                if (bodyLines.any { it.length > 72 }) error("")
+                else return trimmed
             }
-            else -> error(HEADING_OVER_50_MESSAGE)
         }
     }
 }
