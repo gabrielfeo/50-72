@@ -60,7 +60,12 @@ class FormatTest {
     }
 
     @Test
-    fun doesntFailGivenBodyLineUpTo72() {
+    fun doesntFailGivenBodyLineUnder72() {
+        format(SUBJECT_50_BODY_71)
+    }
+
+    @Test
+    fun doesntFailGivenBodyLineAt72() {
         format(SUBJECT_50_BODY_72)
     }
 }
