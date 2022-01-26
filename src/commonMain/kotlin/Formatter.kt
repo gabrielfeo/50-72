@@ -12,6 +12,8 @@ class Formatter {
     fun format(message: String): String {
         val trimmed = message.trim()
         val indexOfFirstNewline = trimmed.indexOf('\n')
+        fun String.body() = slice(indexOfFirstNewline + 2..lastIndex)
+
         val hasBody = indexOfFirstNewline != -1
         val subjectIsUpTo50Columns = (hasBody && indexOfFirstNewline in 1..50) || trimmed.length <= 50
         val hasSubjectBodySeparator = hasBody && trimmed[indexOfFirstNewline + 1] == '\n'
@@ -19,15 +21,13 @@ class Formatter {
         require(subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
         if (hasBody) {
             require(hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
-            checkBodyLinesUpTo72(trimmed)
+            checkBodyLinesUpTo72(trimmed.body())
         }
         return trimmed
     }
 
-    private fun checkBodyLinesUpTo72(message: String) {
-        val bodyLines = message.body.split('\n')
+    private fun checkBodyLinesUpTo72(body: String) {
+        val bodyLines = body.split('\n')
         require(bodyLines.none { it.length > 72 })
     }
-
-    private val CharSequence.body get() = slice(53..lastIndex)
 }

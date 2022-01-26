@@ -2,6 +2,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
+const val SINGLE_LINE_40 = "0123456789012345678901234567890123456789"
 const val SINGLE_LINE_50 = "01234567890123456789012345678901234567890123456789"
 const val SINGLE_LINE_51 = "012345678901234567890123456789012345678901234567890"
 
@@ -11,6 +12,11 @@ const val SUBJECT_51_BODY_72 = """$SINGLE_LINE_51
 012345678901234567890123456789012345678901234567890123456789012345678901"""
 
 const val SUBJECT_50_BODY_72 = """$SINGLE_LINE_50
+
+012345678901234567890123456789012345678901234567890123456789012345678901
+012345678901234567890123456789012345678901234567890123456789012345678901"""
+
+const val SUBJECT_40_BODY_72 = """$SINGLE_LINE_40
 
 012345678901234567890123456789012345678901234567890123456789012345678901
 012345678901234567890123456789012345678901234567890123456789012345678901"""
@@ -41,8 +47,13 @@ class FormatterTest {
     }
 
     @Test
-    fun doesntFailGivenSingleLineUpTo50() {
+    fun doesntFailGivenSingleLineAt50() {
         formatter.format(SINGLE_LINE_50)
+    }
+
+    @Test
+    fun doesntFailGivenSingleLineUnder50() {
+        formatter.format(SINGLE_LINE_40)
     }
 
     @Test
@@ -54,8 +65,13 @@ class FormatterTest {
     }
 
     @Test
-    fun doesntFailGivenSubjectLineUpTo50() {
+    fun doesntFailGivenSubjectLineAt50() {
         formatter.format(SUBJECT_50_BODY_72)
+    }
+
+    @Test
+    fun doesntFailGivenSubjectLineUnder50() {
+        formatter.format(SUBJECT_40_BODY_72)
     }
 
     @Test
