@@ -88,10 +88,9 @@ class FormatterTest {
     }
 
     @Test
-    fun failsGivenBodyLineOver72() { // TODO Re-format instead
-        assertFails {
-            formatter.format(SUBJECT_50_BODY_73)
-        }
+    fun reformatsBodyGivenBodyLineOver72() {
+        val reformatted = formatter.format(SUBJECT_50_BODY_73)
+        assertEquals(SUBJECT_50_BODY_73_FIXED, reformatted)
     }
 
     @Test
