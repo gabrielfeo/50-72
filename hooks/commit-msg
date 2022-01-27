@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -eu
+command=./build/bin/fullRelease/50-72
 old_msg="$(cat "$1")"
-new_msg="$(./reformat-msg "$old_msg")"
+new_msg="$($command "$old_msg")"
 echo "$new_msg" > "$1"

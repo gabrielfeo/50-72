@@ -41,3 +41,20 @@ kotlin {
         }
     }
 }
+
+tasks.register("buildRelease", Copy::class) {
+    dependsOn(":linkReleaseExecutableNative")
+    into("build/bin/fullRelease")
+    from("build/bin/native/releaseExecutable") {
+        include("*.kexe")
+        rename {
+            "50-72"
+        }
+    }
+}
+
+tasks.register("updateHooks", Copy::class) {
+    dependsOn("buildRelease")
+    into(".git/hooks")
+    from("hooks")
+}
