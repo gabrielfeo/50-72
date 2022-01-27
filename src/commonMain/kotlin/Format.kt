@@ -1,10 +1,5 @@
-internal const val HEADING_OVER_50_MESSAGE = """
-    Heading line must not be over 50 columns. Please re-format the heading manually.
-"""
-
-internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = """
-    There must be a blank line between subject and body. Please add the blank line!
-"""
+internal const val HEADING_OVER_50_MESSAGE = "Heading line must not be over 50 columns. Please re-format the heading manually."
+internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = "There must be a blank line between subject and body. Please add the blank line!"
 
 private const val WORD_SPACING = ' '
 private const val WORD_SPACING_SIZE = 1
