@@ -1,4 +1,6 @@
 import platform.posix.exit
+import platform.posix.fprintf
+import platform.posix.stderr
 
 fun main(args: Array<String>) {
     try {
@@ -6,7 +8,13 @@ fun main(args: Array<String>) {
         val message = args.first()
         print(format(message))
     } catch (error: Throwable) {
-        println(error.message)
+        printError(error.message)
         exit(1)
     }
+}
+
+fun printError(message: String?) {
+    if (message.isNullOrBlank())
+        return
+    fprintf(stderr, "$message\n")
 }
