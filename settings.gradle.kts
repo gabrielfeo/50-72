@@ -1,1 +1,1 @@
-rootProject.name = "commit-message-formatter"
+rootProject.name = "50-72"
