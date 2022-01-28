@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -eu
-command=./formatter/build/bin/fullRelease/50-72
+command=./cli/build/bin/fullRelease/50-72
 old_msg="$(cat "$1")"
 new_msg="$($command "$old_msg")"
 echo "$new_msg" > "$1"
