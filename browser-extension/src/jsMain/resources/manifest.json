@@ -1,0 +1,14 @@
+{
+  "name": "50-72",
+  "description": "Re-formats your MR descriptions to abide by the 50/72 rule",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["contextMenus"],
+  "background": {
+    "service_worker": "browser-extension.js"
+  },
+  "host_permissions": [
+    "https://*.gitlab.com/",
+    "https://code.ifoodcorp.com.br/"
+  ]
+}
