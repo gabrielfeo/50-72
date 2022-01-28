@@ -5,10 +5,6 @@ plugins {
 group = "com.gabrielfeo"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
-
 kotlin {
     val hostOs = System.getProperty("os.name")
     val nativeTarget = when {
@@ -43,9 +39,9 @@ kotlin {
 }
 
 tasks.register("buildRelease", Copy::class) {
-    dependsOn(":linkReleaseExecutableNative")
-    into("build/bin/fullRelease")
-    from("build/bin/native/releaseExecutable") {
+    dependsOn("${project.path}:linkReleaseExecutableNative")
+    into("./build/bin/fullRelease")
+    from("./build/bin/native/releaseExecutable") {
         include("*.kexe")
         rename {
             "50-72"
@@ -55,6 +51,6 @@ tasks.register("buildRelease", Copy::class) {
 
 tasks.register("updateHooks", Copy::class) {
     dependsOn("buildRelease")
-    into(".git/hooks")
-    from("hooks")
+    into("$rootDir/.git/hooks")
+    from("$rootDir/hooks")
 }
