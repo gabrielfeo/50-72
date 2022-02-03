@@ -1,36 +1,14 @@
-external val chrome: dynamic
-class ContextMenu(
-    val id: String,
-    val title: String,
-    val contexts: Array<String>,
-)
+import kotlinx.browser.document
 
 fun main() {
-    chrome.runtime.onInstalled.addListener {
-        chrome.contextMenus.create(
-            ContextMenu(
-                id = "foo",
-                title = "foo",
-                contexts = arrayOf(
-                    "page",
-                    "selection",
-                    "link",
-                    "editable",
-                    "image",
-                    "video",
-                    "audio"
-                ),
-            ),
-            { a, b ->
-                console.log("callback: ${a?.toString()} / ${b?.toString()}")
-            }
-        )
-        chrome.contextMenus.onClicked.addListener { a, b ->
-            console.log(a)
-            console.log(b)
+    val descriptionTextArea = document.querySelector("#merge_request_description")
+    descriptionTextArea?.let {
+        val description = it.textContent
+        if (description?.isNotBlank() == true) {
+            TODO("Change formatter to support passing body only")
+            it.textContent = format(description)
+        } else {
+            TODO("alert")
         }
-        console.log("Hello world!")
     }
 }
-
-const val COLOR = "#3aa757";
