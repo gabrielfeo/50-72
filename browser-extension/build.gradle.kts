@@ -3,10 +3,10 @@ plugins {
 }
 
 val aggregateDistributionsWithManifest by tasks.registering(aggregate.Aggregate::class) {
-    destinationDir.set(file("$buildDir/distributions"))
+    destinationDir = file("$buildDir/distributions")
     val childrenDistributionTasks = subprojects.map { it.tasks.named("jsBrowserDistribution") }
-    outputsOf(childrenDistributionTasks)
-    path("manifest.json")
+    includeOutputsOf(childrenDistributionTasks)
+    includePath("manifest.json")
 }
 
 val jsBrowserDistribution by tasks.registering {

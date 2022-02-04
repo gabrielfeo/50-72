@@ -12,6 +12,7 @@
   },
   "host_permissions": [
     "https://*.gitlab.com/",
+    "https://*.github.com/",
     "https://code.ifoodcorp.com.br/"
   ]
 }
