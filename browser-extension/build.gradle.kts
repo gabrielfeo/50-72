@@ -9,6 +9,10 @@ val aggregateDistributionsWithManifest by tasks.registering(aggregate.Aggregate:
     path("manifest.json")
 }
 
+val jsBrowserDistribution by tasks.registering {
+    dependsOn(aggregateDistributionsWithManifest)
+}
+
 tasks.named("check") {
     val childrenCheckTasks = subprojects.map { it.tasks.named("check") }
     dependsOn(childrenCheckTasks)
