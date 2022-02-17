@@ -21,7 +21,9 @@ fun formatFullMessage(messageText: String): String {
 }
 
 fun formatBody(bodyText: String): String {
-    TODO()
+    return buildString {
+        appendBodyReformattedUpTo72Columns(bodyText)
+    }
 }
 
 
