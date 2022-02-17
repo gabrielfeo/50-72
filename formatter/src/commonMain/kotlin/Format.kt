@@ -6,7 +6,7 @@ private const val WORD_SPACING_SIZE = 1
 private const val SUBJECT_BODY_SEPARATOR = "\n\n"
 
 
-fun format(messageText: String): String {
+fun formatFullMessage(messageText: String): String {
     val message = CommitMessage(messageText)
     require(message.subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
     if (!message.hasBody) {

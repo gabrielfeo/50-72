@@ -7,7 +7,7 @@ fun main() {
     val description = descriptionArea?.textContent
     if (description?.isNotBlank() == true) {
         TODO("Change formatter to support passing body only")
-        descriptionArea.textContent = format(description)
+        descriptionArea.textContent = formatFullMessage(description)
     } else {
         TODO("alert failed to format description. area=$descriptionArea / content=$description")
     }
