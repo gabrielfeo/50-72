@@ -6,15 +6,15 @@ import browser.scripting.ScriptInjection
 import browser.scripting.ScriptInjection.InjectionTarget
 
 private const val MENU_ITEM_ID = "foo"
+private const val MENU_ITEM_TITLE = "Format PR/MR description"
 private const val FORMATTER_SCRIPT_FILENAME = "description-formatter.js"
 
 private val menu = ContextMenu(
     id = MENU_ITEM_ID,
-    title = MENU_ITEM_ID,
+    title = MENU_ITEM_TITLE,
     contexts = arrayOf(
         "page",
         "editable",
-        "browser_action"
     ),
 )
 
