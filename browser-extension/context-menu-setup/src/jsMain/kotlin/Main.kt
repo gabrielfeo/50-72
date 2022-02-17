@@ -5,7 +5,7 @@ import browser.contextmenus.Tab
 import browser.scripting.ScriptInjection
 import browser.scripting.ScriptInjection.InjectionTarget
 
-private const val MENU_ITEM_ID = "foo"
+private const val MENU_ITEM_ID = "50-72-format-menu"
 private const val MENU_ITEM_TITLE = "Format PR/MR description"
 private const val FORMATTER_SCRIPT_FILENAME = "description-formatter.js"
 
