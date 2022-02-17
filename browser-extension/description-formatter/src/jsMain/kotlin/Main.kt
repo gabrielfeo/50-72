@@ -6,8 +6,7 @@ fun main() {
     val descriptionArea = findCommitMessageBodyTextArea()
     val description = descriptionArea?.textContent
     if (description?.isNotBlank() == true) {
-        TODO("Change formatter to support passing body only")
-        descriptionArea.textContent = formatFullMessage(description)
+        descriptionArea.textContent = formatBody(description)
     } else {
         TODO("alert failed to format description. area=$descriptionArea / content=$description")
     }
