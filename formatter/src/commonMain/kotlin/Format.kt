@@ -6,7 +6,7 @@ private const val WORD_SPACING_SIZE = 1
 private const val SUBJECT_BODY_SEPARATOR = "\n\n"
 
 
-fun format(messageText: String): String {
+fun formatFullMessage(messageText: String): String {
     val message = CommitMessage(messageText)
     require(message.subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
     if (!message.hasBody) {
@@ -20,6 +20,12 @@ fun format(messageText: String): String {
     }
 }
 
+fun formatBody(bodyText: String): String {
+    return buildString {
+        appendBodyReformattedUpTo72Columns(bodyText)
+    }
+}
+
 
 private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) { // TODO Capacity
     var currentLineColumns = 0
@@ -30,7 +36,7 @@ private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) { // 
     }
     for (word in body.split(Regex("\\s+"))) {
         when {
-            currentLineColumns == 0 || word.length >= 72 -> append(word)
+            currentLineColumns == 0 -> append(word)
             currentLineColumns + word.length + WORD_SPACING_SIZE <= 72 -> append("$WORD_SPACING$word")
             else -> append("\n$word")
         }

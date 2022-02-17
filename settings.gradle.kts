@@ -9,5 +9,8 @@ dependencyResolutionManagement {
 
 include(
     ":formatter",
-    ":cli"
+    ":cli",
+    ":browser-extension",
+    ":browser-extension:context-menu-setup",
+    ":browser-extension:description-formatter"
 )
