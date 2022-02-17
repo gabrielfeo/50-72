@@ -70,6 +70,12 @@ class FormatTest {
     }
 
     @Test
+    fun canFormatBodyOnly() {
+        val reformatted = formatBody(BODY_73)
+        assertEquals(BODY_73_FIXED, reformatted)
+    }
+
+    @Test
     fun reformatsMiscMessages() {
         miscMessages.onEachIndexed { i, (original, expected) ->
             val actual = formatFullMessage(original)

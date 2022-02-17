@@ -20,6 +20,10 @@ fun formatFullMessage(messageText: String): String {
     }
 }
 
+fun formatBody(bodyText: String): String {
+    TODO()
+}
+
 
 private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) { // TODO Capacity
     var currentLineColumns = 0
