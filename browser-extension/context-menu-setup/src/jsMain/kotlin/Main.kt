@@ -20,19 +20,14 @@ private val menu = ContextMenu(
 
 fun main() {
     browser.runtime.onInstalled.addListener {
-        browser.contextMenus.create(menu, ::onMenuCreated)
+        browser.contextMenus.create(menu)
         browser.contextMenus.onClicked.addListener(::onMenuClicked)
     }
-}
-
-private fun onMenuCreated() {
-    console.log("Menu created!")
 }
 
 
 private fun onMenuClicked(data: OnClickData, tab: Tab) {
     check(data.menuItemId == MENU_ITEM_ID)
-    console.log("Menu clicked!")
     injectFile(tab, FORMATTER_SCRIPT_FILENAME)
 }
 
@@ -41,6 +36,5 @@ private fun injectFile(tab: Tab, file: String) {
         target = InjectionTarget(tabId = tab.id),
         files = arrayOf(file),
     )
-    console.log("Will inject to tab ${tab.id}")
     browser.scripting.executeScript(script)
 }
