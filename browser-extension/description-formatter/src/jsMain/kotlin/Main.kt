@@ -6,25 +6,25 @@ import org.w3c.dom.HTMLTextAreaElement
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 
 fun main() {
-    val descriptionArea = findCommitMessageBodyTextArea()
-    val description = descriptionArea?.value
+    val bodyArea = findCommitMessageBodyTextArea()
+    val description = bodyArea?.value
     if (description?.isNotBlank() == true) {
-        descriptionArea.value = formatBody(description)
+        bodyArea.value = formatBody(description)
     } else {
-        alertFailedToFindDescriptionArea()
-        logFailedToFindDescriptionArea(descriptionArea)
+        alertFailedToFindBodyArea()
+        logFailedToFindBodyArea(bodyArea)
     }
 }
 
 private fun findCommitMessageBodyTextArea(): HTMLTextAreaElement? {
-    val element = document.run { gitHubDescriptionArea ?: gitLabDescriptionArea }
+    val element = document.run { gitHubBodyArea ?: gitLabBodyArea }
     return element as? HTMLTextAreaElement
 }
 
-private val Document.gitHubDescriptionArea get() = querySelector("#pull_request_body")
-private val Document.gitLabDescriptionArea get() = querySelector("#merge_request_description")
+private val Document.gitHubBodyArea get() = querySelector("#pull_request_body")
+private val Document.gitLabBodyArea get() = querySelector("#merge_request_description")
 
-private fun alertFailedToFindDescriptionArea() {
+private fun alertFailedToFindBodyArea() {
     window.alert("""
         Couldn't find an PR/MR description area in this page :(
         
@@ -34,13 +34,13 @@ private fun alertFailedToFindDescriptionArea() {
     """.trimIndent())
 }
 
-private fun logFailedToFindDescriptionArea(descriptionArea: HTMLTextAreaElement?) {
+private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
     console.log(
         """
             [50-72] Failed to format description.
-              descriptionArea=$descriptionArea
-                descriptionArea.textContent=${descriptionArea?.textContent} 
-                descriptionArea.value=${descriptionArea?.value} 
+              bodyArea=$bodyArea
+                bodyArea.textContent=${bodyArea?.textContent} 
+                bodyArea.value=${bodyArea?.value} 
         """.trimIndent()
     )
 }
