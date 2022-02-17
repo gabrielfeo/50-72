@@ -69,10 +69,13 @@ class FormatTest {
         formatFullMessage(SUBJECT_50_BODY_72)
     }
 
-    @Test
-    fun canFormatBodyOnly() {
-        val reformatted = formatBody(BODY_73)
-        assertEquals(BODY_73_FIXED, reformatted)
+    class FormatBody {
+
+        @Test
+        fun reformatsBodyGivenBodyLineOver72() {
+            val reformatted = formatBody(BODY_73)
+            assertEquals(BODY_73_FIXED, reformatted)
+        }
     }
 
     @Test
