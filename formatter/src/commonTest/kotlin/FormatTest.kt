@@ -81,6 +81,12 @@ class FormatTest {
         assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED, reformatted)
     }
 
+    @Test
+    fun stripsMessageComments() {
+        val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENTS)
+        assertEquals(MESSAGE_73_WITH_COMMENTS_FIXED, reformatted)
+    }
+
     class FormatBody {
 
         @Test
