@@ -27,14 +27,16 @@ fun formatBody(bodyText: String): String {
 }
 
 
-private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) { // TODO Capacity
+private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) {
+    val withoutComments = body.lines().filterNot { it.startsWith('#') }.joinToString("\n")
+    val words = withoutComments.split(Regex("(?<=\\S)$WORD_SPACING*\\n(?!\\n)|$WORD_SPACING+"))
     var currentLineColumns = 0
     fun append(str: String) {
         this.append(str)
         if ('\n' in str) currentLineColumns = str.substringAfterLast('\n').count { it != '\n' }
         else currentLineColumns += str.length
     }
-    for (word in body.split(Regex("(?<=\\S)$WORD_SPACING*\\n(?!\\n)|$WORD_SPACING+"))) {
+    for (word in words) {
         when {
             currentLineColumns == 0 -> append(word)
             currentLineColumns + word.length + WORD_SPACING_SIZE <= 72 -> append("$WORD_SPACING$word")

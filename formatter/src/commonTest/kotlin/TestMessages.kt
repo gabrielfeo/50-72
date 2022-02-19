@@ -53,6 +53,30 @@ lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
 lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
 ipsum ipsum ipsum ipsum"""
 
+const val MESSAGE_73_WITH_COMMENTS = """Lorem ipsum
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem
+# Useless comment
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+# Another one
+lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+ipsum ipsum ipsum ipsum
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit."""
+
+const val MESSAGE_73_WITH_COMMENTS_FIXED = """Lorem ipsum
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+ipsum ipsum ipsum ipsum"""
+
 
 const val SUBJECT_51_BODY_72 = """$SINGLE_LINE_51
 
