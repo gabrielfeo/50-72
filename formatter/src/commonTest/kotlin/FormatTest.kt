@@ -69,6 +69,18 @@ class FormatTest {
         formatFullMessage(SUBJECT_50_BODY_72)
     }
 
+    @Test
+    fun reformatsPreservingParagraphsWithSingleNewline() {
+        val reformatted = formatFullMessage(SUBJECT_50_BODY_73_TWO_PARAGRAPHS)
+        assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_FIXED, reformatted)
+    }
+
+    @Test
+    fun reformatsPreservingParagraphsWithMultipleNewlines() {
+        val reformatted = formatFullMessage(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE)
+        assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED, reformatted)
+    }
+
     class FormatBody {
 
         @Test

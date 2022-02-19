@@ -31,10 +31,10 @@ private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) { // 
     var currentLineColumns = 0
     fun append(str: String) {
         this.append(str)
-        if (str.startsWith('\n')) currentLineColumns = str.length - 1
+        if ('\n' in str) currentLineColumns = str.substringAfterLast('\n').count { it != '\n' }
         else currentLineColumns += str.length
     }
-    for (word in body.split(Regex("\\s+"))) {
+    for (word in body.split(Regex("(?<=\\S)$WORD_SPACING*\\n(?!\\n)|$WORD_SPACING+"))) {
         when {
             currentLineColumns == 0 -> append(word)
             currentLineColumns + word.length + WORD_SPACING_SIZE <= 72 -> append("$WORD_SPACING$word")
