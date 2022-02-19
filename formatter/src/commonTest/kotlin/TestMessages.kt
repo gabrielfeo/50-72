@@ -17,6 +17,42 @@ lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
 lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
 ipsum ipsum"""
 
+const val BODY_73_TWO_PARAGRAPHS = """012345678901234567890123456789012345678901234567890123456789012345678901
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+ipsum ipsum"""
+
+const val BODY_73_TWO_PARAGRAPHS_FIXED = """012345678901234567890123456789012345678901234567890123456789012345678901
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+ipsum ipsum ipsum ipsum"""
+
+const val BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE = """012345678901234567890123456789012345678901234567890123456789012345678901
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+ipsum ipsum"""
+
+const val BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED = """012345678901234567890123456789012345678901234567890123456789012345678901
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem
+
+
+lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+ipsum ipsum ipsum ipsum"""
+
 
 const val SUBJECT_51_BODY_72 = """$SINGLE_LINE_51
 
@@ -41,6 +77,22 @@ $BODY_73"""
 const val SUBJECT_50_BODY_73_FIXED = """$SINGLE_LINE_50
 
 $BODY_73_FIXED"""
+
+const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS = """$SINGLE_LINE_50
+
+$BODY_73_TWO_PARAGRAPHS"""
+
+const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_FIXED = """$SINGLE_LINE_50
+
+$BODY_73_TWO_PARAGRAPHS_FIXED"""
+
+const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE = """$SINGLE_LINE_50
+
+$BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE"""
+
+const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED = """$SINGLE_LINE_50
+
+$BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED"""
 
 
 val miscMessages = mapOf(
