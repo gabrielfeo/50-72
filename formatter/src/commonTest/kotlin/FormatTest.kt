@@ -112,19 +112,19 @@ class FormatTest {
 
         @Test
         fun reformatsMarkdownBodyGivenParagraphLineOver72() {
-            val reformatted = formatBody(MD_BODY_OVER_72)
+            val reformatted = formatMarkdownBody(MD_BODY_OVER_72)
             assertEquals(MD_BODY_OVER_72_FIXED, reformatted)
         }
 
         @Test
         fun returnsSameMessageGivenAllParagraphLinesAt72() {
-            val reformatted = formatBody(MD_BODY_72)
+            val reformatted = formatMarkdownBody(MD_BODY_72)
             assertEquals(MD_BODY_72, reformatted)
         }
 
         @Test
         fun returnsSameMessageGivenAllParagraphLinesUpTo72() {
-            val reformatted = formatBody(MD_BODY_71)
+            val reformatted = formatMarkdownBody(MD_BODY_71)
             assertEquals(MD_BODY_71, reformatted)
         }
     }

@@ -16,20 +16,31 @@ fun formatFullMessage(messageText: String): String {
     return buildString {
         append(message.subject())
         append(SUBJECT_BODY_SEPARATOR)
-        appendBodyReformattedUpTo72Columns(message.body())
+        appendBodyReformattedUpTo72Columns(message.body(), stripComments = true)
     }
 }
 
 fun formatBody(bodyText: String): String {
     return buildString {
-        appendBodyReformattedUpTo72Columns(bodyText)
+        appendBodyReformattedUpTo72Columns(bodyText, stripComments = true)
+    }
+}
+
+fun formatMarkdownBody(bodyText: String): String {
+    return buildString {
+        appendBodyReformattedUpTo72Columns(bodyText, stripComments = false)
     }
 }
 
 
-private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String) {
-    val withoutComments = body.lines().filterNot { it.startsWith('#') }.joinToString("\n")
-    val words = withoutComments.split(Regex("(?<=\\S)$WORD_SPACING*\\n(?!\\n)|$WORD_SPACING+"))
+private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String, stripComments: Boolean) {
+    val bodyContent = when {
+        !stripComments -> body
+        else -> body.lines()
+            .filterNot { it.startsWith('#') }
+            .joinToString("\n")
+    }
+    val words = bodyContent.split(Regex("(?<=\\S)$WORD_SPACING*\\n(?!\\n)|$WORD_SPACING+"))
     var currentLineColumns = 0
     fun append(str: String) {
         this.append(str)
