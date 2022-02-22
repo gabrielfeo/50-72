@@ -74,19 +74,15 @@ private fun StringBuilder.appendReformattedUpTo72Columns(body: String, stripComm
 private fun parseMarkdownBody(body: String): MarkdownBody {
     val sectionsRegex = Regex("""(?:[^\n]+\n?)+""", RegexOption.MULTILINE)
     val sections = sectionsRegex.findAll(body)
+        .map { it.value }
         .map {
-            // Because the exp matches newline at the end
-            val match = it.value
-            val text = when {
-                match.endsWith('\n') -> match.substring(0 until match.lastIndex)
-                else -> match
-            }
-            when {
-                text.first().isLetterOrDigit() -> Paragraph(text)
-                else -> Other(text)
-            }
+            if (it.endsWith('\n')) it.substring(0 until it.lastIndex)
+            else it
         }
-        .toList()
+        .map {
+            if (it.first().isLetterOrDigit()) Paragraph(it)
+            else Other(it)
+        }
     return MarkdownBody(sections)
 }
 
@@ -103,7 +99,7 @@ private class CommitMessage(fullMessage: String) {
     fun body() = fullText.slice(indexOfFirstNewline + 2..fullText.lastIndex).trim()
 
     @JvmInline
-    value class MarkdownBody(val sections: List<Section>) {
+    value class MarkdownBody(val sections: Sequence<Section>) {
 
         sealed interface Section {
 
