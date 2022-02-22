@@ -1,3 +1,8 @@
+import CommitMessage.MarkdownBody
+import CommitMessage.MarkdownBody.Section.Other
+import CommitMessage.MarkdownBody.Section.Paragraph
+import kotlin.jvm.JvmInline
+
 internal const val HEADING_OVER_50_MESSAGE = "Heading line must not be over 50 columns. Please re-format the heading manually."
 internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = "There must be a blank line between subject and body. Please add the blank line!"
 
@@ -16,24 +21,33 @@ fun formatFullMessage(messageText: String): String {
     return buildString {
         append(message.subject())
         append(SUBJECT_BODY_SEPARATOR)
-        appendBodyReformattedUpTo72Columns(message.body(), stripComments = true)
+        appendReformattedUpTo72Columns(message.body(), stripComments = true)
     }
 }
 
 fun formatBody(bodyText: String): String {
     return buildString {
-        appendBodyReformattedUpTo72Columns(bodyText, stripComments = true)
+        appendReformattedUpTo72Columns(bodyText, stripComments = true)
     }
 }
 
 fun formatMarkdownBody(bodyText: String): String {
     return buildString {
-        appendBodyReformattedUpTo72Columns(bodyText, stripComments = false)
+        val body = parseMarkdownBody(bodyText)
+        for (section in body.sections) {
+            if (this.isNotEmpty()) {
+                append("\n\n")
+            }
+            when (section) {
+                is Paragraph -> appendReformattedUpTo72Columns(section.content, stripComments = false)
+                is Other -> append(section.content)
+            }
+        }
     }
 }
 
 
-private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String, stripComments: Boolean) {
+private fun StringBuilder.appendReformattedUpTo72Columns(body: String, stripComments: Boolean) {
     val bodyContent = when {
         !stripComments -> body
         else -> body.lines()
@@ -56,6 +70,36 @@ private fun StringBuilder.appendBodyReformattedUpTo72Columns(body: String, strip
     }
 }
 
+@Suppress("RemoveExplicitTypeArguments")
+private fun parseMarkdownBody(body: String): MarkdownBody {
+    val sections = buildList<MarkdownBody.Section> {
+        val builder = StringBuilder()
+        fun addSectionFromBuilder() {
+            val elementContent = builder.toString()
+            val element = when {
+                builder.first().isLetterOrDigit() -> Paragraph(elementContent)
+                else -> Other(elementContent)
+            }
+            add(element)
+        }
+        for (line in body.lines()) {
+            if (line.isNotEmpty()) {
+                if (builder.isNotEmpty()) {
+                    builder.append('\n')
+                }
+                builder.append(line)
+            } else {
+                addSectionFromBuilder()
+                builder.clear()
+            }
+        }
+        if (builder.isNotEmpty()) {
+            addSectionFromBuilder()
+        }
+    }
+    return MarkdownBody(sections)
+}
+
 
 private class CommitMessage(fullMessage: String) {
     val fullText = fullMessage.trim()
@@ -67,4 +111,17 @@ private class CommitMessage(fullMessage: String) {
 
     fun subject() = fullText.slice(0 until indexOfFirstNewline).trim()
     fun body() = fullText.slice(indexOfFirstNewline + 2..fullText.lastIndex).trim()
+
+    @JvmInline
+    value class MarkdownBody(val sections: List<Section>) {
+
+        sealed interface Section {
+
+            @JvmInline
+            value class Paragraph(val content: String) : Section
+
+            @JvmInline
+            value class Other(val content: String) : Section
+        }
+    }
 }
