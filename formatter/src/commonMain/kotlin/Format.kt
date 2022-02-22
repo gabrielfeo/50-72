@@ -72,31 +72,21 @@ private fun StringBuilder.appendReformattedUpTo72Columns(body: String, stripComm
 
 @Suppress("RemoveExplicitTypeArguments")
 private fun parseMarkdownBody(body: String): MarkdownBody {
-    val sections = buildList<MarkdownBody.Section> {
-        val builder = StringBuilder()
-        fun addSectionFromBuilder() {
-            val elementContent = builder.toString()
-            val element = when {
-                builder.first().isLetterOrDigit() -> Paragraph(elementContent)
-                else -> Other(elementContent)
+    val sectionsRegex = Regex("""(?:[^\n]+\n?)+""", RegexOption.MULTILINE)
+    val sections = sectionsRegex.findAll(body)
+        .map {
+            // Because the exp matches newline at the end
+            val match = it.value
+            val text = when {
+                match.endsWith('\n') -> match.substring(0 until match.lastIndex)
+                else -> match
             }
-            add(element)
-        }
-        for (line in body.lines()) {
-            if (line.isNotEmpty()) {
-                if (builder.isNotEmpty()) {
-                    builder.append('\n')
-                }
-                builder.append(line)
-            } else {
-                addSectionFromBuilder()
-                builder.clear()
+            when {
+                text.first().isLetterOrDigit() -> Paragraph(text)
+                else -> Other(text)
             }
         }
-        if (builder.isNotEmpty()) {
-            addSectionFromBuilder()
-        }
-    }
+        .toList()
     return MarkdownBody(sections)
 }
 
