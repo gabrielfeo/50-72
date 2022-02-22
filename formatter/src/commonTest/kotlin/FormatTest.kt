@@ -127,6 +127,12 @@ class FormatTest {
             val reformatted = formatMarkdownBody(MD_BODY_71)
             assertEquals(MD_BODY_71, reformatted)
         }
+
+        @Test
+        fun supportsMiscMarkdownFeatures() {
+            val reformatted = formatMarkdownBody(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES)
+            assertEquals(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES_FIXED, reformatted)
+        }
     }
 
     @Test
