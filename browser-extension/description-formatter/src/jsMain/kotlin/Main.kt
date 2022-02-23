@@ -21,8 +21,12 @@ private fun findCommitMessageBodyTextArea(): HTMLTextAreaElement? {
     return element as? HTMLTextAreaElement
 }
 
-private val Document.gitHubBodyArea get() = querySelector("#pull_request_body")
-private val Document.gitLabBodyArea get() = querySelector("#merge_request_description")
+private val Document.gitLabBodyArea
+    get() = querySelector("#merge_request_description")
+
+private val Document.gitHubBodyArea
+    get() = querySelector("#pull_request_body")
+        ?: querySelector("[name='pull_request[body]']")
 
 private fun alertFailedToFindBodyArea() {
     window.alert("""
