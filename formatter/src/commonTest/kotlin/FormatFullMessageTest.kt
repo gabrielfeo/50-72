@@ -2,7 +2,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
-class FormatTest {
+class FormatFullMessageTest {
 
     @Test
     fun failsGivenSingleLineOver50() {
