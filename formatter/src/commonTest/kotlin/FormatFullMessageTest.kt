@@ -2,7 +2,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
-class FormatTest {
+class FormatFullMessageTest {
 
     @Test
     fun failsGivenSingleLineOver50() {
@@ -85,27 +85,6 @@ class FormatTest {
     fun stripsMessageComments() {
         val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENTS)
         assertEquals(MESSAGE_73_WITH_COMMENTS_FIXED, reformatted)
-    }
-
-    class FormatBody {
-
-        @Test
-        fun reformatsBodyGivenBodyLineOver72() {
-            val reformatted = formatBody(BODY_73)
-            assertEquals(BODY_73_FIXED, reformatted)
-        }
-
-        @Test
-        fun doesntFailGivenBodyLinesAt72() {
-            val reformatted = formatBody(BODY_72)
-            assertEquals(BODY_72, reformatted)
-        }
-
-        @Test
-        fun doesntFailGivenBodyLineUnder72() {
-            val reformatted = formatBody(BODY_71)
-            assertEquals(BODY_71, reformatted)
-        }
     }
 
     @Test
