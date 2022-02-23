@@ -9,7 +9,7 @@ fun main() {
     val bodyArea = findCommitMessageBodyTextArea()
     val description = bodyArea?.value
     if (description?.isNotBlank() == true) {
-        bodyArea.value = formatBody(description)
+        replaceBody(bodyArea)
     } else {
         alertFailedToFindBodyArea()
         logFailedToFindBodyArea(bodyArea)
@@ -47,4 +47,8 @@ private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
                 bodyArea.value=${bodyArea?.value} 
         """.trimIndent()
     )
+}
+
+private fun replaceBody(bodyArea: HTMLTextAreaElement) {
+    bodyArea.value = formatBody(bodyArea.value)
 }
