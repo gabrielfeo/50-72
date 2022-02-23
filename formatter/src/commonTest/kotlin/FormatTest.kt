@@ -87,54 +87,6 @@ class FormatTest {
         assertEquals(MESSAGE_73_WITH_COMMENTS_FIXED, reformatted)
     }
 
-    class FormatBody {
-
-        @Test
-        fun reformatsBodyGivenBodyLineOver72() {
-            val reformatted = formatBody(BODY_73)
-            assertEquals(BODY_73_FIXED, reformatted)
-        }
-
-        @Test
-        fun doesntFailGivenBodyLinesAt72() {
-            val reformatted = formatBody(BODY_72)
-            assertEquals(BODY_72, reformatted)
-        }
-
-        @Test
-        fun doesntFailGivenBodyLineUnder72() {
-            val reformatted = formatBody(BODY_71)
-            assertEquals(BODY_71, reformatted)
-        }
-    }
-
-    class FormatMarkdownBody {
-
-        @Test
-        fun reformatsMarkdownBodyGivenParagraphLineOver72() {
-            val reformatted = formatMarkdownBody(MD_BODY_OVER_72)
-            assertEquals(MD_BODY_OVER_72_FIXED, reformatted)
-        }
-
-        @Test
-        fun returnsSameMessageGivenAllParagraphLinesAt72() {
-            val reformatted = formatMarkdownBody(MD_BODY_72)
-            assertEquals(MD_BODY_72, reformatted)
-        }
-
-        @Test
-        fun returnsSameMessageGivenAllParagraphLinesUpTo72() {
-            val reformatted = formatMarkdownBody(MD_BODY_71)
-            assertEquals(MD_BODY_71, reformatted)
-        }
-
-        @Test
-        fun supportsMiscMarkdownFeatures() {
-            val reformatted = formatMarkdownBody(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES)
-            assertEquals(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES_FIXED, reformatted)
-        }
-    }
-
     @Test
     fun reformatsMiscMessages() {
         miscMessages.onEachIndexed { i, (original, expected) ->
