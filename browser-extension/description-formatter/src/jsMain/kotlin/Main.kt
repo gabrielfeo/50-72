@@ -1,6 +1,7 @@
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Document
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTextAreaElement
 
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
@@ -8,9 +9,7 @@ const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 fun main() {
     val bodyArea = findCommitMessageBodyTextArea()
     val description = bodyArea?.value
-    if (description?.isNotBlank() == true) {
-        bodyArea.value = formatBody(description)
-    } else {
+    if (description == null || description.isBlank() || !replaceBody(bodyArea)) {
         alertFailedToFindBodyArea()
         logFailedToFindBodyArea(bodyArea)
     }
@@ -47,4 +46,15 @@ private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
                 bodyArea.value=${bodyArea?.value} 
         """.trimIndent()
     )
+}
+
+private fun replaceBody(bodyArea: HTMLTextAreaElement): Boolean {
+    val previouslyFocused = document.activeElement as? HTMLElement
+    try {
+        val formattedBody = formatBody(bodyArea.value)
+        bodyArea.run { focus(); select() }
+        return document.execCommand("insertText", showUI = false, value = formattedBody)
+    } finally {
+        previouslyFocused?.focus()
+    }
 }
