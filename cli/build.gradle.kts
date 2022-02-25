@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    nativeMainImplementation(project(":formatter"))
+    commonMainImplementation(project(":formatter"))
+    commonMainImplementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
 }
 
 tasks.register("buildRelease", Copy::class) {
