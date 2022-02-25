@@ -22,11 +22,13 @@ fun main() {
     browser.runtime.onInstalled.addListener {
         browser.contextMenus.create(menu)
         browser.contextMenus.onClicked.addListener(::onMenuClicked)
+        log.debug("Context menu created")
     }
 }
 
 
 private fun onMenuClicked(data: OnClickData, tab: Tab) {
+    log.debug("Clicked in tab ${tab.id}")
     check(data.menuItemId == MENU_ITEM_ID)
     injectFile(tab, FORMATTER_SCRIPT_FILENAME)
 }
@@ -37,4 +39,5 @@ private fun injectFile(tab: Tab, file: String) {
         files = arrayOf(file),
     )
     browser.scripting.executeScript(script)
+    log.debug("Injected script in tab ${tab.id}")
 }

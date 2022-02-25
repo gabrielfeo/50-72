@@ -7,11 +7,14 @@ import org.w3c.dom.HTMLTextAreaElement
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 
 fun main() {
-    val bodyArea = findCommitMessageBodyTextArea()
+    val bodyArea = findCommitMessageBodyTextArea().also { log.debug("Found element $it") }
     val description = bodyArea?.value
+    log.debug("desc $description")
     if (description == null || description.isBlank() || !replaceBody(bodyArea)) {
         alertFailedToFindBodyArea()
         logFailedToFindBodyArea(bodyArea)
+    } else {
+        log.debug("Ran insert")
     }
 }
 
@@ -38,7 +41,7 @@ private fun alertFailedToFindBodyArea() {
 }
 
 private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
-    console.log(
+    log.error(
         """
             [50-72] Failed to format description.
               bodyArea=$bodyArea
@@ -50,6 +53,7 @@ private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
 
 private fun replaceBody(bodyArea: HTMLTextAreaElement): Boolean {
     val previouslyFocused = document.activeElement as? HTMLElement
+    log.debug("Previous el $previouslyFocused")
     try {
         val formattedBody = formatBody(bodyArea.value)
         bodyArea.run { focus(); select() }
