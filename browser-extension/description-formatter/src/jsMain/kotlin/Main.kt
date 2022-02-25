@@ -51,7 +51,7 @@ private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
 private fun replaceBody(bodyArea: HTMLTextAreaElement): Boolean {
     val previouslyFocused = document.activeElement as? HTMLElement
     try {
-        val formattedBody = formatBody(bodyArea.value)
+        val formattedBody = formatMarkdownBody(bodyArea.value)
         bodyArea.run { focus(); select() }
         return document.execCommand("insertText", showUI = false, value = formattedBody)
     } finally {

@@ -52,6 +52,10 @@ const val MD_BODY_OVER_72_WITH_MORE_MD_FEATURES = """# H1
 01234567890123456789012345678901234567890123456789012345678901234567890
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 
+```
+snippety snip
+```
+
 foo foo
 
 ## H2
@@ -68,6 +72,15 @@ foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 
 ![Screenshot](/uploads/foo.png)
 
+```
+pseudo code
+```
+
+```kotlin
+println("snippet")
+println("snippet")
+```
+
 | Before | After |
 |--------|-------|
 | Foo    | Bar   |"""
@@ -77,6 +90,10 @@ const val MD_BODY_OVER_72_WITH_MORE_MD_FEATURES_FIXED = """# H1
 01234567890123456789012345678901234567890123456789012345678901234567890
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo
+
+```
+snippety snip
+```
 
 foo foo
 
@@ -94,6 +111,15 @@ foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo
 
 ![Screenshot](/uploads/foo.png)
+
+```
+pseudo code
+```
+
+```kotlin
+println("snippet")
+println("snippet")
+```
 
 | Before | After |
 |--------|-------|
