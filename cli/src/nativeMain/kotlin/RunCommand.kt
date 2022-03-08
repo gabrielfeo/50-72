@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
 import okio.buffer
 import okio.use
 
@@ -40,20 +41,29 @@ class Main(
     }
 
     private fun formatFileAsHook() {
-        TODO()
+        val file = (messageFile ?: DEFAULT_GIT_MSG_FILE).toPath()
+        val content = file.readText()
+        val formattedContent = format(content, false)
+        file.writeText(formattedContent)
     }
 
-}
-
-fun Path.readToString(): String {
-    FileSystem.SYSTEM.source(this).use { fileSource ->
-        fileSource.buffer().use { bufferedFileSource ->
-            return buildString {
-                while (true) {
-                    val line = bufferedFileSource.readUtf8Line() ?: break
-                    appendLine(line)
+    private fun Path.readText(): String {
+        FileSystem.SYSTEM.source(this).use { fileSource ->
+            fileSource.buffer().use { bufferedFileSource ->
+                return buildString {
+                    while (true) {
+                        val line = bufferedFileSource.readUtf8Line() ?: break
+                        appendLine(line)
+                    }
                 }
             }
         }
     }
+
+    private fun Path.writeText(text: String) {
+        FileSystem.SYSTEM.write(this) {
+            writeUtf8(text)
+        }
+    }
+
 }
