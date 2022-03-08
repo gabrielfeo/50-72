@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     commonMainImplementation(project(":formatter"))
-    commonMainImplementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.4")
+    commonMainImplementation("com.github.ajalt.clikt:clikt:3.4.0")
 }
 
 tasks.register("buildRelease", Copy::class) {

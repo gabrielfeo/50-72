@@ -1,4 +1,4 @@
 
 fun main(args: Array<String>) {
-    runCommand(args)
+    Main().main(args)
 }
