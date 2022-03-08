@@ -7,7 +7,8 @@ import kotlin.test.assertFailsWith
 
 private const val ERROR_MESSAGE = "formatOut"
 
-class MainTest {
+class FormatMessageTest {
+
     private var exitCode = 0
     private var stdout = ""
     private var stderr = ""
@@ -64,7 +65,7 @@ class MainTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun run(vararg args: String, formatThrows: Boolean = false) {
-        Main(
+        FormatMessage(
             format = { message, isMarkdown ->
                 formatArgs.isMarkdown = isMarkdown
                 formatArgs.message = message

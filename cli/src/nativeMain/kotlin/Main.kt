@@ -1,7 +1,10 @@
+import com.github.ajalt.clikt.core.NoOpCliktCommand
 import com.github.ajalt.clikt.core.subcommands
 
 fun main(args: Array<String>) {
-    Main().subcommands(
+    NoOpCliktCommand().subcommands(
+        FormatMessage(),
+        FormatFile(),
         InstallHook(),
     ).main(args)
 }

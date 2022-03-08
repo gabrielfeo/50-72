@@ -6,9 +6,9 @@ import okio.buffer
 import okio.use
 
 private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
-private const val PREPARE_COMMIT_MSG_SCRIPT = "\n\n50-72 --message-file $1\n"
+private const val PREPARE_COMMIT_MSG_SCRIPT = "\n\n50-72 format-file $1\n"
 
-class InstallHook : CliktCommand() {
+class InstallHook : CliktCommand(name = "install-hook") {
 
     override fun run() {
         installHook()
