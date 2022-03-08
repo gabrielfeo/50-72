@@ -11,10 +11,7 @@ import okio.buffer
 import okio.use
 
 private const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
-private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
-private const val PREPARE_COMMIT_MSG_SCRIPT = "\n\n50-72 --message-file $1\n"
 
-// TODO Try out subcommands with invokeWithoutSubcommands=true
 // TODO --uninstall-hook: remove line with '50-72' from hook
 // TODO Add internal option for executable path
 // TODO Try replacing messageFile for sh logic in hook
@@ -31,27 +28,13 @@ class Main(
     private val isMarkdown by option("--markdown", help = "Set when message is in Markdown format")
         .flag(default = false)
 
-    private val shouldInstallHook by option(
-        "--install-hook",
-        help = "Install git hook to format messages automatically in the current repository",
-    ).flag(default = false)
-
     private val messageFile by option("--message-file", hidden = true)
 
     override fun run() {
-        if (shouldInstallHook) {
-            installHook()
-            return
-        }
         when (messageFile) {
             null -> formatMessageArgument()
             else -> formatFileAsHook()
         }
-    }
-
-    private fun installHook() {
-        val hookFile = PREPARE_COMMIT_MSG_PATH.toPath()
-        hookFile.appendText(PREPARE_COMMIT_MSG_SCRIPT)
     }
 
     private fun formatMessageArgument() {
@@ -89,10 +72,5 @@ class Main(
         }
     }
 
-    private fun Path.appendText(text: String) {
-        FileSystem.SYSTEM.appendingSink(this).buffer().use {
-            it.writeUtf8(text)
-        }
-    }
-
 }
+

@@ -1,4 +1,7 @@
+import com.github.ajalt.clikt.core.subcommands
 
 fun main(args: Array<String>) {
-    Main().main(args)
+    Main().subcommands(
+        InstallHook(),
+    ).main(args)
 }
