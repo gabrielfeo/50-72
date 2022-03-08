@@ -1,5 +1,9 @@
+import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.context
+import com.github.ajalt.clikt.output.CliktConsole
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 private const val ERROR_MESSAGE = "formatOut"
 
@@ -21,10 +25,11 @@ class MainTest {
     }
 
     @Test
-    fun givenFormatThrowsThenPrintErrorAndExit1() {
-        run("message", formatThrows = true)
-        assertEquals("$ERROR_MESSAGE\n", stderr)
-        assertEquals(1, exitCode)
+    fun givenFormatThrowsThenThrowUsageError() {
+        val error = assertFailsWith<UsageError> {
+            run("message", formatThrows = true)
+        }
+        assertEquals(ERROR_MESSAGE, error.message)
         assert(stdout.isEmpty())
     }
 
@@ -59,17 +64,22 @@ class MainTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun run(vararg args: String, formatThrows: Boolean = false) {
-        runCommand(
-            args as Array<String>,
+        Main(
             format = { message, isMarkdown ->
                 formatArgs.isMarkdown = isMarkdown
                 formatArgs.message = message
-                if (formatThrows) error(ERROR_MESSAGE)
+                if (formatThrows) throw IllegalArgumentException(ERROR_MESSAGE)
                 else message
-            },
-            printStdout = { stdout += "$it\n" },
-            printStderr = { stderr += "$it\n" },
-            exit = { exitCode = it },
-        )
+            }
+        ).context {
+            console = object : CliktConsole {
+                override fun promptForLine(prompt: String, hideInput: Boolean) = TODO()
+                override val lineSeparator = "\n"
+                override fun print(text: String, error: Boolean) = when {
+                    error -> stderr += text
+                    else -> stdout += text
+                }
+            }
+        }.parse(args as Array<String>)
     }
 }
