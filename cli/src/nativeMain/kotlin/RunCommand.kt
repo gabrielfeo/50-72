@@ -1,13 +1,16 @@
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
+import platform.posix.fprintf
+import platform.posix.stderr
+import platform.posix.exit as posixExit
 
 inline fun runCommand(
     args: Array<String>,
-    format: (message: String, isMarkdown: Boolean) -> String,
-    printStdout: (message: String) -> Unit,
-    printStderr: (message: String) -> Unit,
-    exit: (code: Int) -> Unit,
+    format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
+    printStdout: (message: String) -> Unit = ::print,
+    printStderr: (message: String) -> Unit = ::printError,
+    exit: (code: Int) -> Unit = ::posixExit,
 ) {
     val parser = ArgParser("50-72")
 
@@ -26,4 +29,10 @@ inline fun runCommand(
         printStderr(error.message.orEmpty())
         exit(1)
     }
+}
+
+inline fun printError(message: String?) {
+    if (message.isNullOrBlank())
+        return
+    fprintf(stderr, "$message\n")
 }
