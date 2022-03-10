@@ -5,8 +5,6 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 
 // TODO --uninstall-hook: remove line with '50-72' from hook
-// TODO chmod hook file
-// TODO Add shebang if new file?
 
 class FormatMessage(
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
