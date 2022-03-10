@@ -5,7 +5,6 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 
 // TODO --uninstall-hook: remove line with '50-72' from hook
-// TODO Add internal option for executable path
 // TODO chmod hook file
 // TODO Add shebang if new file?
 
