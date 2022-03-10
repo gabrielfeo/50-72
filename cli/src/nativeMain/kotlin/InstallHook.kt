@@ -8,7 +8,9 @@ import okio.use
 private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
 private const val FORMAT_FILE_COMMAND = "50-72 format-file $1"
 
-class InstallHook : CliktCommand(name = "install-hook") {
+class InstallHook(
+    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+) : CliktCommand(name = "install-hook") {
 
     private val prepareCommitMsg by lazy { PREPARE_COMMIT_MSG_PATH.toPath() }
 
@@ -22,16 +24,16 @@ class InstallHook : CliktCommand(name = "install-hook") {
         }
     }
 
-    private fun Path.exists(): Boolean = FileSystem.SYSTEM.exists(this)
+    private fun Path.exists(): Boolean = fileSystem.exists(this)
 
     private fun Path.appendText(text: String) {
-        FileSystem.SYSTEM.appendingSink(this).buffer().use {
+        fileSystem.appendingSink(this).buffer().use {
             it.writeUtf8(text)
         }
     }
 
     private fun Path.writeText(text: String) {
-        FileSystem.SYSTEM.write(this, mustCreate = true) {
+        fileSystem.write(this, mustCreate = true) {
             writeUtf8(text)
         }
     }
