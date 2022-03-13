@@ -2,10 +2,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.UsageError
 import okio.FileSystem
-import okio.Path
 import okio.Path.Companion.toPath
-import okio.buffer
-import okio.use
 import platform.posix.*
 
 private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
@@ -21,32 +18,18 @@ class InstallHook(
     override fun run() {
         checkGitDirExists()
         prepareCommitMsg.run {
-            if (exists()) {
-                appendText("\n\n$FORMAT_FILE_COMMAND\n")
+            if (exists(fileSystem)) {
+                appendText("\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
             } else {
-                writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n")
+                writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
                 setHookFilePermissions()
             }
         }
     }
 
     private fun checkGitDirExists() {
-        if(!".git".toPath().exists()) {
+        if(!".git".toPath().exists(fileSystem)) {
             throw UsageError("Current directory is not a git repository")
-        }
-    }
-
-    private fun Path.exists(): Boolean = fileSystem.exists(this)
-
-    private fun Path.appendText(text: String) {
-        fileSystem.appendingSink(this).buffer().use {
-            it.writeUtf8(text)
-        }
-    }
-
-    private fun Path.writeText(text: String) {
-        fileSystem.write(this, mustCreate = true) {
-            writeUtf8(text)
         }
     }
 
