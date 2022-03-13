@@ -10,7 +10,7 @@ import platform.posix.*
 
 private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
 private const val SHEBANG = "#!/usr/bin/env sh"
-private const val FORMAT_FILE_COMMAND = "50-72 format-file $1"
+private const val FORMAT_FILE_COMMAND = "50-72 format-file \"$1\""
 
 class InstallHook(
     private val fileSystem: FileSystem = FileSystem.SYSTEM,
