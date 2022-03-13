@@ -1,5 +1,6 @@
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.UsageError
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -18,6 +19,7 @@ class InstallHook(
     private val prepareCommitMsg by lazy { PREPARE_COMMIT_MSG_PATH.toPath() }
 
     override fun run() {
+        checkGitDirExists()
         prepareCommitMsg.run {
             if (exists()) {
                 appendText("\n\n$FORMAT_FILE_COMMAND\n")
@@ -25,6 +27,12 @@ class InstallHook(
                 writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n")
                 setHookFilePermissions()
             }
+        }
+    }
+
+    private fun checkGitDirExists() {
+        if(!".git".toPath().exists()) {
+            throw UsageError("Current directory is not a git repository")
         }
     }
 
