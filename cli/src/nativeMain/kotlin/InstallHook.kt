@@ -12,8 +12,6 @@ private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
 private const val SHEBANG = "#!/usr/bin/env sh"
 private const val FORMAT_FILE_COMMAND = "50-72 format-file $1"
 
-// TODO Detect if is already installed
-
 class InstallHook(
     private val fileSystem: FileSystem = FileSystem.SYSTEM,
 ) : CliktCommand(
@@ -43,6 +41,7 @@ class InstallHook(
     private fun install() {
         prepareCommitMsg.run {
             if (exists(fileSystem)) {
+                checkNotInstalled()
                 appendText("\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
             } else {
                 writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
@@ -53,8 +52,9 @@ class InstallHook(
 
     private fun uninstall() {
         prepareCommitMsg.run {
-            if (!exists(fileSystem))
+            if (!exists(fileSystem)) {
                 return
+            }
 
             val hookLines = readText(fileSystem).lines()
             val containsOurCommandOnly = hookLines.all {
@@ -74,6 +74,13 @@ class InstallHook(
     private fun checkGitDirExists() {
         if(!".git".toPath().exists(fileSystem)) {
             throw UsageError("Current directory is not a git repository")
+        }
+    }
+
+    private fun checkNotInstalled() {
+        val installed = prepareCommitMsg.readLines(fileSystem).any { it.startsWith("50-72") }
+        if (installed) {
+            throw PrintMessage("Already installed.")
         }
     }
 
