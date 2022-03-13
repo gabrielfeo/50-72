@@ -48,11 +48,13 @@ class InstallHook(
                 setHookFilePermissions()
             }
         }
+        echo("Done! Please ensure 50-72 is in your PATH.")
     }
 
     private fun uninstall() {
         prepareCommitMsg.run {
             if (!exists(fileSystem)) {
+                echo("Not installed.")
                 return
             }
 
@@ -69,6 +71,7 @@ class InstallHook(
                 writeText(hookWithoutOurCommand, fileSystem)
             }
         }
+        echo("Successfully uninstalled!")
     }
 
     private fun checkGitDirExists() {
