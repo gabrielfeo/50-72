@@ -31,7 +31,7 @@ fun Path.appendText(text: String, fileSystem: FileSystem) {
     }
 }
 
-fun Path.writeText(text: String, fileSystem: FileSystem, mustCreate: Boolean = true) {
+fun Path.writeText(text: String, fileSystem: FileSystem, mustCreate: Boolean = false) {
     fileSystem.write(this, mustCreate) {
         writeUtf8(text)
     }
