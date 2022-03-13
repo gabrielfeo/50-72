@@ -1,6 +1,9 @@
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.validate
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import platform.posix.*
@@ -9,20 +12,61 @@ private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
 private const val SHEBANG = "#!/usr/bin/env sh"
 private const val FORMAT_FILE_COMMAND = "50-72 format-file $1"
 
+// TODO Detect if is already installed
+
 class InstallHook(
     private val fileSystem: FileSystem = FileSystem.SYSTEM,
-) : CliktCommand(name = "install-hook") {
+) : CliktCommand(
+    name = "hook",
+    help = """
+        Install the 50-72 git hook in the current repository.
+        
+        This is basically adding '$FORMAT_FILE_COMMAND' to the 'prepare-commit-msg' hook. If the
+        hook file exists, it will be appended to, else a new one will be created.
+    """.trimIndent()
+) {
 
     private val prepareCommitMsg by lazy { PREPARE_COMMIT_MSG_PATH.toPath() }
 
+    private val install: Boolean by option().flag().validate { require(it || uninstall) }
+    private val uninstall: Boolean by option().flag().validate { require(it || install) }
+
     override fun run() {
         checkGitDirExists()
+        when {
+            install -> install()
+            uninstall -> uninstall()
+            else -> throw UsageError("No action specified")
+        }
+    }
+
+    private fun install() {
         prepareCommitMsg.run {
             if (exists(fileSystem)) {
                 appendText("\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
             } else {
                 writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
                 setHookFilePermissions()
+            }
+        }
+    }
+
+    private fun uninstall() {
+        prepareCommitMsg.run {
+            if (!exists(fileSystem))
+                return
+
+            val hookLines = readText(fileSystem).lines()
+            val containsOurCommandOnly = hookLines.all {
+                it.startsWith("#!") || it.startsWith("50-72") || it.isBlank()
+            }
+            if (containsOurCommandOnly) {
+                delete(fileSystem)
+            } else {
+                val hookWithoutOurCommand = hookLines
+                    .filterNot { it.startsWith("50-72") }
+                    .joinToString(separator = "\n")
+                writeText(hookWithoutOurCommand, fileSystem)
             }
         }
     }

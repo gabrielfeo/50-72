@@ -3,15 +3,22 @@ import okio.Path
 import okio.buffer
 import okio.use
 
-fun Path.exists(fileSystem: FileSystem): Boolean = fileSystem.exists(this)
+fun Path.exists(fileSystem: FileSystem): Boolean =
+    fileSystem.exists(this)
 
-fun Path.readText(fileSystem: FileSystem): String {
+fun Path.delete(fileSystem: FileSystem, mustExist: Boolean = true) {
+    fileSystem.delete(this, mustExist)
+}
+
+fun Path.readText(fileSystem: FileSystem): String =
+    readLines(fileSystem).joinToString(separator = "")
+
+fun Path.readLines(fileSystem: FileSystem): Sequence<String> {
     fileSystem.source(this).use { fileSource ->
         fileSource.buffer().use { bufferedFileSource ->
-            return buildString {
+            return sequence {
                 while (true) {
-                    val line = bufferedFileSource.readUtf8Line() ?: break
-                    appendLine(line)
+                    yield(bufferedFileSource.readUtf8Line() ?: break)
                 }
             }
         }

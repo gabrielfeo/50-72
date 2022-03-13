@@ -4,8 +4,6 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 
-// TODO --uninstall-hook: remove line with '50-72' from hook
-
 class FormatMessage(
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(name = "format") {
