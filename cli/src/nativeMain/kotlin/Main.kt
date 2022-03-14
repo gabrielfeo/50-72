@@ -5,6 +5,6 @@ fun main(args: Array<String>) {
     NoOpCliktCommand().subcommands(
         FormatMessage(),
         FormatFile(),
-        InstallHook(),
+        Hook(),
     ).main(args)
 }

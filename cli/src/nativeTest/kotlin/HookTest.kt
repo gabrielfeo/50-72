@@ -1,6 +1,6 @@
 import kotlin.test.Test
 
-class InstallHookTest {
+class HookTest {
 
     @Test
     fun givenHookExists_WhenInstall_ThenAppendsCommandToHook() {
