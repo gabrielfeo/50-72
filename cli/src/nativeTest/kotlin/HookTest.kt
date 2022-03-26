@@ -1,8 +1,7 @@
+import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
+import kotlin.test.*
 
 class HookTest {
 
@@ -10,9 +9,21 @@ class HookTest {
         emulateUnix()
         createDirectories(".git/hooks".toPath())
     }
+
+    private val permissionSetter = object : FilePermissionSetter {
+        var shouldFail = false
+        var called = false
+        override fun set(path: String, permissions: PermissionSet) {
+            called = true
+            if (shouldFail) {
+                error("any")
+            }
+        }
+    }
+
     private val hook = Hook(
         fileSystem,
-        permissionSetter = { _, _ -> }
+        permissionSetter,
     )
 
     private val prepareCommitMsg = PREPARE_COMMIT_MSG_PATH.toPath()
@@ -88,6 +99,29 @@ class HookTest {
         )
         uninstall()
         assertHookDoesntExist()
+    }
+
+    @Test
+    fun givenNoHook_WhenInstall_TriesSettingFilePermissions() {
+        install()
+        assertTrue(permissionSetter.called)
+    }
+
+    @Test
+    fun givenNoHook_WhenInstall_AndSetPermissionsFails_PrintsError() {
+        permissionSetter.shouldFail = true
+        val exception = assertFails {
+            install()
+        }
+        assertIs<PrintMessage>(exception)
+        assertEquals(FAILED_TO_SET_PERMISSIONS_MSG, exception.message)
+    }
+
+    @Test
+    fun givenHookExists_WhenInstall_DoesntTrySettingFilePermissions() {
+        givenHookExists("")
+        install()
+        assertFalse(permissionSetter.called)
     }
 
     private fun givenHookExists(content: String) {
