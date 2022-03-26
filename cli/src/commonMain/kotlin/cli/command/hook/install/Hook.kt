@@ -1,5 +1,6 @@
 package cli.command.hook.install
 
+import cli.commons.defaultFileSystem
 import cli.commons.exists
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
@@ -18,7 +19,7 @@ const val FORMAT_FILE_COMMAND = "50-72 format-file \"$1\""
 const val NOT_A_GIT_DIR_MSG = "Current directory is not a git repository"
 
 class Hook(
-    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val fileSystem: FileSystem = defaultFileSystem,
     private val installAction: InstallAction = InstallActionImpl(),
     private val uninstallAction: UninstallAction = UninstallActionImpl(),
 ) : CliktCommand(

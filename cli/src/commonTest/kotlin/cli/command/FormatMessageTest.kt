@@ -1,10 +1,12 @@
-import cli.command.FormatMessage
+package cli.command
+
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.output.CliktConsole
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 private const val ERROR_MESSAGE = "formatOut"
 
@@ -23,7 +25,7 @@ class FormatMessageTest {
         run("message")
         assertEquals("message\n", stdout)
         assertEquals(0, exitCode)
-        assert(stderr.isEmpty())
+        assertTrue(stderr.isEmpty())
     }
 
     @Test
@@ -32,7 +34,7 @@ class FormatMessageTest {
             run("message", formatThrows = true)
         }
         assertEquals(ERROR_MESSAGE, error.message)
-        assert(stdout.isEmpty())
+        assertTrue(stdout.isEmpty())
     }
 
     @Test
@@ -50,7 +52,7 @@ class FormatMessageTest {
 
     @Test
     fun acceptsArgumentOrdering1() {
-        assert(formatArgs.message == null) // TODO Remove
+        assertTrue(formatArgs.message == null) // TODO Remove
         run("message", "--markdown")
         assertEquals(true, formatArgs.isMarkdown)
         assertEquals("message", formatArgs.message)
@@ -58,7 +60,7 @@ class FormatMessageTest {
 
     @Test
     fun acceptsArgumentOrdering2() {
-        assert(formatArgs.message == null) // TODO Remove
+        assertTrue(formatArgs.message == null) // TODO Remove
         run("--markdown", "message")
         assertEquals(true, formatArgs.isMarkdown)
         assertEquals("message", formatArgs.message)

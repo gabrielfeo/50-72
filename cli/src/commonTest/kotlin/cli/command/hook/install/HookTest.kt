@@ -1,9 +1,5 @@
-package cli.hook.install
+package cli.command.hook.install
 
-import cli.command.hook.install.Hook
-import cli.command.hook.install.InstallAction
-import cli.command.hook.install.NOT_A_GIT_DIR_MSG
-import cli.command.hook.install.UninstallAction
 import com.github.ajalt.clikt.core.UsageError
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem

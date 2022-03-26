@@ -1,9 +1,6 @@
 package cli.command.hook.install
 
-import cli.commons.appendText
-import cli.commons.exists
-import cli.commons.readLines
-import cli.commons.writeText
+import cli.commons.*
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi.echo
 import okio.FileSystem
@@ -19,8 +16,8 @@ Please set permissions manually by running 'chmod' so that Git can run the hook:
 """
 
 class InstallActionImpl(
-    private val fileSystem: FileSystem = FileSystem.SYSTEM,
-    private val permissionSetter: FilePermissionSetter = Chmod(),
+    private val fileSystem: FileSystem = defaultFileSystem,
+    private val permissionSetter: FilePermissionSetter = createFilePermissionSetter(),
 ) : InstallAction {
 
     override fun invoke() {

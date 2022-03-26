@@ -1,6 +1,7 @@
-package cli.hook.install
+package cli.command.hook.install
 
-import cli.command.hook.install.*
+import cli.commons.FilePermissionSetter
+import cli.commons.PermissionSet
 import cli.commons.readText
 import cli.commons.writeText
 import com.github.ajalt.clikt.core.PrintMessage

@@ -1,5 +1,6 @@
 package cli.command.hook
 
+import cli.commons.defaultFileSystem
 import cli.commons.readText
 import cli.commons.writeText
 import com.github.ajalt.clikt.core.CliktCommand
@@ -12,7 +13,7 @@ import okio.Path.Companion.toPath
 private const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
 
 class FormatFile(
-    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val fileSystem: FileSystem = defaultFileSystem,
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
     name = "format-file",
