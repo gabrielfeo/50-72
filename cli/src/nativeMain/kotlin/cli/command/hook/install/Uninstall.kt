@@ -4,6 +4,7 @@ import cli.commons.delete
 import cli.commons.exists
 import cli.commons.readLines
 import cli.commons.writeText
+import cli.defaultFileSystem
 import com.github.ajalt.clikt.output.TermUi.echo
 import okio.FileSystem
 
@@ -12,7 +13,7 @@ fun interface UninstallAction {
 }
 
 class UninstallActionImpl(
-    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val fileSystem: FileSystem = defaultFileSystem,
 ) : UninstallAction {
 
     override fun invoke() {

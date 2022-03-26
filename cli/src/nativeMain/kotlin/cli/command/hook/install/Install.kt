@@ -4,6 +4,7 @@ import cli.commons.appendText
 import cli.commons.exists
 import cli.commons.readLines
 import cli.commons.writeText
+import cli.defaultFileSystem
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi.echo
 import okio.FileSystem
@@ -19,7 +20,7 @@ Please set permissions manually by running 'chmod' so that Git can run the hook:
 """
 
 class InstallActionImpl(
-    private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val fileSystem: FileSystem = defaultFileSystem,
     private val permissionSetter: FilePermissionSetter = Chmod(),
 ) : InstallAction {
 
