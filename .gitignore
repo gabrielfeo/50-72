@@ -10,3 +10,9 @@ local.properties
 
 **/build
 kotlin-js-store/yarn.lock
+
+# gradle-profiler
+**/profile-out*
+**/gradle-user-home
+
+**/*.hprof
