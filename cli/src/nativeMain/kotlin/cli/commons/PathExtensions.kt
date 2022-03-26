@@ -1,9 +1,6 @@
 package cli.commons
 
-import okio.FileSystem
-import okio.Path
-import okio.buffer
-import okio.use
+import okio.*
 
 fun Path.exists(fileSystem: FileSystem): Boolean =
     fileSystem.exists(this)
@@ -13,22 +10,14 @@ fun Path.delete(fileSystem: FileSystem, mustExist: Boolean = true) {
 }
 
 fun Path.readText(fileSystem: FileSystem): String {
-    fileSystem.source(this).use { fileSource ->
-        fileSource.buffer().use { bufferedFileSource ->
-            return bufferedFileSource.readUtf8()
-        }
+    return withBufferedSource(fileSystem) {
+        readUtf8()
     }
 }
 
 fun Path.readLines(fileSystem: FileSystem): Sequence<String> {
-    fileSystem.source(this).use { fileSource ->
-        fileSource.buffer().use { bufferedFileSource ->
-            return sequence {
-                while (true) {
-                    yield(bufferedFileSource.readUtf8Line() ?: break)
-                }
-            }
-        }
+    return withBufferedSource(fileSystem) {
+        generateSequence(::readUtf8Line)
     }
 }
 
@@ -41,5 +30,13 @@ fun Path.appendText(text: String, fileSystem: FileSystem) {
 fun Path.writeText(text: String, fileSystem: FileSystem, mustCreate: Boolean = false) {
     fileSystem.write(this, mustCreate) {
         writeUtf8(text)
+    }
+}
+
+private inline fun <T> Path.withBufferedSource(fileSystem: FileSystem, block: BufferedSource.() -> T): T {
+    fileSystem.source(this).use { fileSource ->
+        fileSource.buffer().use { bufferedSource ->
+            return bufferedSource.block()
+        }
     }
 }
