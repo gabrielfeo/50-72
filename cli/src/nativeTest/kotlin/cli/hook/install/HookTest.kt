@@ -1,3 +1,8 @@
+package cli.hook.install
+
+import cli.command.hook.install.*
+import cli.commons.readText
+import cli.commons.writeText
 import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem

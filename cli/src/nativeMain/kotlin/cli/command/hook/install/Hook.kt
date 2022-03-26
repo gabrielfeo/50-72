@@ -1,3 +1,6 @@
+package cli.command.hook.install
+
+import cli.commons.*
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.UsageError
@@ -26,7 +29,7 @@ class Hook(
         Install the 50-72 git hook in the current repository.
         
         This is basically adding '$FORMAT_FILE_COMMAND' to the 'prepare-commit-msg' hook. If the
-        hook file exists, it will be appended to, else a new one will be created.
+        hook file cli.cli.exists, it will be appended to, else a new one will be created.
     """.trimIndent()
 ) {
 

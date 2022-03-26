@@ -1,3 +1,5 @@
+package cli.command.hook.install
+
 import platform.posix.*
 
 @Suppress("EnumEntryName")
