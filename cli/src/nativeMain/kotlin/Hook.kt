@@ -7,9 +7,9 @@ import com.github.ajalt.clikt.parameters.options.validate
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
-private const val SHEBANG = "#!/usr/bin/env sh"
-private const val FORMAT_FILE_COMMAND = "50-72 format-file \"$1\""
+internal const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
+internal const val SHEBANG = "#!/usr/bin/env sh"
+internal const val FORMAT_FILE_COMMAND = "50-72 format-file \"$1\""
 
 internal const val FAILED_TO_SET_PERMISSIONS_MSG = """
 Created the hook file, but failed to set execute permissions on it.
