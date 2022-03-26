@@ -7,12 +7,7 @@ val PermissionSet.mode: UInt
         PermissionSet.`755` -> S_IRWXU.or(S_IRGRP).or(S_IXGRP).or(S_IXOTH).toUInt()
     }
 
-actual class Chmod : FilePermissionSetter {
-
-    override fun set(path: String, permissions: PermissionSet) {
-        val result = chmod(path, permissions.mode)
-        if (result != 0) {
-            error("Failed to set ${permissions.name} permissions on $path: errno=$errno")
-        }
-    }
-}
+actual fun createFilePermissionSetter(): FilePermissionSetter = ChmodFilePermissionSetter(
+    chmod = { path, permissions -> chmod(path, permissions.mode) },
+    errno = { errno }
+)

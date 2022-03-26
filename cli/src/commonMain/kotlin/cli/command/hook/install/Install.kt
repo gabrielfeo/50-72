@@ -17,7 +17,7 @@ Please set permissions manually by running 'chmod' so that Git can run the hook:
 
 class InstallActionImpl(
     private val fileSystem: FileSystem = defaultFileSystem,
-    private val permissionSetter: FilePermissionSetter = Chmod(),
+    private val permissionSetter: FilePermissionSetter = createFilePermissionSetter(),
 ) : InstallAction {
 
     override fun invoke() {
