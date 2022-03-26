@@ -1,3 +1,3 @@
-import cli.command.rootCommand
+import cli.command.Root
 
-fun main(args: Array<String>) = rootCommand.main(args)
+fun main(args: Array<String>) = Root().main(args)
