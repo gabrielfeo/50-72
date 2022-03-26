@@ -64,7 +64,7 @@ class Hook(
                 return
             }
 
-            val hookLines = readText(fileSystem).lines()
+            val hookLines = readLines(fileSystem)
             val containsOurCommandOnly = hookLines.all {
                 it.startsWith("#!") || it.startsWith("50-72") || it.isBlank()
             }

@@ -10,8 +10,13 @@ fun Path.delete(fileSystem: FileSystem, mustExist: Boolean = true) {
     fileSystem.delete(this, mustExist)
 }
 
-fun Path.readText(fileSystem: FileSystem): String =
-    readLines(fileSystem).joinToString(separator = "")
+fun Path.readText(fileSystem: FileSystem): String {
+    fileSystem.source(this).use { fileSource ->
+        fileSource.buffer().use { bufferedFileSource ->
+            return bufferedFileSource.readUtf8()
+        }
+    }
+}
 
 fun Path.readLines(fileSystem: FileSystem): Sequence<String> {
     fileSystem.source(this).use { fileSource ->
