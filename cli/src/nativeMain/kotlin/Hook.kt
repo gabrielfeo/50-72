@@ -48,7 +48,7 @@ class Hook(
         prepareCommitMsg.run {
             if (exists(fileSystem)) {
                 checkNotInstalled()
-                appendText("\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
+                appendText("\n$FORMAT_FILE_COMMAND\n", fileSystem)
             } else {
                 writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
                 setHookFilePermissions()
