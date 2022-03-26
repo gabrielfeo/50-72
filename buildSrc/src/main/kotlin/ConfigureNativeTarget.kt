@@ -10,8 +10,8 @@ fun Project.configureNativeTargets(
         macosX64 {
             configure()
         }
-        // linuxX64 {
-        //     configure()
-        // }
+         linuxX64 {
+             configure()
+         }
     }
 }
