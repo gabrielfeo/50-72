@@ -1,8 +1,11 @@
+package cli.command
+
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import formatFullMessage
 
 class FormatMessage(
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,

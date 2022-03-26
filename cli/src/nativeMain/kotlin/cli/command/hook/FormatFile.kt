@@ -1,6 +1,11 @@
+package cli.command.hook
+
+import cli.commons.readText
+import cli.commons.writeText
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
+import formatFullMessage
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
