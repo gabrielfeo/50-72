@@ -9,12 +9,17 @@ import formatFullMessage
 
 class FormatMessage(
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
-) : CliktCommand(name = "format") {
+) : CliktCommand(
+    name = "format",
+    help = "Format a message string."
+) {
 
     private val message by argument(help = "Commit message to be formatted")
 
-    private val isMarkdown by option("--markdown", help = "Set when message is in Markdown format")
-        .flag(default = false)
+    private val isMarkdown by option(
+        "--markdown",
+        help = "Set when message is in Markdown format. Default: false."
+    ).flag(default = false)
 
     override fun run() {
         try {

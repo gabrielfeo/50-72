@@ -14,9 +14,15 @@ private const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
 class FormatFile(
     private val fileSystem: FileSystem = FileSystem.SYSTEM,
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
-) : CliktCommand() {
+) : CliktCommand(
+    name = "format-file",
+    help = "Format the git commit message file (or another file)".trimIndent()
+) {
 
-    private val messageFile by argument("file").default(DEFAULT_GIT_MSG_FILE)
+    private val messageFile by argument(
+        "file",
+        help = "Path to the message file. Default is the standard git file, $DEFAULT_GIT_MSG_FILE"
+    ).default(DEFAULT_GIT_MSG_FILE)
 
     override fun run() {
         val file = messageFile.toPath()
