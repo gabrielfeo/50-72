@@ -1,6 +1,5 @@
-package cli.hook.install
+package cli.command.hook.install
 
-import cli.command.hook.install.*
 import cli.commons.FilePermissionSetter
 import cli.commons.PermissionSet
 import cli.commons.readText

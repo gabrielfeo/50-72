@@ -1,4 +1,5 @@
-import cli.command.FormatMessage
+package cli.command
+
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.output.CliktConsole

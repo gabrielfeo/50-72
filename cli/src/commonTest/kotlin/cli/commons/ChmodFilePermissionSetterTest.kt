@@ -1,5 +1,5 @@
-import cli.commons.ChmodFilePermissionSetter
-import cli.commons.PermissionSet
+package cli.commons
+
 import kotlin.test.Test
 import kotlin.test.assertFails
 import kotlin.test.assertTrue
