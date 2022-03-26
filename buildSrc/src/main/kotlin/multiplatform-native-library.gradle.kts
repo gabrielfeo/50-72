@@ -2,6 +2,6 @@ plugins {
     kotlin("multiplatform")
 }
 
-configureNativeTarget {
+configureNativeTargets {
     binaries.sharedLib()
 }

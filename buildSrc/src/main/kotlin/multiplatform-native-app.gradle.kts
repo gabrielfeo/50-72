@@ -2,7 +2,7 @@ plugins {
     kotlin("multiplatform")
 }
 
-configureNativeTarget {
+configureNativeTargets {
     binaries {
         executable {
             entryPoint = "main"

@@ -1,20 +1,51 @@
-import org.gradle.api.GradleException
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.getting
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
 
-fun Project.configureNativeTarget(
+private data class SharedSourceSets(
+    val main: KotlinSourceSet,
+    val test: KotlinSourceSet
+)
+
+fun Project.configureNativeTargets(
     configure: KotlinNativeTargetWithHostTests.() -> Unit
 ) {
     configure<KotlinMultiplatformExtension> {
-        val hostOs = System.getProperty("os.name")
-        val nativeTarget = when {
-            hostOs == "Mac OS X" -> macosX64("native")
-            hostOs == "Linux" -> linuxX64("native")
-            hostOs.startsWith("Windows") -> mingwX64("native")
-            else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+        val sharedSourceSets = createNativeSharedSourceSets(sourceSets)
+        macosX64 {
+            addSharedNativeSourceSets(sourceSets, sharedSourceSets)
+            configure()
         }
-        configure(nativeTarget)
+        // linuxX64 {
+        //     addSharedSourceSets(sourceSets)
+        //     configure()
+        // }
     }
+}
+
+private fun KotlinNativeTarget.addSharedNativeSourceSets(
+    sourceSets: NamedDomainObjectContainer<KotlinSourceSet>,
+    sharedSourceSets: SharedSourceSets,
+) {
+    sourceSets.getByName("${name}Main").dependsOn(sharedSourceSets.main)
+    sourceSets.getByName("${name}Test").dependsOn(sharedSourceSets.test)
+}
+
+private fun createNativeSharedSourceSets(
+    sourceSets: NamedDomainObjectContainer<KotlinSourceSet>
+): SharedSourceSets {
+    val nativeMain by sourceSets.creating
+    val nativeTest by sourceSets.creating
+    val commonMain by sourceSets.getting
+    val commonTest by sourceSets.getting
+    nativeMain.dependsOn(commonMain)
+    nativeTest.dependsOn(commonTest)
+    return SharedSourceSets(nativeMain, nativeTest)
 }
