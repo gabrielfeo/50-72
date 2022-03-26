@@ -7,6 +7,7 @@ dependencyResolutionManagement {
     }
 }
 
+includeBuild("build-src")
 include(
     ":formatter",
     ":cli",
