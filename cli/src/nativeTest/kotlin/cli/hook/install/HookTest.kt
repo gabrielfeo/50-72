@@ -1,9 +1,10 @@
 package cli.hook.install
 
-import cli.command.hook.install.*
-import cli.commons.readText
-import cli.commons.writeText
-import com.github.ajalt.clikt.core.PrintMessage
+import cli.command.hook.install.Hook
+import cli.command.hook.install.InstallAction
+import cli.command.hook.install.NOT_A_GIT_DIR_MSG
+import cli.command.hook.install.UninstallAction
+import com.github.ajalt.clikt.core.UsageError
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.*
@@ -12,143 +13,94 @@ class HookTest {
 
     private val fileSystem = FakeFileSystem().apply {
         emulateUnix()
-        createDirectories(".git/hooks".toPath())
     }
 
-    private val permissionSetter = object : FilePermissionSetter {
-        var shouldFail = false
+    private val installAction = object : InstallAction {
         var called = false
-        override fun set(path: String, permissions: PermissionSet) {
+        override fun invoke() {
             called = true
-            if (shouldFail) {
-                error("any")
-            }
+        }
+    }
+
+    private val uninstallAction = object : UninstallAction {
+        var called = false
+        override fun invoke() {
+            called = true
         }
     }
 
     private val hook = Hook(
         fileSystem,
-        permissionSetter,
+        installAction,
+        uninstallAction,
     )
 
-    private val prepareCommitMsg = PREPARE_COMMIT_MSG_PATH.toPath()
-
     @Test
-    fun givenHookExists_WhenInstall_ThenAppendsCommandToHook() {
-        givenHookExists(
-            """
-                $SHEBANG
-                
-                echo
-                
-            """.trimIndent()
-        )
-        install()
-        assertHookEquals(
-            """
-                $SHEBANG
-                
-                echo
-                
-                $FORMAT_FILE_COMMAND
-                
-            """.trimIndent()
-        )
+    fun whenInstallRequested_ThenInvokesInstallAction() {
+        givenCurrentDirIsGitDir()
+        requestInstall()
+        assertTrue(installAction.called)
     }
 
     @Test
-    fun givenNoHook_WhenInstall_ThenCreatesHookWithCommandAndShebang() {
-        install()
-        assertHookEquals(
-            """
-                $SHEBANG
-                
-                $FORMAT_FILE_COMMAND
-                
-            """.trimIndent()
-        )
+    fun whenUninstallRequested_ThenInvokesUninstallAction() {
+        givenCurrentDirIsGitDir()
+        requestUninstall()
+        assertTrue(uninstallAction.called)
     }
 
     @Test
-    fun givenHookExistsWithOtherCommands_WhenUninstall_ThenRemovesOurCommand() {
-        givenHookExists(
-            """
-                $SHEBANG
-                
-                echo
-                
-                $FORMAT_FILE_COMMAND
-                
-            """.trimIndent()
-        )
-        uninstall()
-        assertHookEquals(
-            expected = """
-                $SHEBANG
-                
-                echo
-                
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun givenHookExistsWithOnlyOurCommand_WhenUninstall_ThenDeletesHook() {
-        givenHookExists(
-            """
-                $SHEBANG
-                
-                $FORMAT_FILE_COMMAND
-                
-            """.trimIndent()
-        )
-        uninstall()
-        assertHookDoesntExist()
-    }
-
-    @Test
-    fun givenNoHook_WhenInstall_TriesSettingFilePermissions() {
-        install()
-        assertTrue(permissionSetter.called)
-    }
-
-    @Test
-    fun givenNoHook_WhenInstall_AndSetPermissionsFails_PrintsError() {
-        permissionSetter.shouldFail = true
-        val exception = assertFails {
-            install()
+    fun givenCurrentDirIsNotGitDir_whenInstall_ThenPrintsError() {
+        val error = assertFails {
+            requestInstall()
         }
-        assertIs<PrintMessage>(exception)
-        assertEquals(FAILED_TO_SET_PERMISSIONS_MSG, exception.message)
+        assertIsGitDirError(error)
     }
 
     @Test
-    fun givenHookExists_WhenInstall_DoesntTrySettingFilePermissions() {
-        givenHookExists("")
-        install()
-        assertFalse(permissionSetter.called)
+    fun givenCurrentDirIsNotGitDir_whenUninstall_ThenPrintsError() {
+        val error = assertFails {
+            requestUninstall()
+        }
+        assertIsGitDirError(error)
     }
 
-    private fun givenHookExists(content: String) {
-        prepareCommitMsg.writeText(content, mustCreate = true, fileSystem = fileSystem)
+    @Test
+    fun whenBothInstallAndUninstall_ThenPrintsError() {
+        assertFails {
+            requestBoth()
+        }
     }
 
-    private fun install() {
+    @Test
+    fun whenNoAction_ThenPrintsError() {
+        assertFails {
+            requestNothing()
+        }
+    }
+
+    private fun requestInstall() {
         hook.parse(arrayOf("--install"))
     }
 
-    private fun uninstall() {
+    private fun requestUninstall() {
         hook.parse(arrayOf("--uninstall"))
     }
 
-    private fun assertHookEquals(expected: String) {
-        assertEquals(
-            expected,
-            actual = prepareCommitMsg.readText(fileSystem),
-        )
+    private fun requestBoth() {
+        hook.parse(arrayOf("--install --uninstall"))
     }
 
-    private fun assertHookDoesntExist() {
-        assertFalse(fileSystem.exists(prepareCommitMsg))
+    private fun requestNothing() {
+        hook.parse(arrayOf(""))
+    }
+
+    private fun givenCurrentDirIsGitDir() {
+        fileSystem.createDirectories(".git/hooks".toPath())
+    }
+
+    private fun assertIsGitDirError(error: Throwable) {
+        assertIs<UsageError>(error)
+        assertEquals(NOT_A_GIT_DIR_MSG, error.message)
     }
 }
