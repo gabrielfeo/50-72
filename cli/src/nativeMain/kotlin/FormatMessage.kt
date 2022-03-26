@@ -4,9 +4,9 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 
-class Main(
+class FormatMessage(
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
-) : CliktCommand() {
+) : CliktCommand(name = "format") {
 
     private val message by argument(help = "Commit message to be formatted")
 
@@ -21,5 +21,5 @@ class Main(
             throw UsageError(error.message.orEmpty(), paramName = "message")
         }
     }
-
 }
+
