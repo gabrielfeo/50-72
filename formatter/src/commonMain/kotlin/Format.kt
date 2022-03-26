@@ -11,7 +11,7 @@ private const val WORD_SPACING_SIZE = 1
 private const val SUBJECT_BODY_SEPARATOR = "\n\n"
 
 
-fun formatFullMessage(messageText: String): String {
+fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String {
     val message = CommitMessage(messageText)
     require(message.subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
     if (!message.hasBody) {
@@ -21,33 +21,44 @@ fun formatFullMessage(messageText: String): String {
     return buildString {
         append(message.subject())
         append(SUBJECT_BODY_SEPARATOR)
-        appendReformattedUpTo72Columns(message.body(), stripComments = true)
+        when {
+            isMarkdown -> appendReformattedMarkdownBody(message.body())
+            else -> appendReformattedBody(message.body(), stripComments = true)
+        }
     }
 }
 
-fun formatBody(bodyText: String): String {
+fun formatBody(bodyText: String, isMarkdown: Boolean = false): String {
     return buildString {
-        appendReformattedUpTo72Columns(bodyText, stripComments = true)
+        when {
+            isMarkdown -> appendReformattedMarkdownBody(bodyText)
+            else -> appendReformattedBody(bodyText, stripComments = true)
+        }
     }
 }
 
+@Deprecated("Use formatBody with parameter")
 fun formatMarkdownBody(bodyText: String): String {
     return buildString {
-        val body = parseMarkdownBody(bodyText)
-        for (section in body.sections) {
-            if (this.isNotEmpty()) {
-                append("\n\n")
-            }
-            when (section) {
-                is Paragraph -> appendReformattedUpTo72Columns(section.content, stripComments = false)
-                is Other -> append(section.content)
-            }
+        appendReformattedMarkdownBody(bodyText)
+    }
+}
+
+private fun StringBuilder.appendReformattedMarkdownBody(bodyText: String) {
+    val body = parseMarkdownBody(bodyText)
+    for (section in body.sections) {
+        if (this.isNotEmpty()) {
+            append("\n\n")
+        }
+        when (section) {
+            is Paragraph -> appendReformattedBody(section.content, stripComments = false)
+            is Other -> append(section.content)
         }
     }
 }
 
 
-private fun StringBuilder.appendReformattedUpTo72Columns(body: String, stripComments: Boolean) {
+private fun StringBuilder.appendReformattedBody(body: String, stripComments: Boolean) {
     val bodyContent = when {
         !stripComments -> body
         else -> body.lines()

@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    nativeMainImplementation(project(":formatter"))
+    commonMainImplementation(project(":formatter"))
+    commonMainImplementation("com.github.ajalt.clikt:clikt:3.4.0")
 }
 
 tasks.register("buildRelease", Copy::class) {
