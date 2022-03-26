@@ -6,14 +6,20 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.validate
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import platform.posix.*
 
 private const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
 private const val SHEBANG = "#!/usr/bin/env sh"
 private const val FORMAT_FILE_COMMAND = "50-72 format-file \"$1\""
 
+internal const val FAILED_TO_SET_PERMISSIONS_MSG = """
+Created the hook file, but failed to set execute permissions on it.
+Please set permissions manually by running 'chmod' so that Git can run the hook:
+    chmod 755 $PREPARE_COMMIT_MSG_PATH
+"""
+
 class Hook(
     private val fileSystem: FileSystem = FileSystem.SYSTEM,
+    private val permissionSetter: FilePermissionSetter = Chmod(),
 ) : CliktCommand(
     name = "hook",
     help = """
@@ -88,17 +94,11 @@ class Hook(
     }
 
     private fun setHookFilePermissions() {
-        val usualHookPermissions = S_IRWXU.or(S_IRGRP).or(S_IXGRP).or(S_IXOTH).toUShort()
-        val result = chmod(PREPARE_COMMIT_MSG_PATH, usualHookPermissions)
-        if (result != 0) {
-            throw PrintMessage(chmodFailedMessage(errno), error = true)
+        val usualHookPermissions = PermissionSet.`755`
+        try {
+            permissionSetter.set(PREPARE_COMMIT_MSG_PATH, usualHookPermissions)
+        } catch (error: IllegalStateException) {
+            throw PrintMessage(FAILED_TO_SET_PERMISSIONS_MSG, error = true)
         }
     }
-
-    private fun chmodFailedMessage(errno: Int) = """
-        Created the hook file, but failed to set execute permissions on it (errno=$errno).
-        Please set permissions manually by running 'chmod' so that Git can run the hook:
-            chmod 755 $PREPARE_COMMIT_MSG_PATH
-    """.trimIndent()
-
 }
