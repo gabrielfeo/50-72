@@ -1,10 +1,6 @@
 package cli.command.hook.install
 
-import cli.commons.appendText
-import cli.commons.exists
-import cli.commons.readLines
-import cli.commons.writeText
-import cli.defaultFileSystem
+import cli.commons.*
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi.echo
 import okio.FileSystem

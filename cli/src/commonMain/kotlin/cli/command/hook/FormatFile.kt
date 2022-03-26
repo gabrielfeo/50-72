@@ -1,8 +1,8 @@
 package cli.command.hook
 
+import cli.commons.defaultFileSystem
 import cli.commons.readText
 import cli.commons.writeText
-import cli.defaultFileSystem
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default

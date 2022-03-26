@@ -1,10 +1,10 @@
-package cli.command.hook.install
+package cli.commons
 
 import platform.posix.*
 
-val PermissionSet.mode: UInt
+val PermissionSet.mode: UShort
     get() = when (this) {
-        PermissionSet.`755` -> S_IRWXU.or(S_IRGRP).or(S_IXGRP).or(S_IXOTH).toUInt()
+        PermissionSet.`755` -> S_IRWXU.or(S_IRGRP).or(S_IXGRP).or(S_IXOTH).toUShort()
     }
 
 actual class Chmod : FilePermissionSetter {

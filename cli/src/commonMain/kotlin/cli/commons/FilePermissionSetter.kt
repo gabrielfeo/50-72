@@ -1,4 +1,4 @@
-package cli.command.hook.install
+package cli.commons
 
 interface FilePermissionSetter {
     fun set(path: String, permissions: PermissionSet)

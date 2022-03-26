@@ -1,7 +1,7 @@
 package cli.command.hook.install
 
+import cli.commons.defaultFileSystem
 import cli.commons.exists
-import cli.defaultFileSystem
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.parameters.options.flag
