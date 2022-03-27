@@ -3,6 +3,13 @@ name: CLI release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      do-create-release:
+        description: 'Create release?'
+        type: boolean
+        required: false
+        default: false
 
 defaults:
   run:
