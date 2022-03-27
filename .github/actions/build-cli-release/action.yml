@@ -20,10 +20,14 @@ runs:
       with:
         path: /home/runner/.konan
         key: ${{ runner.os }}
-    - name: Build
+    - name: Set up Gradle env
       uses: gradle/gradle-build-action@v2.1.4
-      with:
-        arguments: ${{ inputs.tasks }}
+    - name: Build
+      run: |
+        echo "::group::Gradle build log"
+        ./gradlew ${{ inputs.tasks }}
+        echo "::endgroup::"
+      shell: bash
     - name: Upload
       uses: actions/upload-artifact@v3.0.0
       with:
