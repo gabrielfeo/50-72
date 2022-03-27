@@ -22,7 +22,7 @@ runs:
       with:
         path: ~/.konan
         key: konan-${{ runner.os }}-${{ inputs.tasks }}-${{ github.sha }}
-        restore-keys:
+        restore-keys: |
           konan-${{ runner.os }}-${{ inputs.tasks }}-
           konan-${{ runner.os }}-
     - name: Run Gradle tasks
