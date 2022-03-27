@@ -8,6 +8,8 @@ jobs:
 
   package-linux-release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ env.VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -16,6 +18,11 @@ jobs:
         with:
           artifact-name: linux
           tasks: :cli:packageReleaseLinuxX64
+      - name: Parse version number
+        run: |
+          VERSION="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
+          echo "Parsed version $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
   package-macos-release:
     runs-on: macos-latest
@@ -33,38 +40,29 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      GITHUB_USERNAME: 'gabrielfeo'
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v3.0.0
       - name: Checkout
         uses: actions/checkout@v2
       - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
           path: artifacts/
-      - name: Restore conventional directory structure
-        run: |
-          mkdir -p ./cli/build/release
-          find artifacts -type f -exec mv {} ./cli/build/release/ \;
-      - name: Parse version number
-        id: parse-version
-        run: |
-          version="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
-          echo "Parsed version $version" 
-          echo "::set-output name=version::$(echo $version)"
       - name: Create GitHub release
         uses: softprops/action-gh-release@v0.1.14
         with:
-          tag_name: ${{ steps.parse-version.outputs.version }}
+          tag_name: ${{ needs.package-linux-release.outputs.version }}
           target_commitish: ${{ github.sha }}
           draft: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: cli/build/release/*
-      - name: Trigger Homebrew formula update
+          files: |
+            artifacts/linux/*
+            artifacts/macos/*
+      - name: Update Homebrew formula
         run: |
-          .github/workflows/steps/update-homebrew-formula.py \
-            --version "${{ steps.parse-version.outputs.version }}" \
+          .github/steps/update-homebrew-formula.py \
+            --version "${{ needs.package-linux-release.outputs.version }}" \
             --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            --username "gabrielfeo" \
-            --password "${{ github.token }}"
+            --assets artifacts/linux/* artifacts/macos/*
