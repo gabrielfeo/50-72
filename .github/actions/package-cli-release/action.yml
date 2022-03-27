@@ -21,7 +21,10 @@ runs:
       uses: actions/cache@v3
       with:
         path: ~/.konan
-        key: ${{ runner.os }}
+        key: konan-${{ runner.os }}-${{ inputs.tasks }}-${{ github.sha }}
+        restore-keys:
+          konan-${{ runner.os }}-${{ inputs.tasks }}-
+          konan-${{ runner.os }}-
     - name: Run Gradle tasks
       shell: bash
       run: |
