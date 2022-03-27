@@ -46,6 +46,7 @@ jobs:
       contents: write
     env:
       GITHUB_USERNAME: 'gabrielfeo'
+      GITHUB_TOKEN: ${{ secrets.CROSS_REPO_GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
