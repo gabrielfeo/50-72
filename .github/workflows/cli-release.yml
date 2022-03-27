@@ -2,8 +2,7 @@ name: CLI release
 
 on:
   push:
-    branches: [feature/cli-release]
-    tags: [v*]
+    branches: [main]
 
 jobs:
 
@@ -32,9 +31,28 @@ jobs:
   create-release:
     needs: [build-linux-release, build-macos-release]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
           path: release/
-      - run: ls -R
+      - name: Parse version number
+        shell: bash
+        id: parse-version
+        run: |
+          version="$(ls release/linux/*.zip | grep -Eo 'v[0-9.]+')"
+          echo "Parsed version $version" 
+          echo "::set-output name=version::$(echo $version)"
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v0.1.14
+        with:
+          tag_name: ${{ steps.parse-version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          draft: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            release/linux/*
+            release/macos/*
