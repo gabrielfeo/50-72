@@ -12,48 +12,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set up Java
-        uses: actions/setup-java@v2
+      - name: Build release
+        uses: ./.github/actions/build-cli-release
         with:
-          distribution: temurin
-          java-version: 11
-      - name: Build
-        uses: gradle/gradle-build-action@v2.1.4
-        with:
-          arguments: :cli:packageReleaseLinuxX64
-      - name: Upload
-        uses: actions/upload-artifact@v3.0.0
-        with:
-          name: linux
-          path: cli/build/release/**
-          if-no-files-found: error
+          artifact-name: linux
+          tasks: :cli:packageReleaseLinuxX64
 
   build-macos-release:
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set up Java
-        uses: actions/setup-java@v2
+      - name: Build release
+        uses: ./.github/actions/build-cli-release
         with:
-          distribution: temurin
-          java-version: 11
-      - name: Build
-        uses: gradle/gradle-build-action@v2.1.4
-        with:
-          arguments: :cli:packageReleaseMacosX64
-      - name: Upload
-        uses: actions/upload-artifact@v3.0.0
-        with:
-          name: macos
-          path: cli/build/release/**
-          if-no-files-found: error
+          artifact-name: macos
+          tasks: :cli:packageReleaseMacosX64
 
   create-release:
     needs: [build-linux-release, build-macos-release]
     runs-on: ubuntu-latest
     steps:
-      - name: Download a Build Artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
           path: release/

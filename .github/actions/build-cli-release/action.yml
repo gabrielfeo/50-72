@@ -1,0 +1,27 @@
+name: Build CLI release
+description: Builds a CLI release
+inputs:
+  artifact-name:
+    description: "Artifact name"
+    required: true
+  tasks:
+    description: "Gradle tasks"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: temurin
+        java-version: 11
+    - name: Build
+      uses: gradle/gradle-build-action@v2.1.4
+      with:
+        arguments: ${{ inputs.tasks }}
+    - name: Upload
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: cli/build/release/**
+        if-no-files-found: error
