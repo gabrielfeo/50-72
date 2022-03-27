@@ -47,7 +47,7 @@ jobs:
           tasks: ':cli:packageReleaseMacosX64'
 
   create-release:
-    if: ${{ github.event.inputs.do-create-release }}
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.do-create-release }}
     needs: [package-linux-release, package-macos-release]
     runs-on: ubuntu-latest
     permissions:
