@@ -34,15 +34,22 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Set up Python
+        uses: actions/setup-python@v3.0.0
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
-          path: release/
+          path: artifacts/
+      - name: Restore conventional directory structure
+        run: |
+          mkdir -p ./cli/build/release
+          find artifacts -type f -exec mv {} ./cli/build/release/ \;
       - name: Parse version number
-        shell: bash
         id: parse-version
         run: |
-          version="$(ls release/linux/*.zip | grep -Eo 'v[0-9.]+')"
+          version="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
           echo "Parsed version $version" 
           echo "::set-output name=version::$(echo $version)"
       - name: Create GitHub release
@@ -53,6 +60,11 @@ jobs:
           draft: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: |
-            release/linux/*
-            release/macos/*
+          files: cli/build/release/*
+      - name: Trigger Homebrew formula update
+        run: |
+          .github/workflows/trigger_homebrew_formula_update.py \
+            --version "${{ steps.parse-version.outputs.version }}" \
+            --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --username "gabrielfeo" \
+            --password "${{ github.token }}"
