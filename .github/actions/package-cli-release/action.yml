@@ -1,0 +1,39 @@
+name: Package CLI release
+description: Packages a CLI release
+inputs:
+  artifact-name:
+    description: "Artifact name"
+    required: true
+  tasks:
+    description: "Gradle tasks"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: temurin
+        java-version: 11
+    - name: Set up Gradle env
+      uses: gradle/gradle-build-action@v2.1.4
+    - name: Set up Konan cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.konan
+        key: konan-${{ runner.os }}-${{ inputs.tasks }}-${{ github.sha }}
+        restore-keys:
+          konan-${{ runner.os }}-${{ inputs.tasks }}-
+          konan-${{ runner.os }}-
+    - name: Run Gradle tasks
+      shell: bash
+      run: |
+        echo "::group::Gradle build log"
+        ./gradlew ${{ inputs.tasks }}
+        echo "::endgroup::"
+    - name: Upload
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: cli/build/release/**
+        if-no-files-found: error

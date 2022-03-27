@@ -1,6 +1,9 @@
 plugins {
     id("multiplatform-native-app")
+    id("multiplatform-native-app-release")
 }
+
+version = "0.0.1"
 
 dependencies {
     commonMainImplementation(project(":formatter"))
