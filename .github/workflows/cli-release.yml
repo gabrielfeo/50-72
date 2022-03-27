@@ -6,30 +6,30 @@ on:
 
 jobs:
 
-  build-linux-release:
+  package-linux-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build release
-        uses: ./.github/actions/build-cli-release
+      - name: Package release
+        uses: ./.github/actions/package-cli-release
         with:
           artifact-name: linux
           tasks: :cli:packageReleaseLinuxX64
 
-  build-macos-release:
+  package-macos-release:
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build release
-        uses: ./.github/actions/build-cli-release
+      - name: Package release
+        uses: ./.github/actions/package-cli-release
         with:
           artifact-name: macos
           tasks: :cli:packageReleaseMacosX64
 
   create-release:
-    needs: [build-linux-release, build-macos-release]
+    needs: [package-linux-release, package-macos-release]
     runs-on: ubuntu-latest
     permissions:
       contents: write

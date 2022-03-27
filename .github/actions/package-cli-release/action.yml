@@ -1,5 +1,5 @@
-name: Build CLI release
-description: Builds a CLI release
+name: Package CLI release
+description: Packages a CLI release
 inputs:
   artifact-name:
     description: "Artifact name"
@@ -29,7 +29,7 @@ runs:
       with:
         path: /Users/runner/.konan
         key: macos
-    - name: Build
+    - name: Run Gradle tasks
       shell: bash
       run: |
         echo "::group::Gradle build log"
