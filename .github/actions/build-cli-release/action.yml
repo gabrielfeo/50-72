@@ -15,19 +15,26 @@ runs:
       with:
         distribution: temurin
         java-version: 11
-    - name: Set up Konan cache
+    - name: Set up Gradle env
+      uses: gradle/gradle-build-action@v2.1.4
+    - if: ${{ runner.os == 'Linux' }}
+      name: Set up Konan cache (Linux)
       uses: actions/cache@v3
       with:
         path: /home/runner/.konan
-        key: ${{ runner.os }}
-    - name: Set up Gradle env
-      uses: gradle/gradle-build-action@v2.1.4
+        key: linux
+    - if: ${{ runner.os == 'macOS' }}
+      name: Set up Konan cache (macOS)
+      uses: actions/cache@v3
+      with:
+        path: /Users/runner/.konan
+        key: macos
     - name: Build
+      shell: bash
       run: |
         echo "::group::Gradle build log"
         ./gradlew ${{ inputs.tasks }}
         echo "::endgroup::"
-      shell: bash
     - name: Upload
       uses: actions/upload-artifact@v3.0.0
       with:
