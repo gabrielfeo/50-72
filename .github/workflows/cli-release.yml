@@ -63,7 +63,7 @@ jobs:
           files: cli/build/release/*
       - name: Trigger Homebrew formula update
         run: |
-          .github/workflows/trigger_homebrew_formula_update.py \
+          .github/workflows/steps/update-homebrew-formula.py \
             --version "${{ steps.parse-version.outputs.version }}" \
             --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --username "gabrielfeo" \

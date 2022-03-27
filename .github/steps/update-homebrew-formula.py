@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import sys
-import requests
 import hashlib
+import requests
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--version')
