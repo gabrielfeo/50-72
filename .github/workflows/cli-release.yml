@@ -1,4 +1,4 @@
-name: CLI release
+name: 'CLI release'
 
 on:
   push:
@@ -27,8 +27,8 @@ jobs:
       - name: Package release
         uses: ./.github/actions/package-cli-release
         with:
-          artifact-name: linux
-          tasks: :cli:packageReleaseLinuxX64
+          artifact-name: 'linux'
+          tasks: ':cli:packageReleaseLinuxX64'
       - name: Parse version number
         run: |
           VERSION="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
@@ -43,10 +43,11 @@ jobs:
       - name: Package release
         uses: ./.github/actions/package-cli-release
         with:
-          artifact-name: macos
-          tasks: :cli:packageReleaseMacosX64
+          artifact-name: 'macos'
+          tasks: ':cli:packageReleaseMacosX64'
 
   create-release:
+    if: ${{ github.event.inputs.do-create-release }}
     needs: [package-linux-release, package-macos-release]
     runs-on: ubuntu-latest
     permissions:
@@ -60,7 +61,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
-          path: artifacts/
+          path: 'artifacts/'
       - name: Create GitHub release
         uses: softprops/action-gh-release@v0.1.14
         with:
