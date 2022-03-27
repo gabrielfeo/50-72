@@ -17,18 +17,11 @@ runs:
         java-version: 11
     - name: Set up Gradle env
       uses: gradle/gradle-build-action@v2.1.4
-    - if: ${{ runner.os == 'Linux' }}
-      name: Set up Konan cache (Linux)
+    - name: Set up Konan cache
       uses: actions/cache@v3
       with:
-        path: /home/runner/.konan
-        key: linux
-    - if: ${{ runner.os == 'macOS' }}
-      name: Set up Konan cache (macOS)
-      uses: actions/cache@v3
-      with:
-        path: /Users/runner/.konan
-        key: macos
+        path: ~/.konan
+        key: ${{ runner.os }}
     - name: Run Gradle tasks
       shell: bash
       run: |
