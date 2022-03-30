@@ -4,8 +4,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.        
 
-FROM ubuntu:latest
+name: 'Verify PR'
 
-COPY ./50-72 /usr/local/bin/
+on:
+  pull_request
 
-ENTRYPOINT ["50-72"]
+jobs:
+  check-license-headers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run license-eye
+        uses: apache/skywalking-eyes@v0.2.0

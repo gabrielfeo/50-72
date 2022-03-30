@@ -1,18 +1,18 @@
 **/.DS_Store
 
-**/.idea
+**/.idea/**
 !.idea/runConfigurations
 !.idea/vcs.xml
 **/.iml
 
-.gradle
+**/.gradle/**
 local.properties
 
-**/build
+**/build/**
 kotlin-js-store/yarn.lock
 
 # gradle-profiler
-**/profile-out*
-**/gradle-user-home
+**/profile-out*/**
+**/gradle-user-home/**
 
 **/*.hprof
