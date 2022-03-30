@@ -31,7 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Package release
-        uses: ./.github/actions/package-cli-release
+        uses: ./.github/actions/build
         with:
           artifact-name: 'linux'
           tasks: ':cli:packageReleaseLinuxX64'
@@ -48,7 +48,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Package release
-        uses: ./.github/actions/package-cli-release
+        uses: ./.github/actions/build
         with:
           artifact-name: 'macos'
           tasks: ':cli:packageReleaseMacosX64'

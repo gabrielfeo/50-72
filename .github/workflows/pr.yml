@@ -28,6 +28,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run 'check' tasks
-        uses: ./.github/actions/package-cli-release
+        uses: ./.github/actions/build
         with:
           tasks: 'check'

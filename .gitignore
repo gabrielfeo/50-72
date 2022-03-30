@@ -9,6 +9,7 @@
 local.properties
 
 **/build/**
+!.github/actions/build/**
 kotlin-js-store/yarn.lock
 
 # gradle-profiler
