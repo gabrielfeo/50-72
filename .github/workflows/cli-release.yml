@@ -8,20 +8,27 @@ name: 'CLI release'
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      do-create-release:
-        description: 'Create release?'
-        type: boolean
-        required: false
-        default: false
+    tags: [v*]
 
 defaults:
   run:
     shell: bash
 
 jobs:
+
+  parse-tag:
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+    outputs:
+      name: ${{ env.TAG_NAME }}
+      subject: ${{ env.TAG_SUBJECT }}
+      body: ${{ env.TAG_BODY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Parse tag info
+        run: ./.github/steps/parse-tag-info.sh "${{ env.TAG_NAME }}" >> "$GITHUB_ENV"
 
   package-linux-release:
     runs-on: ubuntu-latest
@@ -36,11 +43,6 @@ jobs:
           artifact-name: 'linux'
           tasks: ':cli:packageReleaseLinuxX64'
           path-to-upload: 'cli/build/release/**'
-      - name: Parse version number
-        run: |
-          VERSION="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
-          echo "Parsed version $VERSION"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
   package-macos-release:
     runs-on: macos-latest
@@ -55,8 +57,7 @@ jobs:
           path-to-upload: 'cli/build/release/**'
 
   create-release:
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.do-create-release }}
-    needs: [package-linux-release, package-macos-release]
+    needs: [parse-tag, package-linux-release, package-macos-release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -73,10 +74,13 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v0.1.14
         with:
-          tag_name: ${{ needs.package-linux-release.outputs.version }}
+          tag_name: ${{ needs.parse-tag.outputs.name }}
           target_commitish: ${{ github.sha }}
           draft: true
-          generate_release_notes: true
+          body: |
+            ${{ needs.parse-tag.outputs.subject }}
+
+            ${{ needs.parse-tag.outputs.body }}
           fail_on_unmatched_files: true
           files: |
             artifacts/linux/*
@@ -84,6 +88,6 @@ jobs:
       - name: Update Homebrew formula
         run: |
           .github/steps/update-homebrew-formula.py \
-            --version "${{ needs.package-linux-release.outputs.version }}" \
+            --version "${{ needs.parse-tag.outputs.name }}" \
             --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --assets artifacts/linux/* artifacts/macos/*
