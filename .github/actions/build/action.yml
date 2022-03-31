@@ -34,6 +34,12 @@ runs:
         restore-keys: |
           konan-${{ runner.os }}-${{ inputs.tasks }}-
           konan-${{ runner.os }}-
+    - name: Print out cache contents
+      shell: bash
+      run: |
+        echo "::group::Konan cache contents"
+        ls -lR ~/.konan/ || echo "Empty"
+        echo "::endgroup::"
     - name: Run Gradle tasks
       shell: bash
       run: |
