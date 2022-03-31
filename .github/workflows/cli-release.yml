@@ -31,10 +31,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Package release
-        uses: ./.github/actions/package-cli-release
+        uses: ./.github/actions/build
         with:
           artifact-name: 'linux'
           tasks: ':cli:packageReleaseLinuxX64'
+          path-to-upload: 'cli/build/release/**'
       - name: Parse version number
         run: |
           VERSION="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
@@ -47,10 +48,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Package release
-        uses: ./.github/actions/package-cli-release
+        uses: ./.github/actions/build
         with:
           artifact-name: 'macos'
           tasks: ':cli:packageReleaseMacosX64'
+          path-to-upload: 'cli/build/release/**'
 
   create-release:
     if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.do-create-release }}

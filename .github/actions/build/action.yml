@@ -4,15 +4,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.        
 
-name: Package CLI release
-description: Packages a CLI release
+name: 'Build'
+description: 'Run a Gradle build'
 inputs:
-  artifact-name:
-    description: "Artifact name"
-    required: true
   tasks:
     description: "Gradle tasks"
     required: true
+  artifact-name:
+    description: "Artifact name"
+    required: false
+  path-to-upload:
+    description: "Path to upload as artifact"
+    required: false
 runs:
   using: "composite"
   steps:
@@ -38,8 +41,9 @@ runs:
         ./gradlew ${{ inputs.tasks }}
         echo "::endgroup::"
     - name: Upload
+      if: ${{ inputs.artifact-name }}
       uses: actions/upload-artifact@v3.0.0
       with:
         name: ${{ inputs.artifact-name }}
-        path: cli/build/release/**
+        path: ${{ inputs.path-to-upload }}
         if-no-files-found: error
