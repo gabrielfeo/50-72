@@ -20,7 +20,6 @@ private const val ERROR_MESSAGE = "formatOut"
 
 class FormatMessageTest {
 
-    private var exitCode = 0
     private var stdout = ""
     private var stderr = ""
     private val formatArgs = object {
@@ -32,7 +31,6 @@ class FormatMessageTest {
     fun givenFormatReturnsThenPrintStdoutAndExit0() {
         run("message")
         assertEquals("message\n", stdout)
-        assertEquals(0, exitCode)
         assertTrue(stderr.isEmpty())
     }
 
