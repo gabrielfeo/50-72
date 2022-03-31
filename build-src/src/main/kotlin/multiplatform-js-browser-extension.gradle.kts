@@ -6,6 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */        
 
+/*
+* A project that bundles together a manifest.json and any number of JS executables
+* to generate a browser extension.
+*/
+
 plugins {
     id("base")
 }

@@ -7,7 +7,7 @@
  */        
 
 plugins {
-    id("aggregator")
+    id("multiplatform-js-browser-extension")
 }
 
 val aggregateDistributionsWithManifest by tasks.registering(aggregate.Aggregate::class) {
