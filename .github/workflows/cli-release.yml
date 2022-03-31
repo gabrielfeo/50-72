@@ -16,20 +16,6 @@ defaults:
 
 jobs:
 
-  parse-tag:
-    runs-on: ubuntu-latest
-    env:
-      TAG_NAME: ${{ github.ref_name }}
-    outputs:
-      name: ${{ env.TAG_NAME }}
-      subject: ${{ env.TAG_SUBJECT }}
-      body: ${{ env.TAG_BODY }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Parse tag info
-        run: ./.github/steps/parse-tag-info.sh "${{ env.TAG_NAME }}" >> "$GITHUB_ENV"
-
   package-linux-release:
     runs-on: ubuntu-latest
     outputs:
@@ -57,16 +43,23 @@ jobs:
           path-to-upload: 'cli/build/release/**'
 
   create-release:
-    needs: [parse-tag, package-linux-release, package-macos-release]
+    needs: [package-linux-release, package-macos-release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
       GITHUB_USERNAME: 'gabrielfeo'
       GITHUB_TOKEN: ${{ secrets.CROSS_REPO_GITHUB_TOKEN }}
+      TAG_NAME: ${{ github.ref_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Fetch actual tag
+        run: .github/steps/fetch-actual-tag.sh "$TAG_NAME"
+      - name: Require annotated tag
+        run: .github/steps/require-annotated-tag.sh "$TAG_NAME"
+      - name: Parse tag message
+        run: ./.github/steps/parse-tag-message.sh "$TAG_NAME" | tee ./tag_message
       - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
@@ -74,13 +67,10 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v0.1.14
         with:
-          tag_name: ${{ needs.parse-tag.outputs.name }}
+          tag_name: ${{ env.TAG_NAME }}
           target_commitish: ${{ github.sha }}
           draft: true
-          body: |
-            ${{ needs.parse-tag.outputs.subject }}
-
-            ${{ needs.parse-tag.outputs.body }}
+          body_path: ./tag_message
           fail_on_unmatched_files: true
           files: |
             artifacts/linux/*
@@ -88,6 +78,6 @@ jobs:
       - name: Update Homebrew formula
         run: |
           .github/steps/update-homebrew-formula.py \
-            --version "${{ needs.parse-tag.outputs.name }}" \
+            --version "$TAG_NAME" \
             --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --assets artifacts/linux/* artifacts/macos/*

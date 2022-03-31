@@ -10,6 +10,5 @@ set -euo pipefail
 
 tag_name=${1:?Tag name expected}
 
-echo "TAG_NAME=$tag_name"
-echo "TAG_SUBJECT=$(git tag --list --format='%(contents:subject)' $tag_name)"
-echo "TAG_BODY=$(git tag --list --format='%(contents:body)' $tag_name)"
+git update-ref -d "refs/heads/$tag_name" || true
+git fetch -f origin "refs/tags/$tag_name:refs/tags/$tag_name"
