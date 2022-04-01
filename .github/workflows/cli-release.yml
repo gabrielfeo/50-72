@@ -8,14 +8,7 @@ name: 'CLI release'
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      do-create-release:
-        description: 'Create release?'
-        type: boolean
-        required: false
-        default: false
+    tags: [v*]
 
 defaults:
   run:
@@ -36,11 +29,6 @@ jobs:
           artifact-name: 'linux'
           tasks: ':cli:packageReleaseLinuxX64'
           path-to-upload: 'cli/build/release/**'
-      - name: Parse version number
-        run: |
-          VERSION="$(ls ./cli/build/release/*.zip | head -1 | grep -Eo 'v[0-9.]+')"
-          echo "Parsed version $VERSION"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
   package-macos-release:
     runs-on: macos-latest
@@ -55,7 +43,6 @@ jobs:
           path-to-upload: 'cli/build/release/**'
 
   create-release:
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.do-create-release }}
     needs: [package-linux-release, package-macos-release]
     runs-on: ubuntu-latest
     permissions:
@@ -63,9 +50,17 @@ jobs:
     env:
       GITHUB_USERNAME: 'gabrielfeo'
       GITHUB_TOKEN: ${{ secrets.CROSS_REPO_GITHUB_TOKEN }}
+      TAG_NAME: ${{ github.ref_name }}
+      ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Fetch actual tag
+        run: .github/steps/fetch-actual-tag.sh "$TAG_NAME"
+      - name: Require annotated tag
+        run: .github/steps/require-annotated-tag.sh "$TAG_NAME"
+      - name: Parse tag message
+        run: ./.github/steps/parse-tag-message.sh "$TAG_NAME" | tee ./tag_message
       - name: Download artifacts
         uses: actions/download-artifact@v3.0.0
         with:
@@ -73,10 +68,10 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v0.1.14
         with:
-          tag_name: ${{ needs.package-linux-release.outputs.version }}
+          tag_name: ${{ env.TAG_NAME }}
           target_commitish: ${{ github.sha }}
           draft: true
-          generate_release_notes: true
+          body_path: ./tag_message
           fail_on_unmatched_files: true
           files: |
             artifacts/linux/*
@@ -84,6 +79,6 @@ jobs:
       - name: Update Homebrew formula
         run: |
           .github/steps/update-homebrew-formula.py \
-            --version "${{ needs.package-linux-release.outputs.version }}" \
-            --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --version "$TAG_NAME" \
+            --trigger-source "$ACTION_RUN_URL" \
             --assets artifacts/linux/* artifacts/macos/*
