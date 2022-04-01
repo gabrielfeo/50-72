@@ -51,6 +51,7 @@ jobs:
       GITHUB_USERNAME: 'gabrielfeo'
       GITHUB_TOKEN: ${{ secrets.CROSS_REPO_GITHUB_TOKEN }}
       TAG_NAME: ${{ github.ref_name }}
+      ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -79,5 +80,5 @@ jobs:
         run: |
           .github/steps/update-homebrew-formula.py \
             --version "$TAG_NAME" \
-            --trigger-source "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --trigger-source "$ACTION_RUN_URL" \
             --assets artifacts/linux/* artifacts/macos/*

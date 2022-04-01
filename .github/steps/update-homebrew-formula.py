@@ -7,11 +7,11 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.        
 
 import argparse
-from collections import namedtuple
 import hashlib
 import os
 import requests
 import sys
+from collections import namedtuple
 
 TAP_REPOSITORY = 'gabrielfeo/homebrew-50-72'
 
@@ -63,6 +63,7 @@ response = requests.post(
 
 if response.status_code in range(200, 299):
     print(f"Trigger successful: {response.status_code}")
+    print(f"See it on https://github.com/{TAP_REPOSITORY}")
 else:
     print(f"Request failed: {response.status_code}\n{response.content}", file=sys.stderr)
     exit(1)
