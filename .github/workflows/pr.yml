@@ -27,7 +27,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Check for modified code
+        id: diff
+        uses: tj-actions/changed-files@v18.6
+        with:
+          files: |
+            **/src/**
+            **/*.gradle*
+            ./gradle/*
       - name: Run 'check' tasks
+        if: ${{ steps.diff.outputs.all_modified_files }}
         uses: ./.github/actions/build
         with:
           tasks: 'check'
@@ -37,7 +46,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Get changed files
+      - name: Check for modified scripts
         id: diff
         uses: tj-actions/changed-files@v18.6
         with:
