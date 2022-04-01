@@ -43,7 +43,7 @@ jobs:
         with:
           files: '**/*.sh'
       - name: shellcheck
-        if: ${{ steps.diff.outputs.any_modified }}
+        if: ${{ steps.diff.outputs.all_modified_files }}
         uses: docker://koalaman/shellcheck:latest
         with:
           args: ${{ steps.diff.outputs.all_modified_files }}
