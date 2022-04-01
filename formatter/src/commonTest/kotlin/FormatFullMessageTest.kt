@@ -95,11 +95,37 @@ class FormatFullMessageTest {
         assertEquals(MESSAGE_73_WITH_COMMENTS_FIXED, reformatted)
     }
 
+    /**
+     * Git ignores any empty lines before the subject line, so it shouldn't be considered
+     * for formatting or validation. Auto-generated squash messages are a case of this.
+     */
+    @Test
+    fun stripsCommentsAndEmptyLinesBeforeSubject() {
+        val reformatted = formatFullMessage(SQUASH_MESSAGE_SUBJECT_50_BODY_72)
+        assertEquals(SQUASH_MESSAGE_SUBJECT_50_BODY_72_STRIPPED, reformatted)
+    }
+
     @Test
     fun reformatsMiscMessages() {
-        miscMessages.onEachIndexed { i, (original, expected) ->
-            val actual = formatFullMessage(original)
-            assertEquals(expected, actual, "Failed at case $i")
+        for ((i, case) in miscMessages.iterator().withIndex()) {
+            val (original, expected) = case
+            try {
+                val actual = formatFullMessage(original)
+                assertEquals(expected, actual, "Message differs at case $i")
+            } catch (error: Throwable) {
+                throw AssertionError("Exception thrown at case $i: ${error.stackTraceToString()}")
+            }
+        }
+    }
+
+    @Test
+    fun reformatsMiscInvalidMessages() {
+        for ((i, case) in miscInvalidMessages.iterator().withIndex()) {
+            val (original, expectedErrorMessage) = case
+            val error = assertFails {
+                formatFullMessage(original)
+            }
+            assertEquals(expectedErrorMessage, error.message, "Error message differs at case $i")
         }
     }
 }
