@@ -6,41 +6,81 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */        
 
+import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
+import java.nio.file.Files
 
 plugins {
     id("multiplatform-native-app")
 }
 
-val packageRelease by tasks.registering(Zip::class) task@{
+val releaseDir = project.layout.buildDirectory.dir("release").get()
+
+val packageRelease by tasks.registering task@{
     group = "Release"
+    description = "Links all enabled release executables and archives each in its own zip"
+}
+
+val buildLatestRelease by tasks.registering task@{
+    group = "Release"
+    description = "Links all enabled release executables and symlinks them to the 'latest' folder"
 }
 
 kotlin.targets.configureEach {
     if (platformType != KotlinPlatformType.native) {
         return@configureEach
     }
-    val targetRelease = registerPackageTaskFor(this)
+    configureTasksForTarget(this)
+}
+
+fun configureTasksForTarget(target: KotlinTarget) {
+    val symlinkTargetRelease = registerSymlinkTaskFor(target)
+    buildLatestRelease.configure {
+        val targetSymlink = symlinkTargetRelease.map { it.outputs }
+        inputs.file(targetSymlink)
+        outputs.file(targetSymlink)
+    }
+    val packageTargetRelease = registerPackageTaskFor(target)
     packageRelease.configure {
-        dependsOn(targetRelease)
+        val targetPackage = packageTargetRelease.map { it.outputs }
+        inputs.file(targetPackage)
+        outputs.file(targetPackage)
     }
 }
 
-fun registerPackageTaskFor(target: KotlinTarget): TaskProvider<Zip> {
-    val suffix = target.name.capitalize()
-    return tasks.register<Zip>("packageRelease$suffix") {
-        val executableLinkage = tasks.named("linkReleaseExecutable$suffix")
-        from(executableLinkage.map { it.outputs })
-        into("50-72/bin")
-        include { it.path.endsWith(".kexe") }
-        rename(".*", "50-72")
+fun registerSymlinkTaskFor(target: KotlinTarget) =
+    tasks.register("symlinkExecutable${target.name.capitalized()}") {
+        val outputFolder = releaseDir.dir("latest/${target.name}/bin")
+        val symlinkFile = outputFolder.file("50-72")
+        val kexe = linkReleaseExecutable(target).map { linkage ->
+            val executableDir = linkage.outputs.files.singleFile.toPath()
+            executableDir.resolve("cli.kexe")
+        }
+        outputs.file(symlinkFile)
+        inputs.file(kexe)
+        doLast {
+            val linkPath = symlinkFile.asFile.toPath()
+            Files.createSymbolicLink(linkPath, kexe.get())
+        }
+    }
 
-        val releaseDir = project.layout.buildDirectory.dir("release")
+fun registerPackageTaskFor(target: KotlinTarget) =
+    tasks.register<Zip>("packageRelease${target.name.capitalized()}") {
+        with(executableCopySpecFor(target, intoDir = "50-72/bin"))
         destinationDirectory.set(releaseDir)
-
         archiveBaseName.set("50-72")
         archiveVersion.set("v${project.version}")
         archiveClassifier.set(target.targetName)
     }
+
+fun executableCopySpecFor(target: KotlinTarget, intoDir: String) = copySpec {
+    val executableLinkage = linkReleaseExecutable(target)
+    from(executableLinkage.map { it.outputs })
+    include { it.path.endsWith(".kexe") }
+    rename(".*", "50-72")
+    into(intoDir)
 }
+
+fun linkReleaseExecutable(target: KotlinTarget) =
+    tasks.named("linkReleaseExecutable${target.name.capitalized()}")
