@@ -16,7 +16,8 @@ $ 50-72 hook --install
 $ git commit -m "Freestyle message
 > 
 > You don't have to worry about breaking lines yourself anymore. The quick brown fox jumps over the lazy dog. The quick
-> brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown"
+> brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog."
+#  |
 #  |
 #  |  Gets committed as 
 #  V
@@ -26,6 +27,7 @@ $ git commit -m "Freestyle message
 # You don't have to worry about breaking lines yourself anymore. The quick
 # brown fox jumps over the lazy dog. The quick brown fox jumps over the
 # lazy dog. The quick brown fox jumps over the lazy dog. The quick brown
+# fox jumps over the lazy dog.
 ```
 
 The hook must be installed per repository.
@@ -47,24 +49,24 @@ from source.
   <summary>
     Are there any other features? Can I use it in my own scripts?
   </summary>
-  A manual formatting command is available so you can use it as part of your own scripts (in CI,
+  A manual `format` command is available so you can use it as part of your own scripts (in CI,
   for example). Here's the full help text:
 
 ```
 Usage: 50-72 [OPTIONS] COMMAND [ARGS]...
 
-Format commit messages to the 50/72 rule automatically.
-
-It's recommended to install it in the git hooks of each repository:
-
-50-72 hook --install
-
-Otherwise, manual usage is:
-
-50-72 format MESSAGE (to format a message string)
-50-72 format-file (to format the git commit message file)
-
-See --help of each subcommand for more.
+  Format commit messages to the 50/72 rule automatically.
+  
+  It's recommended to install it in the git hooks of each repository:
+  
+  50-72 hook --install
+  
+  Otherwise, manual usage is:
+  
+  50-72 format MESSAGE (to format a message string)
+  50-72 format-file (to format the git commit message file)
+  
+  See --help of each subcommand for more.
 
 Options:
 -h, --help  Show this message and exit
@@ -81,19 +83,22 @@ hook         Install the 50-72 git hook in the current repository.
   <summary>
     How does it work?
   </summary>
-  <code>50-72 hook --install</code> simply adds to the
-  <a href="https://git-scm.com/docs/githooks#_prepare_commit_msg"><code>prepare-commit-msg</code> git hook</a>
+
+  `50-72 hook --install` simply adds to the
+  [`prepare-commit-msg` git hook][man-githook]
   of the repository you run it from. If you already have such a hook in that repo, it will append to it,
   otherwise it will create one. 
+
 </details>
 
 <details>
   <summary>
-    Is it compatible with GitKraken/SourceTree/VS Code/IntelliJ/(...) git client?
+    Is it compatible with git GUIs like GitKraken, SourceTree, VS Code, IntelliJ?
   </summary>
-  It should work with any git client because they all <i>should</i> support git hooks. I have not tested
+
+  It should work with any git client because they all _should_ support git hooks. I have not tested
   it with every client though. If you run into any problems, please
-  <a href="https://github.com/gabrielfeo/50-72/issues/new">submit a new issue</a>.
+  [submit a new issue][new-issue].
 
 Known to work out-of-the-box:
 
@@ -106,30 +111,36 @@ Known to work out-of-the-box:
   <summary>
     Are there any messages that aren't supported?
   </summary>
-  The <a href="https://github.com/gabrielfeo/50-72/issues">Issues</a> page is the most up-to-date
-  source to see known issues.
+
+  The [Issues][issues] page is the most up-to-date source to see known issues.
+
 </details>
 
 <details>
   <summary>
     Are markdown messages supported?
   </summary>
-  Markdown support is available with <code>50-72 format --markdown [message]</code> but still needs work. Currently,
+
+  Markdown support is available with `50-72 format --markdown <message>` but still needs work. Currently,
   the hook can't be installed with markdown enabled. Markdown will be fully supported in the browser extension.
+
 </details>
 
 <details>
   <summary>
-    Do I have to re-run `--install` when a new `50-72` version comes out?
+    Do I have to re-run <code>--install</code> when a new <code>50-72</code> version comes out?
   </summary>
+
   No. The git hook calls `50-72` itself, so it'll always get the latest installed version on your
   system (technically, the first one from your `PATH`).
+
 </details>
 
 <details>
   <summary>
     How can I uninstall the hook from a repository?
   </summary>
+
   From the repository root dir:
 
 ```shell
@@ -154,7 +165,7 @@ brew untap gabrielfeo/50-72
 
 If you'd like to build from source, you'll need:
 
-- Linux or macOS*
+- Linux or macOS (with Xcode developer tools)
 - JDK 11 (with `JAVA_HOME` set)
 
 Then just clone this repository and run from its root directory:
@@ -165,8 +176,6 @@ Then just clone this repository and run from its root directory:
 
 A zip file with the `50-72` executable is generated in `cli/build/release`. Unzip in a directory and add this directory
 to your shell `PATH` variable.
-
-*You need Xcode developer tools installed, but you probably have it already if you ever compiled anything on macOS
 
 ## Contributing
 
@@ -179,3 +188,6 @@ the `50-72` hook in the `50-72` repo itself.
 [rule-about]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [brew]: https://brew.sh/
 [releases]: https://github.com/gabrielfeo/50-72/releases
+[man-githook]: https://git-scm.com/docs/githooks#_prepare_commit_msg
+[issues]: https://github.com/gabrielfeo/50-72/issues
+[new-issue]: https://github.com/gabrielfeo/50-72/issues/new
