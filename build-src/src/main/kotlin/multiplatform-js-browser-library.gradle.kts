@@ -7,7 +7,7 @@
  */        
 
 plugins {
-    kotlin("multiplatform")
+    id("multiplatform")
 }
 
 configureJsTarget {

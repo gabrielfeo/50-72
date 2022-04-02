@@ -6,27 +6,28 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */        
 
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 plugins {
     id("multiplatform-native-app")
 }
 
-val packageRelease by tasks.registering(Zip::class) {
+val packageRelease by tasks.registering(Zip::class) task@{
     group = "Release"
 }
 
 kotlin.targets.configureEach {
-    if ("metadata" in name) {
+    if (platformType != KotlinPlatformType.native) {
         return@configureEach
     }
-    val targetRelease = createPackageTaskFor(this)
+    val targetRelease = registerPackageTaskFor(this)
     packageRelease.configure {
         dependsOn(targetRelease)
     }
 }
 
-fun createPackageTaskFor(target: KotlinTarget): TaskProvider<Zip> {
+fun registerPackageTaskFor(target: KotlinTarget): TaskProvider<Zip> {
     val suffix = target.name.capitalize()
     return tasks.register<Zip>("packageRelease$suffix") {
         val executableLinkage = tasks.named("linkReleaseExecutable$suffix")
