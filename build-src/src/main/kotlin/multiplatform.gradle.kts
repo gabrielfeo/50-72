@@ -20,5 +20,16 @@ configure<KotlinMultiplatformExtension> {
     }
 }
 
+if (shouldShowTestStandardStreams()) {
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
+}
+
 fun Project.shouldEnableJvmTarget(): Boolean =
-    providers.gradleProperty("com.gabrielfeo.5072.jvmTarget").isPresent
+    providers.gradleProperty("com.gabrielfeo.5072.jvmTarget").orNull?.toBoolean() ?: false
+
+fun Project.shouldShowTestStandardStreams(): Boolean =
+    providers.gradleProperty("com.gabrielfeo.5072.showTestStandardStreams").orNull?.toBoolean() ?: false
