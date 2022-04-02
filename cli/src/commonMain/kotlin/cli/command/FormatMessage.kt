@@ -15,6 +15,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import formatFullMessage
 
+const val EXPERIMENTAL_MARKDOWN_WARNING = "WARNING: Markdown support is experimental"
+
 class FormatMessage(
     private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
@@ -30,6 +32,9 @@ class FormatMessage(
     ).flag(default = false)
 
     override fun run() {
+        if (isMarkdown) {
+            echo(EXPERIMENTAL_MARKDOWN_WARNING, err = true)
+        }
         try {
             val formattedMessage = format(message, isMarkdown)
             echo(formattedMessage)
