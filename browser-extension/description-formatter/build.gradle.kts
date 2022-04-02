@@ -7,7 +7,7 @@
  */        
 
 plugins {
-    id("multiplatform-js-browser-app")
+    id("multiplatform-js-browser-executable")
 }
 
 dependencies {
