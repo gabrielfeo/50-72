@@ -40,8 +40,8 @@ The easiest way to install on both macOS and Linux is with [Homebrew][brew]:
 brew install gabrielfeo/50-72/cli
 ```
 
-This installs a pre-built binary from the [latest stable release][releases]. See below for instructions on how to build
-from source.
+This installs a pre-built binary from the [latest stable release][releases]. If you prefer to build from source, see
+below for instructions.
 
 ## FAQ
 
@@ -171,11 +171,11 @@ If you'd like to build from source, you'll need:
 Then just clone this repository and run from its root directory:
 
 ```shell
-./gradlew :cli:packageRelease
+./gradlew :cli:buildLatestRelease
 ```
 
-A zip file with the `50-72` executable is generated in `cli/build/release`. Unzip in a directory and add this directory
-to your shell `PATH` variable.
+A symlink to the generated native executable will be created in `cli/build/release/latest/<platform>/bin` where
+`<platform>` depends on your host OS and processor architecture. Add the desired directory to your `PATH` variable.
 
 ## Contributing
 
@@ -184,6 +184,8 @@ Usage and bug descriptions are great first contributions. I'll treat bug reports
 PRs are much welcome and I'll be happy to help you get started if you need. If you want to contribute code, please take
 a look at existing commits to follow current project patterns, and of course, follow the 50/72 rule! You can install
 the `50-72` hook in the `50-72` repo itself.
+
+The project is written in Kotlin Multiplatform compiling to native code and JavaScript.
 
 [rule-about]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [brew]: https://brew.sh/
