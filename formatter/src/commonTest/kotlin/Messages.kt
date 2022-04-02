@@ -126,8 +126,40 @@ const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED = """$SINGLE_LI
 
 $BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED"""
 
+const val SQUASH_MESSAGE_SUBJECT_50_BODY_72 = """# This is a combination of 2 commits.
+# This is the 1st commit message:
+
+a
+
+# This is the commit message #2:
+
+b
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Fri Apr 1 11:21:10 2022 +0100
+#
+# interactive rebase in progress; onto 11e86f9
+# Last commands done (2 commands done):
+#    pick 019360b a
+#    squash c442edd b
+# No commands remaining.
+# You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
+#
+# Changes to be committed:
+#	new file:   a
+#	new file:   b
+#
+"""
+
+const val SQUASH_MESSAGE_SUBJECT_50_BODY_72_STRIPPED = """a
+
+
+b """
 
 val miscMessages = mapOf(
+    //0------------------------------------------------------------------
     """
     $SINGLE_LINE_50
     
@@ -142,7 +174,7 @@ val miscMessages = mapOf(
         foo foo foo foo ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
         ipsum ipsum ipsum ipsum ipsum ipsum
         """.trimIndent(),
-    //------------------------------------------------------------------
+    //1------------------------------------------------------------------
     """
     $SINGLE_LINE_50
     
@@ -157,7 +189,7 @@ val miscMessages = mapOf(
         foo foo foo foo foo foo foo ipsum ipsum ipsum ipsum ipsum ipsum ipsum
         ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
         """.trimIndent(),
-    //------------------------------------------------------------------
+    //2------------------------------------------------------------------
     """
     $SINGLE_LINE_50
     
@@ -168,7 +200,7 @@ val miscMessages = mapOf(
         
         foo
         """.trimIndent(),
-    //------------------------------------------------------------------
+    //3------------------------------------------------------------------
     """
     $SINGLE_LINE_50
     
@@ -179,7 +211,77 @@ val miscMessages = mapOf(
         
         foo
         """.trimIndent(),
-    //------------------------------------------------------------------
+    //4------------------------------------------------------------------
+    """
+    # This is a combination of 2 commits.
+    # This is the 1st commit message:
+    
+    a
+    
+    # This is the commit message #2:
+    
+    $SINGLE_LINE_51
+    
+    # Please enter the commit message for your changes. Lines starting
+    # with '#' will be ignored, and an empty message aborts the commit.
+    #
+    # Date:      Fri Apr 1 11:21:10 2022 +0100
+    #
+    # interactive rebase in progress; onto 11e86f9
+    # Last commands done (2 commands done):
+    #    pick 019360b a
+    #    squash c442edd b
+    # No commands remaining.
+    # You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
+    #
+    # Changes to be committed:
+    #	new file:   a
+    #	new file:   b
+    #
+    """.trimIndent() to """
+        a
+        
+        
+        $SINGLE_LINE_51 
+        """.trimIndent(),
+    //5------------------------------------------------------------------
+    """
+    |# This is a combination of 2 commits.
+    |# This is the 1st commit message:
+    |
+    |a
+    |
+    |$SINGLE_LINE_51
+    |
+    |# This is the commit message #2:
+    |
+    |${BODY_73.lines().joinToString("\n|")}
+    |
+    |# Please enter the commit message for your changes. Lines starting
+    |# with '#' will be ignored, and an empty message aborts the commit.
+    |#
+    |# Date:      Fri Apr 1 11:21:10 2022 +0100
+    |#
+    |# interactive rebase in progress; onto 11e86f9
+    |# Last commands done (2 commands done):
+    |#    pick 019360b a
+    |#    squash c442edd b
+    |# No commands remaining.
+    |# You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
+    |#
+    |# Changes to be committed:
+    |#	new file:   a
+    |#	new file:   b
+    |#
+    """.trimMargin() to """
+        |a
+        |
+        |$SINGLE_LINE_51
+        |
+        |
+        |${BODY_73_FIXED.lines().joinToString("\n|")} 
+        """.trimMargin(),
+    //6------------------------------------------------------------------
     """
     $SINGLE_LINE_50
     
@@ -304,7 +406,7 @@ val miscMessages = mapOf(
         long long long long long long long long long long long long long long
         long
         """.trimIndent(),
-    //------------------------------------------------------------------
+    //7------------------------------------------------------------------
     """
     $SINGLE_LINE_50
     
@@ -374,4 +476,36 @@ val miscMessages = mapOf(
         long long long long long long long long long long long long long long
         long
         """.trimIndent(),
+)
+
+val miscInvalidMessages = mapOf(
+    //1------------------------------------------------------------------
+    """
+    # This is a combination of 2 commits.
+    # This is the 1st commit message:
+    
+    $SINGLE_LINE_51
+    
+    # This is the commit message #2:
+    
+    b
+    
+    # Please enter the commit message for your changes. Lines starting
+    # with '#' will be ignored, and an empty message aborts the commit.
+    #
+    # Date:      Fri Apr 1 11:21:10 2022 +0100
+    #
+    # interactive rebase in progress; onto 11e86f9
+    # Last commands done (2 commands done):
+    #    pick 019360b a
+    #    squash c442edd b
+    # No commands remaining.
+    # You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
+    #
+    # Changes to be committed:
+    #	new file:   a
+    #	new file:   b
+    #
+    """.trimIndent() to
+        HEADING_OVER_50_MESSAGE
 )

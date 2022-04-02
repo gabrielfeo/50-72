@@ -10,6 +10,7 @@ import CommitMessage.MarkdownBody
 import CommitMessage.MarkdownBody.Section.Other
 import CommitMessage.MarkdownBody.Section.Paragraph
 import kotlin.jvm.JvmInline
+import kotlin.text.RegexOption.MULTILINE
 
 internal const val HEADING_OVER_50_MESSAGE = "Heading line must not be over 50 columns. Please re-format the heading manually."
 internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = "There must be a blank line between subject and body. Please add the blank line!"
@@ -91,7 +92,7 @@ private fun StringBuilder.appendReformattedBody(body: String, stripComments: Boo
 
 @Suppress("RemoveExplicitTypeArguments")
 private fun parseMarkdownBody(body: String): MarkdownBody {
-    val sectionsRegex = Regex("""(?:[^\n]+\n?)+""", RegexOption.MULTILINE)
+    val sectionsRegex = Regex("""(?:[^\n]+\n?)+""", MULTILINE)
     val sections = sectionsRegex.findAll(body)
         .map { it.value }
         .map {
@@ -108,14 +109,26 @@ private fun parseMarkdownBody(body: String): MarkdownBody {
 
 private class CommitMessage(fullMessage: String) {
     val fullText = fullMessage.trim()
-    private val indexOfFirstNewline = fullText.indexOf('\n')
 
-    val hasBody = indexOfFirstNewline != -1
-    val subjectIsUpTo50Columns = (hasBody && indexOfFirstNewline in 1..50) || fullText.length <= 50
-    val hasSubjectBodySeparator = hasBody && fullText[indexOfFirstNewline + 1] == '\n'
+    private val indexOfFirstMessageChar: Int = run {
+        val match = Regex("^[^#\n]", MULTILINE).find(fullText)
+        checkNotNull(match?.range?.first)
+    }
+    private val indexOfFirstMessageNewline =
+        fullText.indexOf('\n', startIndex = indexOfFirstMessageChar)
 
-    fun subject() = fullText.slice(0 until indexOfFirstNewline).trim()
-    fun body() = fullText.slice(indexOfFirstNewline + 2..fullText.lastIndex).trim()
+    val hasBody = indexOfFirstMessageNewline != -1
+    val subjectIsUpTo50Columns: Boolean = run {
+            val firstMessageChar = indexOfFirstMessageChar
+            val hasBodyAndUpTo50 = hasBody
+                && indexOfFirstMessageNewline in firstMessageChar..firstMessageChar + 50
+            val noBodyAndUpTo50 = fullText.length <= firstMessageChar + 50
+            hasBodyAndUpTo50 || noBodyAndUpTo50
+        }
+    val hasSubjectBodySeparator = hasBody && fullText[indexOfFirstMessageNewline + 1] == '\n'
+
+    fun subject() = fullText.slice(indexOfFirstMessageChar until indexOfFirstMessageNewline).trim()
+    fun body() = fullText.slice(indexOfFirstMessageNewline + 2..fullText.lastIndex).trim()
 
     @JvmInline
     value class MarkdownBody(val sections: Sequence<Section>) {
