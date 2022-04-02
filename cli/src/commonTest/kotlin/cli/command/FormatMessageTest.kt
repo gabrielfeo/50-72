@@ -60,7 +60,6 @@ class FormatMessageTest {
 
     @Test
     fun acceptsArgumentOrdering1() {
-        assertTrue(formatArgs.message == null) // TODO Remove
         run("message", "--markdown")
         assertEquals(true, formatArgs.isMarkdown)
         assertEquals("message", formatArgs.message)
@@ -68,10 +67,16 @@ class FormatMessageTest {
 
     @Test
     fun acceptsArgumentOrdering2() {
-        assertTrue(formatArgs.message == null) // TODO Remove
         run("--markdown", "message")
         assertEquals(true, formatArgs.isMarkdown)
         assertEquals("message", formatArgs.message)
+    }
+
+    @Test
+    fun warnsMarkdownIsExperimental() {
+        run("--markdown", "message")
+        assertEquals("$EXPERIMENTAL_MARKDOWN_WARNING\n", stderr)
+        assertEquals("message\n", stdout)
     }
 
     @Suppress("UNCHECKED_CAST")
