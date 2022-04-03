@@ -139,84 +139,62 @@ private inline fun buildMessage(block: MessageBuilder.() -> Unit): String =
     MessageBuilder().apply(block).toString()
 
 /*
- * Note to self: Current separation of concerns is to keep MessageBuilder with the line-breaking logic onlu. Line and
+ * Note to self: Current separation of concerns is to keep MessageBuilder with the line-breaking logic only. Line and
  * section splitting is done outside the class. Only consider refactoring this further once all test are passing
  * including Markdown tests using the new implementation.
  */
 private class MessageBuilder : CharSequence {
 
-    private var currentLineLength: Int = 0
-
     private val string = StringBuilder()
-
+    private var currentLineLength: Int = 0
     private var hasPendingParagraphBreak = false
 
+    /**
+     * Append a paragraph break to the message. The actual break is delayed until more content is
+     * added. Will be discarded if
+     * - no more content is appended to the message
+     * - another break was added just before. It'd be a "double" paragraph break, which git would
+     *   discard anyway.
+     */
     fun breakParagraph() {
         // Only break if more content is appended
         hasPendingParagraphBreak = true
     }
 
-    fun appendRaw(value: CharSequence) {
-        doPendingParagraphBreakOrReturn()
-        string.append(value)
-        val indexOfLastNewline = value.lastIndexOf('\n')
-        if (indexOfLastNewline == -1) {
-            currentLineLength += value.length
-        } else {
-            val lengthAfterNewline = value.length - indexOfLastNewline - 1
-            currentLineLength = lengthAfterNewline
-        }
-    }
-
+    /**
+     * Append content to the message breaking lines to respect the 72-column limit and trimming
+     * redundant spaces.
+     */
     fun append(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
         for (word in value.split(Regex(" +"))) {
-            val wordIs72OrMore = word.length >= 72
-            if (wordIs72OrMore) {
-                if (currentLineLength == 0) {
-                    string.append("$word\n")
-                    currentLineLength = 0
-                } else {
-                    string.append("\n$word\n")
-                }
-                currentLineLength = 0
-            } else {
-                val mustPrependSpace = currentLineLength != 0
-                val addedLength = when {
-                    mustPrependSpace -> word.length + 1
-                    else -> word.length
-                }
-                val lineWontPass72 = currentLineLength + addedLength <= 72
-                if (lineWontPass72) {
-                    if (mustPrependSpace) {
-                        string.append(' ')
-                    }
-                    string.append(word)
-                    currentLineLength += addedLength
-                } else {
-                    string.append("\n$word")
-                    currentLineLength = addedLength
-                }
+            val wordIsUpTo72 = word.length <= 72
+            when {
+                currentLineIsEmpty() -> appendRaw(word)
+                wordIsUpTo72 && wouldLineStayUpTo72(word.length + 1) -> appendRaw(" $word")
+                else -> appendRaw("\n$word")
             }
         }
     }
 
-    // TODO Remove?
-    private fun append(value: Char) {
-        if (value == '\n') {
-            currentLineLength = 0
-        } else {
-            val lineWouldPass72 = currentLineLength + 1 > 72
-            if (lineWouldPass72) {
-                string.append('\n')
-                currentLineLength = 1
-            }
-        }
+    /**
+     * Append content to the message as-is, unlike [append].
+     */
+    fun appendRaw(value: CharSequence) {
+        doPendingParagraphBreakOrReturn()
         string.append(value)
+        val indexOfLastLineBreakInValue = value.lastIndexOf('\n')
+        val hasLineBreak = indexOfLastLineBreakInValue != -1
+        if (hasLineBreak) {
+            val lengthAfterLineBreak = value.length - indexOfLastLineBreakInValue - 1
+            currentLineLength = lengthAfterLineBreak
+        } else {
+            currentLineLength += value.length
+        }
     }
 
     private fun doPendingParagraphBreakOrReturn() {
-        if (!hasPendingParagraphBreak || shouldIgnoreParagraphBreak()) {
+        if (!hasPendingParagraphBreak || wouldNewParagraphBreakBeDoubleBreak()) {
             return
         }
         string.append('\n')
@@ -225,10 +203,12 @@ private class MessageBuilder : CharSequence {
         hasPendingParagraphBreak = false
     }
 
-    private fun shouldIgnoreParagraphBreak(): Boolean {
-        // Git ignores any line-breaks beyond the second one, so should we
-        return currentLineLength == 0 && string.takeLast(2) == "\n\n"
+    private fun wouldNewParagraphBreakBeDoubleBreak(): Boolean {
+        return currentLineIsEmpty() && string.takeLast(2) == "\n\n"
     }
+
+    private fun wouldLineStayUpTo72(addedLength: Int) = currentLineLength + addedLength < 72
+    private fun currentLineIsEmpty() = currentLineLength == 0
 
     override val length = string.length
     override fun get(index: Int) = string[index]
