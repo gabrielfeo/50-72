@@ -25,8 +25,7 @@ fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String 
     require(message.hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
     return buildMessage {
         appendRaw(message.subject())
-        breakLine()
-        breakLine()
+        breakParagraph()
         when {
             isMarkdown -> appendReformattedMarkdownBody(message.body())
             else -> appendReformattedBody(message.body(), stripComments = true)
@@ -54,8 +53,7 @@ private fun MessageBuilder.appendReformattedMarkdownBody(bodyText: String) {
     val body = parseMarkdownBody(bodyText)
     for (section in body.sections) {
         if (this.isNotEmpty()) {
-            breakLine()
-            breakLine()
+            breakParagraph()
         }
         when (section) {
             is Paragraph -> appendReformattedBody(section.content, stripComments = false)
@@ -67,18 +65,17 @@ private fun MessageBuilder.appendReformattedMarkdownBody(bodyText: String) {
 
 
 private fun MessageBuilder.appendReformattedBody(body: String, stripComments: Boolean) {
-    body.lines().forEach {
-        when {
-            it.isNotEmpty() && it.isNotComment() -> append(it)
-            it.isEmpty() -> {
-                breakLine()
-                breakLine()
+    body.lineSequence()
+        .map { it.trim(' ') }
+        .forEach {
+            when {
+                it.isNotEmpty() && it.isNotComment() -> append(it)
+                it.isEmpty() -> breakParagraph()
+                stripComments && it.isComment() -> return@forEach
+                it.isComment() -> appendRaw(it)
+                else -> error("Unpredicted case: line '$it'")
             }
-            stripComments && it.isComment() -> return@forEach
-            it.isEmpty() || it.isComment() -> appendRaw(it)
-            else -> error("Unpredicted case: line '$it'")
         }
-    }
 }
 
 private fun String.isComment() = startsWith("#")
@@ -152,12 +149,15 @@ private class MessageBuilder : CharSequence {
 
     private val string = StringBuilder()
 
-    fun breakLine() {
-        string.append('\n')
-        currentLineLength = 0
+    private var hasPendingParagraphBreak = false
+
+    fun breakParagraph() {
+        // Only break if more content is appended
+        hasPendingParagraphBreak = true
     }
 
     fun appendRaw(value: CharSequence) {
+        doPendingParagraphBreakOrReturn()
         string.append(value)
         val indexOfLastNewline = value.lastIndexOf('\n')
         if (indexOfLastNewline == -1) {
@@ -169,7 +169,8 @@ private class MessageBuilder : CharSequence {
     }
 
     fun append(value: CharSequence) {
-        for (word in value.split(' ')) {
+        doPendingParagraphBreakOrReturn()
+        for (word in value.split(Regex(" +"))) {
             val wordIs72OrMore = word.length >= 72
             if (wordIs72OrMore) {
                 if (currentLineLength == 0) {
@@ -212,6 +213,21 @@ private class MessageBuilder : CharSequence {
             }
         }
         string.append(value)
+    }
+
+    private fun doPendingParagraphBreakOrReturn() {
+        if (!hasPendingParagraphBreak || shouldIgnoreParagraphBreak()) {
+            return
+        }
+        string.append('\n')
+        string.append('\n')
+        currentLineLength = 0
+        hasPendingParagraphBreak = false
+    }
+
+    private fun shouldIgnoreParagraphBreak(): Boolean {
+        // Git ignores any line-breaks beyond the second one, so should we
+        return currentLineLength == 0 && string.takeLast(2) == "\n\n"
     }
 
     override val length = string.length

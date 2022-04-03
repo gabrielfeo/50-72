@@ -56,7 +56,6 @@ lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
 lorem lorem
 
-
 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
 lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
 ipsum ipsum ipsum ipsum"""
@@ -118,11 +117,11 @@ const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_FIXED = """$SINGLE_LINE_50
 
 $BODY_73_TWO_PARAGRAPHS_FIXED"""
 
-const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE = """$SINGLE_LINE_50
+const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_TRIPLE_NEWLINE = """$SINGLE_LINE_50
 
 $BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE"""
 
-const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED = """$SINGLE_LINE_50
+const val SUBJECT_50_BODY_73_TWO_PARAGRAPHS_TRIPLE_NEWLINE_FIXED = """$SINGLE_LINE_50
 
 $BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED"""
 
@@ -155,8 +154,7 @@ b
 
 const val SQUASH_MESSAGE_SUBJECT_50_BODY_72_STRIPPED = """a
 
-
-b """
+b"""
 
 val miscMessages = mapOf(
     //0------------------------------------------------------------------
@@ -241,8 +239,7 @@ val miscMessages = mapOf(
     """.trimIndent() to """
         a
         
-        
-        $SINGLE_LINE_51 
+        $SINGLE_LINE_51
         """.trimIndent(),
     //5------------------------------------------------------------------
     """
@@ -278,8 +275,7 @@ val miscMessages = mapOf(
         |
         |$SINGLE_LINE_51
         |
-        |
-        |${BODY_73_FIXED.lines().joinToString("\n|")} 
+        |${BODY_73_FIXED.lines().joinToString("\n|")}
         """.trimMargin(),
     //6------------------------------------------------------------------
     """
