@@ -9,7 +9,7 @@
 package cli.command
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -39,7 +39,7 @@ class FormatMessage(
             val formattedMessage = format(message, isMarkdown)
             echo(formattedMessage)
         } catch (error: IllegalArgumentException) {
-            throw UsageError(error.message.orEmpty(), paramName = "message")
+            throw PrintMessage(error.message.orEmpty(), error = true)
         }
     }
 }

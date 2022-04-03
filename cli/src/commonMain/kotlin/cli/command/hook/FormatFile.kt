@@ -12,7 +12,7 @@ import cli.commons.defaultFileSystem
 import cli.commons.readText
 import cli.commons.writeText
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import formatFullMessage
@@ -41,7 +41,7 @@ class FormatFile(
             val formattedContent = format(content, false)
             file.writeText(formattedContent, fileSystem)
         } catch (error: IllegalArgumentException) {
-            throw UsageError(error.message.orEmpty(), paramName = "file")
+            throw PrintMessage(error.message.orEmpty(), error = true)
         }
     }
 }
