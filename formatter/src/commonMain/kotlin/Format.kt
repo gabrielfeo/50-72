@@ -6,10 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */        
 
-import CommitMessage.MarkdownBody
-import CommitMessage.MarkdownBody.Section.Other
-import CommitMessage.MarkdownBody.Section.Paragraph
-import kotlin.jvm.JvmInline
 import kotlin.text.RegexOption.MULTILINE
 
 internal const val HEADING_OVER_50_MESSAGE = "Heading line must not be over 50 columns. Please re-format the heading manually."
@@ -24,11 +20,10 @@ fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String 
     }
     require(message.hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
     return buildMessage {
-        appendRaw(message.subject())
-        breakParagraph()
+        appendSubject(message.subject())
         when {
-            isMarkdown -> appendReformattedMarkdownBody(message.body())
-            else -> appendReformattedBody(message.body(), stripComments = true)
+            isMarkdown -> appendBody(message.body(), stripComments = false, hashMeansHeadingParagraph = true)
+            else -> appendBody(message.body(), stripComments = true, hashMeansHeadingParagraph = false)
         }
     }
 }
@@ -36,65 +31,10 @@ fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String 
 fun formatBody(bodyText: String, isMarkdown: Boolean = false): String {
     return buildMessage {
         when {
-            isMarkdown -> appendReformattedMarkdownBody(bodyText)
-            else -> appendReformattedBody(bodyText, stripComments = true)
+            isMarkdown -> appendBody(bodyText, stripComments = false, hashMeansHeadingParagraph = true)
+            else -> appendBody(bodyText, stripComments = true, hashMeansHeadingParagraph = false)
         }
     }
-}
-
-@Deprecated("Use formatBody with parameter")
-fun formatMarkdownBody(bodyText: String): String {
-    return buildMessage {
-        appendReformattedMarkdownBody(bodyText)
-    }
-}
-
-private fun MessageBuilder.appendReformattedMarkdownBody(bodyText: String) {
-    val body = parseMarkdownBody(bodyText)
-    for (section in body.sections) {
-        if (this.isNotEmpty()) {
-            breakParagraph()
-        }
-        when (section) {
-            is Paragraph -> appendReformattedBody(section.content, stripComments = false)
-            is Other -> append(section.content)
-        }
-    }
-}
-
-
-
-private fun MessageBuilder.appendReformattedBody(body: String, stripComments: Boolean) {
-    body.lineSequence()
-        .map { it.trim(' ') }
-        .forEach {
-            when {
-                it.isNotEmpty() && it.isNotComment() -> append(it)
-                it.isEmpty() -> breakParagraph()
-                stripComments && it.isComment() -> return@forEach
-                it.isComment() -> appendRaw(it)
-                else -> error("Unpredicted case: line '$it'")
-            }
-        }
-}
-
-private fun String.isComment() = startsWith("#")
-private fun String.isNotComment() = !isComment()
-
-@Suppress("RemoveExplicitTypeArguments")
-private fun parseMarkdownBody(body: String): MarkdownBody {
-    val sectionsRegex = Regex("""(?:[^\n]+\n?)+""", MULTILINE)
-    val sections = sectionsRegex.findAll(body)
-        .map { it.value }
-        .map {
-            if (it.endsWith('\n')) it.substring(0 until it.lastIndex)
-            else it
-        }
-        .map {
-            if (it.first().isLetterOrDigit()) Paragraph(it)
-            else Other(it)
-        }
-    return MarkdownBody(sections)
 }
 
 
@@ -120,34 +60,42 @@ private class CommitMessage(fullMessage: String) {
 
     fun subject() = fullText.slice(indexOfFirstMessageChar until indexOfFirstMessageNewline).trim()
     fun body() = fullText.slice(indexOfFirstMessageNewline + 2..fullText.lastIndex).trim()
-
-    @JvmInline
-    value class MarkdownBody(val sections: Sequence<Section>) {
-
-        sealed interface Section {
-
-            @JvmInline
-            value class Paragraph(val content: String) : Section
-
-            @JvmInline
-            value class Other(val content: String) : Section
-        }
-    }
 }
 
 private inline fun buildMessage(block: MessageBuilder.() -> Unit): String =
     MessageBuilder().apply(block).toString()
 
-/*
- * Note to self: Current separation of concerns is to keep MessageBuilder with the line-breaking logic only. Line and
- * section splitting is done outside the class. Only consider refactoring this further once all test are passing
- * including Markdown tests using the new implementation.
- */
 private class MessageBuilder : CharSequence {
 
     private val string = StringBuilder()
     private var currentLineLength: Int = 0
     private var hasPendingParagraphBreak = false
+
+    fun appendSubject(subject: String) {
+        appendRaw(subject)
+        breakParagraph()
+    }
+
+    fun appendBody(
+        body: String,
+        stripComments: Boolean,
+        hashMeansHeadingParagraph: Boolean,
+    ) {
+        body.lineSequence()
+            .map { it.trim(' ') }
+            .forEach {
+                when {
+                    it.isNotEmpty() && it.isNotComment() -> append(it)
+                    it.isEmpty() -> breakParagraph()
+                    it.isComment() -> when {
+                        stripComments -> return@forEach
+                        hashMeansHeadingParagraph -> append(it)
+                        else -> appendRaw(it)
+                    }
+                    else -> error("Unpredicted case: line '$it'")
+                }
+            }
+    }
 
     /**
      * Append a paragraph break to the message. The actual break is delayed until more content is
@@ -156,16 +104,27 @@ private class MessageBuilder : CharSequence {
      * - another break was added just before. It'd be a "double" paragraph break, which git would
      *   discard anyway.
      */
-    fun breakParagraph() {
+    private fun breakParagraph() {
         // Only break if more content is appended
         hasPendingParagraphBreak = true
     }
+
+    /*
+    * Note to self:
+    *   1. Regexp matching words and md literals (not as separators but as matches)
+    *   2. If it gets unwieldy, use a simple startsWith on each word to check for the
+    *      start markup of a literal. If it is, take words until the corresponding end
+    *      markup comes up
+    *
+    * It did. '\*\*[\w \n]+\*\*|_[\w \n]+_|~[\w \n]+~|<[\w=" \n]+\/>|\w+' not even
+    * matching punctuation and apostrophes yet. Countless corner cases.
+    * */
 
     /**
      * Append content to the message breaking lines to respect the 72-column limit and trimming
      * redundant spaces.
      */
-    fun append(value: CharSequence) {
+    private fun append(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
         for (word in value.split(Regex(" +"))) {
             val wordIsUpTo72 = word.length <= 72
@@ -180,7 +139,7 @@ private class MessageBuilder : CharSequence {
     /**
      * Append content to the message as-is, unlike [append].
      */
-    fun appendRaw(value: CharSequence) {
+    private fun appendRaw(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
         string.append(value)
         val indexOfLastLineBreakInValue = value.lastIndexOf('\n')
@@ -209,6 +168,9 @@ private class MessageBuilder : CharSequence {
 
     private fun wouldLineStayUpTo72(addedLength: Int) = currentLineLength + addedLength < 72
     private fun currentLineIsEmpty() = currentLineLength == 0
+
+    private fun String.isComment() = startsWith("#")
+    private fun String.isNotComment() = !isComment()
 
     override val length = string.length
     override fun get(index: Int) = string[index]
