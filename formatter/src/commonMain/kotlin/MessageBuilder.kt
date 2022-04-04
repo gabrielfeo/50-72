@@ -1,3 +1,5 @@
+import MarkdownTokenMatcher.*
+
 internal inline fun buildMessage(block: MessageBuilder.() -> Unit): String =
     MessageBuilder().apply(block).toString()
 
@@ -15,7 +17,6 @@ internal class MessageBuilder : CharSequence {
     fun appendBody(
         body: String,
         stripComments: Boolean,
-        hashMeansHeadingParagraph: Boolean,
     ) {
         body.lineSequence()
             .map { it.trim(' ') }
@@ -25,12 +26,55 @@ internal class MessageBuilder : CharSequence {
                     it.isEmpty() -> breakParagraph()
                     it.isComment() -> when {
                         stripComments -> return@forEach
-                        hashMeansHeadingParagraph -> append(it)
                         else -> appendRaw(it)
                     }
                     else -> error("Unpredicted case: line '$it'")
                 }
             }
+    }
+
+    fun appendMarkdownBody(
+        body: String,
+    ) {
+        val matchers = MarkdownTokenMatcher.values()
+        var currentPosition = 0
+        while (currentPosition < body.lastIndex) {
+            val (matcher, match) = tokenizePosition(currentPosition, body, matchers)
+            when (matcher) {
+                BoldText,
+                ItalicizedText,
+                Strikethrough,
+                PlainText,
+                Link -> append(match.value)
+                BulletListItem,
+                NumberedListItem,
+                Table,
+                CodeSnippet,
+                HtmlElement,
+                Quote,
+                Heading,
+                Punctuation -> appendRaw(match.value)
+                ParagraphBreak -> breakParagraph()
+                WordSpacing,
+                SingleLineBreak -> {}
+            }
+            currentPosition = match.range.last + 1
+        }
+    }
+
+    private fun tokenizePosition(
+        currentPosition: Int,
+        body: String,
+        matchers: Array<MarkdownTokenMatcher>,
+    ): Pair<MarkdownTokenMatcher, MatchResult> {
+        for (matcher in matchers) {
+            val match = Regex(matcher.pattern).find(body, currentPosition)
+            if (match?.range?.first == currentPosition) {
+                return Pair(matcher, match)
+            }
+        }
+        val currentPositionSnippet = body.substring(currentPosition, currentPosition + 10)
+        error("No match for position $currentPosition: $currentPositionSnippet...")
     }
 
     /**
@@ -115,4 +159,27 @@ internal class MessageBuilder : CharSequence {
     override fun equals(other: Any?) = other is MessageBuilder && other.string == this.string
     override fun hashCode() = string.hashCode()
     override fun toString() = string.toString()
+}
+
+@Suppress("RegExpRedundantEscape") // Some are needed for JS
+private enum class MarkdownTokenMatcher(
+    //language=RegExp
+    val pattern: String,
+) {
+    ParagraphBreak("""\n{2,}"""),
+    Heading("""#+[^\n]+"""),
+    BoldText("""\*\*[^*]+\*\*"""),
+    ItalicizedText("""_[^_]+_"""),
+    Strikethrough("""~[^~]+~"""),
+    Quote(""">[^\n]*"""),
+    Table("""\|.*\|(?:\n\|.*\|){2,}"""),
+    BulletListItem("""- [^\n]+"""),
+    NumberedListItem("""\d+\. [^\n]+"""),
+    CodeSnippet("""```[^`]+```"""),
+    HtmlElement("""<[^<>]+/?>"""),
+    Link("""!?\[[^\]]+\][\[(][^\])]+[\])]"""),
+    PlainText("""(?:\w+\S*)+"""),
+    WordSpacing(" +"),
+    SingleLineBreak("""\n"""),
+    Punctuation("""[^\w\s]"""),
 }

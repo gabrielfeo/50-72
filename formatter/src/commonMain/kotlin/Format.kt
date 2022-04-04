@@ -19,18 +19,19 @@ fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String 
     require(message.hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
     return buildMessage {
         appendSubject(message.subject())
-        when {
-            isMarkdown -> appendBody(message.body(), stripComments = false, hashMeansHeadingParagraph = true)
-            else -> appendBody(message.body(), stripComments = true, hashMeansHeadingParagraph = false)
-        }
+        appendBody(isMarkdown, message.body())
     }
 }
 
 fun formatBody(bodyText: String, isMarkdown: Boolean = false): String {
     return buildMessage {
-        when {
-            isMarkdown -> appendBody(bodyText, stripComments = false, hashMeansHeadingParagraph = true)
-            else -> appendBody(bodyText, stripComments = true, hashMeansHeadingParagraph = false)
-        }
+        appendBody(isMarkdown, bodyText)
+    }
+}
+
+private fun MessageBuilder.appendBody(isMarkdown: Boolean, body: String) {
+    when {
+        isMarkdown -> appendMarkdownBody(body)
+        else -> appendBody(body, stripComments = true)
     }
 }
