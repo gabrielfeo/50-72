@@ -1,9 +1,9 @@
 import MarkdownTokenMatcher.*
 
-internal inline fun buildMessage(block: MessageBuilder.() -> Unit): String =
-    MessageBuilder().apply(block).toString()
+internal inline fun buildMessage(block: CommitMessageBuilder.() -> Unit): String =
+    CommitMessageBuilder().apply(block).toString()
 
-internal class MessageBuilder : CharSequence {
+internal class CommitMessageBuilder : CharSequence {
 
     private val string = StringBuilder()
     private var currentLineLength: Int = 0
@@ -156,7 +156,7 @@ internal class MessageBuilder : CharSequence {
     override fun get(index: Int) = string[index]
     override fun subSequence(startIndex: Int, endIndex: Int) = string.subSequence(startIndex, endIndex)
 
-    override fun equals(other: Any?) = other is MessageBuilder && other.string == this.string
+    override fun equals(other: Any?) = other is CommitMessageBuilder && other.string == this.string
     override fun hashCode() = string.hashCode()
     override fun toString() = string.toString()
 }

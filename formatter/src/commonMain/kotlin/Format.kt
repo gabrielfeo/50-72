@@ -11,7 +11,7 @@ internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = "There must be a blank li
 
 
 fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String {
-    val message = CommitMessage(messageText)
+    val message = CommitMessageInfo(messageText)
     require(message.subjectIsUpTo50Columns) { HEADING_OVER_50_MESSAGE }
     if (!message.hasBody) {
         return message.fullText
@@ -29,7 +29,7 @@ fun formatBody(bodyText: String, isMarkdown: Boolean = false): String {
     }
 }
 
-private fun MessageBuilder.appendBody(isMarkdown: Boolean, body: String) {
+private fun CommitMessageBuilder.appendBody(isMarkdown: Boolean, body: String) {
     when {
         isMarkdown -> appendMarkdownBody(body)
         else -> appendBody(body, stripComments = true)

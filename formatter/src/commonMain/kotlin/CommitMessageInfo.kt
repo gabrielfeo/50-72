@@ -8,7 +8,7 @@
 
 import kotlin.text.RegexOption.MULTILINE
 
-internal data class CommitMessage(
+internal data class CommitMessageInfo(
     val fullText: String
 ) {
 
