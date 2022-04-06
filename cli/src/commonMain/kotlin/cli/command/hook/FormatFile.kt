@@ -12,6 +12,7 @@ import cli.commons.defaultFileSystem
 import cli.commons.readText
 import cli.commons.writeText
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import formatFullMessage
@@ -34,9 +35,13 @@ class FormatFile(
     ).default(DEFAULT_GIT_MSG_FILE)
 
     override fun run() {
-        val file = messageFile.toPath()
-        val content = file.readText(fileSystem)
-        val formattedContent = format(content, false)
-        file.writeText(formattedContent, fileSystem)
+        try {
+            val file = messageFile.toPath()
+            val content = file.readText(fileSystem)
+            val formattedContent = format(content, false)
+            file.writeText(formattedContent, fileSystem)
+        } catch (error: IllegalArgumentException) {
+            throw PrintMessage(error.message.orEmpty(), error = true)
+        }
     }
 }

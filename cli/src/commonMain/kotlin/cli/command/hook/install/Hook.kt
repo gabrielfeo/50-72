@@ -18,7 +18,7 @@ import com.github.ajalt.clikt.parameters.options.validate
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/prepare-commit-msg"
+const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/commit-msg"
 val prepareCommitMsg by lazy { PREPARE_COMMIT_MSG_PATH.toPath() }
 
 const val SHEBANG = "#!/usr/bin/env sh"
@@ -35,7 +35,7 @@ class Hook(
     help = """
         Install the 50-72 git hook in the current repository.
         
-        This is basically adding '$FORMAT_FILE_COMMAND' to the 'prepare-commit-msg' hook. If the
+        This is basically adding '$FORMAT_FILE_COMMAND' to the 'commit-msg' hook. If the
         hook file cli.cli.exists, it will be appended to, else a new one will be created.
     """.trimIndent()
 ) {

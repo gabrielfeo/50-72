@@ -85,7 +85,7 @@ hook         Install the 50-72 git hook in the current repository.
   </summary>
 
   `50-72 hook --install` simply adds to the
-  [`prepare-commit-msg` git hook][man-githook]
+  [`commit-msg` git hook][man-githook]
   of the repository you run it from. If you already have such a hook in that repo, it will append to it,
   otherwise it will create one. 
 
@@ -190,6 +190,6 @@ The project is written in Kotlin Multiplatform compiling to native code and Java
 [rule-about]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [brew]: https://brew.sh/
 [releases]: https://github.com/gabrielfeo/50-72/releases
-[man-githook]: https://git-scm.com/docs/githooks#_prepare_commit_msg
+[man-githook]: https://git-scm.com/docs/githooks#_commit_msg
 [issues]: https://github.com/gabrielfeo/50-72/issues
 [new-issue]: https://github.com/gabrielfeo/50-72/issues/new

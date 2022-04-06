@@ -8,7 +8,7 @@
 
 package cli.command
 
-import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.output.CliktConsole
 import kotlin.test.Test
@@ -28,15 +28,15 @@ class FormatMessageTest {
     }
 
     @Test
-    fun givenFormatReturnsThenPrintStdoutAndExit0() {
+    fun givenFormatReturnsThenPrintsStdoutAndExit0() {
         run("message")
         assertEquals("message\n", stdout)
         assertTrue(stderr.isEmpty())
     }
 
     @Test
-    fun givenFormatThrowsThenThrowUsageError() {
-        val error = assertFailsWith<UsageError> {
+    fun givenFormatThrowsThenInterruptsAndPrintsMessage() {
+        val error = assertFailsWith<PrintMessage> {
             run("message", formatThrows = true)
         }
         assertEquals(ERROR_MESSAGE, error.message)
