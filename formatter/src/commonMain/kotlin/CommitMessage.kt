@@ -8,8 +8,9 @@
 
 import kotlin.text.RegexOption.MULTILINE
 
-internal class CommitMessage(fullMessage: String) {
-    val fullText = fullMessage.trim()
+internal data class CommitMessage(
+    val fullText: String
+) {
 
     private val indexOfFirstMessageChar: Int = run {
         val match = Regex("^[^#\n]", MULTILINE).find(fullText)
@@ -19,14 +20,14 @@ internal class CommitMessage(fullMessage: String) {
         fullText.indexOf('\n', startIndex = indexOfFirstMessageChar)
 
     val hasBody = indexOfFirstMessageNewline != -1
-    val subjectIsUpTo50Columns: Boolean = run {
-            val firstMessageChar = indexOfFirstMessageChar
-            val hasBodyAndUpTo50 = hasBody
-                && indexOfFirstMessageNewline in firstMessageChar..firstMessageChar + 50
-            val noBodyAndUpTo50 = fullText.length <= firstMessageChar + 50
-            hasBodyAndUpTo50 || noBodyAndUpTo50
-        }
     val hasSubjectBodySeparator = hasBody && fullText[indexOfFirstMessageNewline + 1] == '\n'
+    val subjectIsUpTo50Columns: Boolean = run {
+        val firstMessageChar = indexOfFirstMessageChar
+        val hasBodyAndUpTo50 = hasBody
+            && indexOfFirstMessageNewline in firstMessageChar..firstMessageChar + 50
+        val noBodyAndUpTo50 = fullText.length <= firstMessageChar + 50
+        hasBodyAndUpTo50 || noBodyAndUpTo50
+    }
 
     fun subject() = fullText.slice(indexOfFirstMessageChar until indexOfFirstMessageNewline).trim()
     fun body() = fullText.slice(indexOfFirstMessageNewline + 2..fullText.lastIndex).trim()
