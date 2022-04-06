@@ -113,6 +113,9 @@ class FormatFullMessageTest {
                 val actual = formatFullMessage(original)
                 assertEquals(expected, actual, "Message differs at case $i")
             } catch (error: Throwable) {
+                if (error is AssertionError) {
+                    throw error
+                }
                 throw AssertionError("Exception thrown at case $i: ${error.stackTraceToString()}")
             }
         }
