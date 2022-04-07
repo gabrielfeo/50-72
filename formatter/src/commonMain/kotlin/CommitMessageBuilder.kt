@@ -1,21 +1,32 @@
 import MarkdownTokenMatcher.*
 
-internal inline fun buildMessage(block: CommitMessageBuilder.() -> Unit): String =
-    CommitMessageBuilder().apply(block).toString()
+internal inline fun buildPlainTextMessage(block: CommitMessageBuilder.() -> Unit): String =
+    PlainTextCommitMessageBuilder().apply(block).build()
 
-internal class CommitMessageBuilder(
-    private val string: StringBuilder = StringBuilder(),
-) : CharSequence by string {
+internal inline fun buildMarkdownMessage(block: CommitMessageBuilder.() -> Unit): String =
+    MarkdownCommitMessageBuilder().apply(block).build()
 
-    private var currentLineLength: Int = 0
-    private var hasPendingParagraphBreak = false
+interface CommitMessageBuilder {
+    fun appendSubject(subject: String)
+    fun appendBody(
+        body: String,
+        stripComments: Boolean,
+    )
+    fun build(): String
+}
 
-    fun appendSubject(subject: String) {
-        appendRaw(subject)
-        breakParagraph()
+internal data class PlainTextCommitMessageBuilder(
+    private val sequence: FormattedCharSequence = FormattedCharSequence(),
+) : CommitMessageBuilder {
+
+    override fun build() = sequence.toString()
+
+    override fun appendSubject(subject: String) {
+        sequence.appendRaw(subject)
+        sequence.breakParagraph()
     }
 
-    fun appendBody(
+    override fun appendBody(
         body: String,
         stripComments: Boolean,
     ) {
@@ -23,30 +34,47 @@ internal class CommitMessageBuilder(
             .map { it.trim(' ') }
             .forEach {
                 when {
-                    it.isNotEmpty() && it.isNotComment() -> append(it)
-                    it.isEmpty() -> breakParagraph()
+                    it.isNotEmpty() && it.isNotComment() -> sequence.append(it)
+                    it.isEmpty() -> sequence.breakParagraph()
                     it.isComment() -> when {
                         stripComments -> return@forEach
-                        else -> appendRaw(it)
+                        else -> sequence.appendRaw(it)
                     }
                     else -> error("Unpredicted case: line '$it'")
                 }
             }
     }
 
-    fun appendMarkdownBody(
+    private fun String.isComment() = startsWith("#")
+    private fun String.isNotComment() = !isComment()
+}
+
+internal data class MarkdownCommitMessageBuilder(
+    private val sequence: FormattedCharSequence = FormattedCharSequence(),
+) : CommitMessageBuilder {
+
+    override fun build() = sequence.toString()
+
+    override fun appendSubject(subject: String) {
+        sequence.appendRaw(subject)
+        sequence.breakParagraph()
+    }
+
+    override fun appendBody(
         body: String,
+        stripComments: Boolean,
     ) {
+        require(!stripComments) { "Unsupported" } // TODO Remove this
         val matchers = MarkdownTokenMatcher.values()
         var currentPosition = 0
         while (currentPosition < body.lastIndex) {
-            val (matcher, match) = tokenizePosition(currentPosition, body, matchers)
+            val (matcher, match) = tokenizeMarkdownBodyPosition(currentPosition, body, matchers)
             when (matcher) {
                 BoldText,
                 ItalicizedText,
                 Strikethrough,
                 PlainText,
-                Link -> append(match.value)
+                Link -> sequence.append(match.value)
                 BulletListItem,
                 NumberedListItem,
                 Table,
@@ -54,8 +82,8 @@ internal class CommitMessageBuilder(
                 HtmlElement,
                 Quote,
                 Heading,
-                Punctuation -> appendRaw(match.value)
-                ParagraphBreak -> breakParagraph()
+                Punctuation -> sequence.appendRaw(match.value)
+                ParagraphBreak -> sequence.breakParagraph()
                 WordSpacing,
                 SingleLineBreak -> {}
             }
@@ -63,7 +91,7 @@ internal class CommitMessageBuilder(
         }
     }
 
-    private fun tokenizePosition(
+    private fun tokenizeMarkdownBodyPosition(
         currentPosition: Int,
         body: String,
         matchers: Array<MarkdownTokenMatcher>,
@@ -77,6 +105,16 @@ internal class CommitMessageBuilder(
         val currentPositionSnippet = body.substring(currentPosition, currentPosition + 10)
         error("No match for position $currentPosition: $currentPositionSnippet...")
     }
+}
+
+internal data class FormattedCharSequence(
+    private val builder: StringBuilder = StringBuilder(),
+) : CharSequence by builder {
+
+    private var currentLineLength: Int = 0
+    private var hasPendingParagraphBreak = false
+
+    override fun toString() = builder.toString()
 
     /**
      * Append a paragraph break to the message. The actual break is delayed until more content is
@@ -85,7 +123,7 @@ internal class CommitMessageBuilder(
      * - another break was added just before. It'd be a "double" paragraph break, which git would
      *   discard anyway.
      */
-    private fun breakParagraph() {
+    fun breakParagraph() {
         // Only break if more content is appended
         hasPendingParagraphBreak = true
     }
@@ -105,7 +143,7 @@ internal class CommitMessageBuilder(
      * Append content to the message breaking lines to respect the 72-column limit and trimming
      * redundant spaces.
      */
-    private fun append(value: CharSequence) {
+    fun append(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
         for (word in value.split(Regex(" +"))) {
             val wordIsUpTo72 = word.length <= 72
@@ -120,9 +158,9 @@ internal class CommitMessageBuilder(
     /**
      * Append content to the message as-is, unlike [append].
      */
-    private fun appendRaw(value: CharSequence) {
+    fun appendRaw(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
-        string.append(value)
+        builder.append(value)
         val indexOfLastLineBreakInValue = value.lastIndexOf('\n')
         val hasLineBreak = indexOfLastLineBreakInValue != -1
         if (hasLineBreak) {
@@ -137,21 +175,18 @@ internal class CommitMessageBuilder(
         if (!hasPendingParagraphBreak || wouldNewParagraphBreakBeDoubleBreak()) {
             return
         }
-        string.append('\n')
-        string.append('\n')
+        builder.append('\n')
+        builder.append('\n')
         currentLineLength = 0
         hasPendingParagraphBreak = false
     }
 
     private fun wouldNewParagraphBreakBeDoubleBreak(): Boolean {
-        return currentLineIsEmpty() && string.takeLast(2) == "\n\n"
+        return currentLineIsEmpty() && builder.takeLast(2) == "\n\n"
     }
 
     private fun wouldLineStayUpTo72(addedLength: Int) = currentLineLength + addedLength < 72
     private fun currentLineIsEmpty() = currentLineLength == 0
-
-    private fun String.isComment() = startsWith("#")
-    private fun String.isNotComment() = !isComment()
 }
 
 @Suppress("RegExpRedundantEscape") // Some are needed for JS

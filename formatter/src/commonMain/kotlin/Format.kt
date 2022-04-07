@@ -17,21 +17,14 @@ fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String 
         return message.fullText
     }
     require(message.hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
-    return buildMessage {
+    return buildPlainTextMessage {
         appendSubject(message.subject())
-        appendBody(isMarkdown, message.body())
+        appendBody(message.body(), stripComments = true)
     }
 }
 
 fun formatBody(bodyText: String, isMarkdown: Boolean = false): String {
-    return buildMessage {
-        appendBody(isMarkdown, bodyText)
-    }
-}
-
-private fun CommitMessageBuilder.appendBody(isMarkdown: Boolean, body: String) {
-    when {
-        isMarkdown -> appendMarkdownBody(body)
-        else -> appendBody(body, stripComments = true)
+    return buildMarkdownMessage {
+        appendBody(bodyText, stripComments = false)
     }
 }
