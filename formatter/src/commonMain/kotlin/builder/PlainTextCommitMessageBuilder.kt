@@ -9,7 +9,6 @@
 package builder
 
 internal data class PlainTextCommitMessageBuilder(
-    private val stripComments: Boolean,
     private val sequence: FormattedCharSequence = FormattedCharSequence(),
 ) : CommitMessageBuilder {
 
@@ -27,10 +26,7 @@ internal data class PlainTextCommitMessageBuilder(
                 when {
                     it.isNotEmpty() && it.isNotComment() -> sequence.append(it)
                     it.isEmpty() -> sequence.breakParagraph()
-                    it.isComment() -> when {
-                        stripComments -> return@forEach
-                        else -> sequence.appendRaw(it)
-                    }
+                    it.isComment() -> return@forEach
                     else -> error("Unpredicted case: line '$it'")
                 }
             }

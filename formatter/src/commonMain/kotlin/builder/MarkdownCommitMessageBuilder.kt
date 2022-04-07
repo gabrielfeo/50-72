@@ -11,7 +11,6 @@ package builder
 import builder.MarkdownTokenMatcher.*
 
 internal data class MarkdownCommitMessageBuilder(
-    private val stripComments: Boolean,
     private val sequence: FormattedCharSequence = FormattedCharSequence(),
 ) : CommitMessageBuilder {
 
@@ -23,7 +22,6 @@ internal data class MarkdownCommitMessageBuilder(
     }
 
     override fun appendBody(body: String) {
-        require(!stripComments) { "Unsupported" } // TODO Remove this
         val matchers = MarkdownTokenMatcher.values()
         var currentPosition = 0
         while (currentPosition < body.lastIndex) {

@@ -18,10 +18,9 @@ internal inline fun buildMessage(
     isMarkdown: Boolean = false,
     block: CommitMessageBuilder.() -> Unit
 ): String {
-    val stripComments = !isMarkdown
     val builder = when {
-        isMarkdown -> MarkdownCommitMessageBuilder(stripComments)
-        else -> PlainTextCommitMessageBuilder(stripComments)
+        isMarkdown -> MarkdownCommitMessageBuilder()
+        else -> PlainTextCommitMessageBuilder()
     }
     return builder.apply(block).build()
 }
