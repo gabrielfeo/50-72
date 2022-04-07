@@ -6,8 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import builder.buildMarkdownMessage
-import builder.buildPlainTextMessage
+import builder.buildMessage
 import info.CommitMessageInfo
 
 internal const val HEADING_OVER_50_MESSAGE = "Heading line must not be over 50 columns. Please re-format the heading manually."
@@ -21,14 +20,14 @@ fun formatFullMessage(messageText: String, isMarkdown: Boolean = false): String 
         return message.fullText
     }
     require(message.hasSubjectBodySeparator) { NO_SUBJECT_BODY_SEPARATOR_MESSAGE }
-    return buildPlainTextMessage {
+    return buildMessage(isMarkdown) {
         appendSubject(message.subject())
-        appendBody(message.body(), stripComments = true)
+        appendBody(message.body())
     }
 }
 
 fun formatBody(bodyText: String, isMarkdown: Boolean = false): String {
-    return buildMarkdownMessage {
-        appendBody(bodyText, stripComments = false)
+    return buildMessage(isMarkdown) {
+        appendBody(bodyText)
     }
 }

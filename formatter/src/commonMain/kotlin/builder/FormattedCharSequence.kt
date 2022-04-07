@@ -62,7 +62,8 @@ internal data class FormattedCharSequence(
     }
 
     private fun doPendingParagraphBreakOrReturn() {
-        if (!hasPendingParagraphBreak || wouldNewParagraphBreakBeDoubleBreak()) {
+        if (!hasPendingParagraphBreak || currentLineIsEmpty() || wouldNewParagraphBreakBeDoubleBreak()) {
+            hasPendingParagraphBreak = false
             return
         }
         builder.append('\n')
@@ -72,7 +73,7 @@ internal data class FormattedCharSequence(
     }
 
     private fun wouldNewParagraphBreakBeDoubleBreak(): Boolean {
-        return currentLineIsEmpty() && builder.takeLast(2) == "\n\n"
+        return builder.takeLast(2) == "\n\n"
     }
 
     private fun wouldLineStayUpTo72(addedLength: Int) = currentLineLength + addedLength < 72

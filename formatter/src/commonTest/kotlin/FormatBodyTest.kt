@@ -28,4 +28,10 @@ class FormatBodyTest {
         val reformatted = formatBody(BODY_71)
         assertEquals(BODY_71, reformatted)
     }
+
+    @Test
+    fun whenFormatBodyWithMarkdownOptionFalseThenFormatsAsPlainText() {
+        val reformatted = formatBody(MD_BODY_72_WITH_SNIPPET)
+        assertEquals(MD_BODY_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT, reformatted)
+    }
 }

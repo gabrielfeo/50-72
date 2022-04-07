@@ -10,10 +10,18 @@ package builder
 
 internal interface CommitMessageBuilder {
     fun appendSubject(subject: String)
-    fun appendBody(
-        body: String,
-        stripComments: Boolean,
-    )
-
+    fun appendBody(body: String)
     fun build(): String
+}
+
+internal inline fun buildMessage(
+    isMarkdown: Boolean = false,
+    block: CommitMessageBuilder.() -> Unit
+): String {
+    val stripComments = !isMarkdown
+    val builder = when {
+        isMarkdown -> MarkdownCommitMessageBuilder(stripComments)
+        else -> PlainTextCommitMessageBuilder(stripComments)
+    }
+    return builder.apply(block).build()
 }

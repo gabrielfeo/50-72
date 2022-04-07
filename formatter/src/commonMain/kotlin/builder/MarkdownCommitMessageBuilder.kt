@@ -10,10 +10,8 @@ package builder
 
 import builder.MarkdownTokenMatcher.*
 
-internal inline fun buildMarkdownMessage(block: CommitMessageBuilder.() -> Unit): String =
-    MarkdownCommitMessageBuilder().apply(block).build()
-
 internal data class MarkdownCommitMessageBuilder(
+    private val stripComments: Boolean,
     private val sequence: FormattedCharSequence = FormattedCharSequence(),
 ) : CommitMessageBuilder {
 
@@ -24,10 +22,7 @@ internal data class MarkdownCommitMessageBuilder(
         sequence.breakParagraph()
     }
 
-    override fun appendBody(
-        body: String,
-        stripComments: Boolean,
-    ) {
+    override fun appendBody(body: String) {
         require(!stripComments) { "Unsupported" } // TODO Remove this
         val matchers = MarkdownTokenMatcher.values()
         var currentPosition = 0

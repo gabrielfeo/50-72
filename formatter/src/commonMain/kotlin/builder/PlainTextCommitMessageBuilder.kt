@@ -8,10 +8,8 @@
 
 package builder
 
-internal inline fun buildPlainTextMessage(block: CommitMessageBuilder.() -> Unit): String =
-    PlainTextCommitMessageBuilder().apply(block).build()
-
 internal data class PlainTextCommitMessageBuilder(
+    private val stripComments: Boolean,
     private val sequence: FormattedCharSequence = FormattedCharSequence(),
 ) : CommitMessageBuilder {
 
@@ -22,10 +20,7 @@ internal data class PlainTextCommitMessageBuilder(
         sequence.breakParagraph()
     }
 
-    override fun appendBody(
-        body: String,
-        stripComments: Boolean,
-    ) {
+    override fun appendBody(body: String) {
         body.lineSequence()
             .map { it.trim(' ') }
             .forEach {

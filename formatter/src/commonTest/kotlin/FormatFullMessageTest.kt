@@ -13,6 +13,12 @@ import kotlin.test.assertFails
 class FormatFullMessageTest {
 
     @Test
+    fun whenFormatFullMessageWithMarkdownOptionFalseThenFormatsAsPlainText() {
+        val reformatted = formatFullMessage(MD_FULL_MSG_72_WITH_SNIPPET)
+        assertEquals(MD_FULL_MSG_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT, reformatted)
+    }
+
+    @Test
     fun failsGivenSingleLineOver50() {
         val error = assertFails {
             formatFullMessage(SINGLE_LINE_51)
