@@ -8,6 +8,7 @@
 
 import builder.buildMarkdownMessage
 import builder.buildPlainTextMessage
+import info.CommitMessageInfo
 
 internal const val HEADING_OVER_50_MESSAGE = "Heading line must not be over 50 columns. Please re-format the heading manually."
 internal const val NO_SUBJECT_BODY_SEPARATOR_MESSAGE = "There must be a blank line between subject and body. Please add the blank line!"

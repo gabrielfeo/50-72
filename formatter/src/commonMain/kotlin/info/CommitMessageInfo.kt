@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+package info
+
 import kotlin.text.RegexOption.MULTILINE
 
 internal data class CommitMessageInfo(
