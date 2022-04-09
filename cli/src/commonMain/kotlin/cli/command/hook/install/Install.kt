@@ -4,7 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
 package cli.command.hook.install
 
@@ -24,6 +24,12 @@ Please set permissions manually by running 'chmod' so that Git can run the hook:
     chmod 755 $PREPARE_COMMIT_MSG_PATH
 """
 
+const val MARKDOWN_COMMENT_CHAR_WARNING_MSG = """
+You must set 'git config core.commentChar' to something other than default '#',
+otherwise git will ignore Markdown headers, which also start with '#'.
+    git config core.commentChar ';'
+"""
+
 internal const val ALREADY_INSTALLED_MSG = "Already installed."
 
 class InstallActionImpl(
@@ -35,6 +41,9 @@ class InstallActionImpl(
         val command = commandForOption(markdownFormat)
         install(command)
         echo("Done! Please ensure 50-72 is in your PATH.")
+        if (markdownFormat) {
+            echo(MARKDOWN_COMMENT_CHAR_WARNING_MSG)
+        }
     }
 
     private fun install(command: String) {
