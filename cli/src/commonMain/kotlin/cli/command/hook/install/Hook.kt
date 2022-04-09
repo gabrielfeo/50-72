@@ -41,8 +41,13 @@ class Hook(
     """.trimIndent()
 ) {
 
-    private val install: Boolean by option().flag().validate { require(it || uninstall) }
-    private val uninstall: Boolean by option().flag().validate { require(it || install) }
+    private val install: Boolean by option(
+        help = "Install the hook"
+    ).flag().validate { require(it || uninstall) }
+
+    private val uninstall: Boolean by option(
+        help = "Uninstall the hook"
+    ).flag().validate { require(it || install) }
 
     private val markdownFormat by option(
         "--markdown",
