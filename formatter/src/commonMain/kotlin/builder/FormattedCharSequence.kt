@@ -36,10 +36,9 @@ internal data class FormattedCharSequence(
     fun append(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
         for (word in value.split(Regex(" +"))) {
-            val wordIsUpTo72 = word.length <= 72
             when {
                 currentLineIsEmpty() -> appendRaw(word)
-                wordIsUpTo72 && wouldLineStayUpTo72(word.length + 1) -> appendRaw(" $word")
+                word.isUpTo72() && wouldLineStayUpTo72Adding(word.length + 1) -> appendRaw(" $word")
                 else -> appendRaw("\n$word")
             }
         }
@@ -51,13 +50,17 @@ internal data class FormattedCharSequence(
     fun appendRaw(value: CharSequence) {
         doPendingParagraphBreakOrReturn()
         builder.append(value)
-        val indexOfLastLineBreakInValue = value.lastIndexOf('\n')
-        val hasLineBreak = indexOfLastLineBreakInValue != -1
+        updateCurrentLineLength(value)
+    }
+
+    private fun updateCurrentLineLength(addedValue: CharSequence) {
+        val indexOfLastLineBreak = addedValue.lastIndexOf('\n')
+        val hasLineBreak = indexOfLastLineBreak != -1
         if (hasLineBreak) {
-            val lengthAfterLineBreak = value.length - indexOfLastLineBreakInValue - 1
+            val lengthAfterLineBreak = addedValue.length - indexOfLastLineBreak - 1
             currentLineLength = lengthAfterLineBreak
         } else {
-            currentLineLength += value.length
+            currentLineLength += addedValue.length
         }
     }
 
@@ -66,8 +69,7 @@ internal data class FormattedCharSequence(
             hasPendingParagraphBreak = false
             return
         }
-        builder.append('\n')
-        builder.append('\n')
+        builder.append("\n\n")
         currentLineLength = 0
         hasPendingParagraphBreak = false
     }
@@ -76,6 +78,7 @@ internal data class FormattedCharSequence(
         return builder.takeLast(2) == "\n\n"
     }
 
-    private fun wouldLineStayUpTo72(addedLength: Int) = currentLineLength + addedLength < 72
+    private fun String.isUpTo72() = this.length <= 72
+    private fun wouldLineStayUpTo72Adding(addedLength: Int) = currentLineLength + addedLength < 72
     private fun currentLineIsEmpty() = currentLineLength == 0
 }

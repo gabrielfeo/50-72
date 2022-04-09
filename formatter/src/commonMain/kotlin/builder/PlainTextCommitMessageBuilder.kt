@@ -20,18 +20,15 @@ internal data class PlainTextCommitMessageBuilder(
     }
 
     override fun appendBody(body: String) {
-        body.lineSequence()
-            .map { it.trim(' ') }
-            .forEach {
-                when {
-                    it.isNotEmpty() && it.isNotComment() -> sequence.append(it)
-                    it.isEmpty() -> sequence.breakParagraph()
-                    it.isComment() -> return@forEach
-                    else -> error("Unpredicted case: line '$it'")
-                }
+        for (rawLine in body.lines()) {
+            val line = rawLine.trim(' ')
+            when {
+                line.isEmpty() -> sequence.breakParagraph()
+                line.isComment() -> continue
+                else -> sequence.append(line)
             }
+        }
     }
 
     private fun String.isComment() = startsWith("#")
-    private fun String.isNotComment() = !isComment()
 }
