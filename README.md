@@ -49,6 +49,7 @@ below for instructions.
   <summary>
     Are there any other features? Can I use it in my own scripts?
   </summary>
+
   A manual `format` command is available so you can use it as part of your own scripts (in CI,
   for example). Here's the full help text:
 
@@ -121,8 +122,7 @@ Known to work out-of-the-box:
     Are markdown messages supported?
   </summary>
 
-  Markdown support is available with `50-72 format --markdown <message>` but still needs work. Currently,
-  the hook can't be installed with markdown enabled. Markdown will be fully supported in the browser extension.
+  Markdown is fully supported in the CLI and browser extension.
 
 </details>
 
