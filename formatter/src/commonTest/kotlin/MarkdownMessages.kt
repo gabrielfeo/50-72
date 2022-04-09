@@ -4,7 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
 const val MD_BODY_71 = """# H1
 
@@ -54,6 +54,29 @@ foo foo
 
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo foo foo"""
+
+const val MD_BODY_72_WITH_SNIPPET = """# H1
+
+01234567890123456789012345678901234567890123456789012345678901234567890
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+```kotlin
+println("snippet")
+println("snippet")
+```"""
+
+const val MD_BODY_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT = """01234567890123456789012345678901234567890123456789012345678901234567890
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+```kotlin println("snippet") println("snippet") ```"""
+
+const val MD_FULL_MSG_72_WITH_SNIPPET = """$SINGLE_LINE_50
+
+$MD_BODY_72_WITH_SNIPPET"""
+
+const val MD_FULL_MSG_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT = """$SINGLE_LINE_50
+
+$MD_BODY_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT"""
 
 const val MD_BODY_OVER_72_WITH_MORE_MD_FEATURES = """# H1
 

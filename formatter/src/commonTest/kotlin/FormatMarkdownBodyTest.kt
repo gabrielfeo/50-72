@@ -12,6 +12,12 @@ import kotlin.test.assertEquals
 class FormatMarkdownBodyTest {
 
     @Test
+    fun whenFormatBodyWithMarkdownOptionTrueThenFormatsAsMarkdown() {
+        val reformatted = formatBody(MD_BODY_72_WITH_SNIPPET, isMarkdown = true)
+        assertEquals(MD_BODY_72_WITH_SNIPPET, reformatted)
+    }
+
+    @Test
     fun reformatsMarkdownBodyGivenParagraphLineOver72() {
         val reformatted = formatBody(MD_BODY_OVER_72, isMarkdown = true)
         assertEquals(MD_BODY_OVER_72_FIXED, reformatted)

@@ -13,6 +13,12 @@ import kotlin.test.assertFails
 class FormatFullMessageTest {
 
     @Test
+    fun whenFormatFullMessageWithMarkdownOptionFalseThenFormatsAsPlainText() {
+        val reformatted = formatFullMessage(MD_FULL_MSG_72_WITH_SNIPPET)
+        assertEquals(MD_FULL_MSG_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT, reformatted)
+    }
+
+    @Test
     fun failsGivenSingleLineOver50() {
         val error = assertFails {
             formatFullMessage(SINGLE_LINE_51)
@@ -84,9 +90,9 @@ class FormatFullMessageTest {
     }
 
     @Test
-    fun reformatsPreservingParagraphsWithMultipleNewlines() {
-        val reformatted = formatFullMessage(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE)
-        assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_DOUBLE_NEWLINE_FIXED, reformatted)
+    fun reformatsIgnoringExcessiveNewlinesBetweenParagraphs() {
+        val reformatted = formatFullMessage(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_TRIPLE_NEWLINE)
+        assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_TRIPLE_NEWLINE_FIXED, reformatted)
     }
 
     @Test
