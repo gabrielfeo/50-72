@@ -35,11 +35,6 @@ class InstallActionTest {
         }
     }
 
-    private val action: InstallAction = InstallActionImpl(
-        fileSystem,
-        permissionSetter,
-    )
-
     @Test
     fun givenHookExists_ThenAppendsCommandToHook() {
         givenHookExists(
@@ -57,7 +52,7 @@ class InstallActionTest {
                 
                 echo
                 
-                $FORMAT_FILE_COMMAND
+                $FORMAT_FILE_AS_PLAIN_TEXT_COMMAND
                 
             """.trimIndent()
         )
@@ -70,7 +65,20 @@ class InstallActionTest {
             """
                 $SHEBANG
                 
-                $FORMAT_FILE_COMMAND
+                $FORMAT_FILE_AS_PLAIN_TEXT_COMMAND
+                
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun givenMarkdownFormatSet_ThenAddsFormatAsMarkdownCommand() {
+        action(markdownFormat = true)
+        assertHookEquals(
+            """
+                $SHEBANG
+                
+                $FORMAT_FILE_AS_MARKDOWN_COMMAND
                 
             """.trimIndent()
         )
@@ -99,6 +107,51 @@ class InstallActionTest {
         assertFalse(permissionSetter.called)
     }
 
+    @Test
+    fun givenAlreadyInstalledAsPlainText_WhenInstallAsPlainText_ThenDoesNotInstall() {
+        givenHookExists("""
+            $SHEBANG
+            
+            $FORMAT_FILE_AS_PLAIN_TEXT_COMMAND
+            
+        """.trimIndent())
+        val thrown = assertFailsWith(PrintMessage::class) {
+            action()
+        }
+        assertEquals(ALREADY_INSTALLED_MSG, thrown.message)
+        assertFalse(thrown.error)
+    }
+
+    @Test
+    fun givenAlreadyInstalledAsMarkdown_WhenInstallAsMarkdown_ThenDoesNotInstall() {
+        givenHookExists("""
+            $SHEBANG
+            
+            $FORMAT_FILE_AS_MARKDOWN_COMMAND
+            
+        """.trimIndent())
+        testDoesNotInstall(installMarkdownFormat = true)
+    }
+
+    @Test
+    fun givenAlreadyInstalledAsMarkdown_WhenInstallAsPlainText_ThenDoesNotInstall() {
+        givenHookExists("""
+            $SHEBANG
+            
+            $FORMAT_FILE_AS_MARKDOWN_COMMAND
+            
+        """.trimIndent())
+        testDoesNotInstall(installMarkdownFormat = false)
+    }
+
+    private fun testDoesNotInstall(installMarkdownFormat: Boolean) {
+        val thrown = assertFailsWith(PrintMessage::class) {
+            action(installMarkdownFormat)
+        }
+        assertEquals(ALREADY_INSTALLED_MSG, thrown.message)
+        assertFalse(thrown.error)
+    }
+
     private fun givenHookExists(content: String) {
         prepareCommitMsg.writeText(content, mustCreate = true, fileSystem = fileSystem)
     }
@@ -107,6 +160,17 @@ class InstallActionTest {
         assertEquals(
             expected,
             actual = prepareCommitMsg.readText(fileSystem),
+        )
+    }
+
+    private fun action(
+        markdownFormat: Boolean = false,
+    ) {
+        InstallActionImpl(
+            fileSystem,
+            permissionSetter,
+        ).invoke(
+            markdownFormat,
         )
     }
 }
