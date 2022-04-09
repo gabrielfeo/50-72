@@ -5,15 +5,16 @@ import cli.commons.writeText
 import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class FormatFileTest {
 
     private val fileSystem = FakeFileSystem().apply {
         emulateUnix()
+    }
+
+    private val formatArgs = object {
+        var isMarkdown: Boolean? = null
     }
 
     @Test
@@ -36,6 +37,7 @@ class FormatFileTest {
         }
 
         assertEquals("123", error.message)
+        assertTrue(error.error)
     }
 
     @Test
@@ -60,6 +62,26 @@ class FormatFileTest {
         assertEquals("formatted msg", DEFAULT_GIT_MSG_FILE.toPath().readText(fileSystem))
     }
 
+    @Test
+    fun givenMarkdownNotSetThenFormatsAsPlainText() {
+        val file = "./msgfile"
+        file.toPath().writeText("msg", fileSystem)
+
+        run(file)
+
+        assertEquals(false, formatArgs.isMarkdown)
+    }
+
+    @Test
+    fun givenMarkdownSetThenFormatsAsMarkdown() {
+        val file = "./msgfile"
+        file.toPath().writeText("msg", fileSystem)
+
+        run(file, "--markdown")
+
+        assertEquals(true, formatArgs.isMarkdown)
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun run(
         vararg args: String,
@@ -68,7 +90,8 @@ class FormatFileTest {
     ) {
         FormatFile(
             fileSystem,
-            format = { _, _ ->
+            format = { _, isMarkdown ->
+                formatArgs.isMarkdown = isMarkdown
                 formatErrorMessage?.let { throw IllegalArgumentException(it) }
                     ?: formatReturnValue
             }
