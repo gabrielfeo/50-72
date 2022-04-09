@@ -19,10 +19,11 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 
 const val PREPARE_COMMIT_MSG_PATH = ".git/hooks/commit-msg"
-val prepareCommitMsg by lazy { PREPARE_COMMIT_MSG_PATH.toPath() }
+val prepareCommitMsg = PREPARE_COMMIT_MSG_PATH.toPath()
 
 const val SHEBANG = "#!/usr/bin/env sh"
-const val FORMAT_FILE_COMMAND = "50-72 format-file \"$1\""
+const val FORMAT_FILE_AS_PLAIN_TEXT_COMMAND = "50-72 format-file \"$1\""
+const val FORMAT_FILE_AS_MARKDOWN_COMMAND = "50-72 format-file --markdown \"$1\""
 
 const val NOT_A_GIT_DIR_MSG = "Current directory is not a git repository"
 
@@ -35,18 +36,28 @@ class Hook(
     help = """
         Install the 50-72 git hook in the current repository.
         
-        This is basically adding '$FORMAT_FILE_COMMAND' to the 'commit-msg' hook. If the
-        hook file cli.cli.exists, it will be appended to, else a new one will be created.
+        This is basically adding '$FORMAT_FILE_AS_PLAIN_TEXT_COMMAND' to the 'commit-msg' hook. If the
+        hook file exists, it will be appended to, else a new one will be created.
     """.trimIndent()
 ) {
 
-    private val install: Boolean by option().flag().validate { require(it || uninstall) }
-    private val uninstall: Boolean by option().flag().validate { require(it || install) }
+    private val install: Boolean by option(
+        help = "Install the hook"
+    ).flag().validate { require(it || uninstall) }
+
+    private val uninstall: Boolean by option(
+        help = "Uninstall the hook"
+    ).flag().validate { require(it || install) }
+
+    private val markdownFormat by option(
+        "--markdown",
+        help = "Set if commit messages are written in the Markdown format. Default: false."
+    ).flag()
 
     override fun run() {
         checkGitDirExists()
         when {
-            install -> installAction()
+            install -> installAction(markdownFormat)
             uninstall -> uninstallAction()
             else -> error("Can't happen thanks to validate calls")
         }

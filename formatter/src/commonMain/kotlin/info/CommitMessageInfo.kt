@@ -18,10 +18,14 @@ internal data class CommitMessageInfo(
         val match = Regex("^[^#\n]", MULTILINE).find(fullText)
         checkNotNull(match?.range?.first)
     }
+
     private val indexOfFirstMessageNewline =
         fullText.indexOf('\n', startIndex = indexOfFirstMessageChar)
 
-    val hasBody = indexOfFirstMessageNewline != -1
+    private val firstNewlineIsNewlineAtEof =
+        indexOfFirstMessageNewline == fullText.lastIndex
+
+    val hasBody = indexOfFirstMessageNewline != -1 && !firstNewlineIsNewlineAtEof
     val hasSubjectBodySeparator = hasBody && fullText[indexOfFirstMessageNewline + 1] == '\n'
     val subjectIsUpTo50Columns: Boolean = run {
         val firstMessageChar = indexOfFirstMessageChar

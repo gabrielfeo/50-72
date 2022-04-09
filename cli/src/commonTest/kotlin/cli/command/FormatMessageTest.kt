@@ -70,13 +70,6 @@ class FormatMessageTest {
         assertEquals("message", formatArgs.message)
     }
 
-    @Test
-    fun warnsMarkdownIsExperimental() {
-        run("--markdown", "message")
-        assertEquals("$EXPERIMENTAL_MARKDOWN_WARNING\n", stderr)
-        assertEquals("message\n", stdout)
-    }
-
     @Suppress("UNCHECKED_CAST")
     private fun run(vararg args: String, formatThrows: Boolean = false) {
         FormatMessage(

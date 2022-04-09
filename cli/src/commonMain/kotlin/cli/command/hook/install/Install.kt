@@ -4,7 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
 package cli.command.hook.install
 
@@ -12,9 +12,10 @@ import cli.commons.*
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi.echo
 import okio.FileSystem
+import okio.Path
 
 fun interface InstallAction {
-    operator fun invoke()
+    operator fun invoke(markdownFormat: Boolean)
 }
 
 const val FAILED_TO_SET_PERMISSIONS_MSG = """
@@ -23,28 +24,57 @@ Please set permissions manually by running 'chmod' so that Git can run the hook:
     chmod 755 $PREPARE_COMMIT_MSG_PATH
 """
 
+const val MARKDOWN_COMMENT_CHAR_WARNING_MSG = """
+You must set 'git config core.commentChar' to something other than default '#',
+otherwise git will ignore Markdown headers, which also start with '#'.
+    git config core.commentChar ';'
+"""
+
+internal const val ALREADY_INSTALLED_MSG = "Already installed."
+
 class InstallActionImpl(
     private val fileSystem: FileSystem = defaultFileSystem,
     private val permissionSetter: FilePermissionSetter = createFilePermissionSetter(),
 ) : InstallAction {
 
-    override fun invoke() {
-        prepareCommitMsg.run {
-            if (exists(fileSystem)) {
-                checkNotInstalled()
-                appendText("\n$FORMAT_FILE_COMMAND\n", fileSystem)
-            } else {
-                writeText("$SHEBANG\n\n$FORMAT_FILE_COMMAND\n", fileSystem)
-                setHookFilePermissions()
-            }
-        }
+    override fun invoke(markdownFormat: Boolean) {
+        val command = commandForOption(markdownFormat)
+        install(command)
         echo("Done! Please ensure 50-72 is in your PATH.")
+        if (markdownFormat) {
+            echo(MARKDOWN_COMMENT_CHAR_WARNING_MSG)
+        }
     }
 
-    private fun checkNotInstalled() {
+    private fun install(command: String) {
+        prepareCommitMsg.run {
+            if (exists(fileSystem)) {
+                checkNotInstalledInHook()
+                appendCommand(command)
+            } else {
+                createWithCommand(command)
+            }
+        }
+    }
+
+    private fun commandForOption(markdownFormat: Boolean) = when {
+        markdownFormat -> FORMAT_FILE_AS_MARKDOWN_COMMAND
+        else -> FORMAT_FILE_AS_PLAIN_TEXT_COMMAND
+    }
+
+    private fun Path.appendCommand(command: String) {
+        appendText("\n$command\n", fileSystem)
+    }
+
+    private fun Path.createWithCommand(command: String) {
+        writeText("$SHEBANG\n\n$command\n", fileSystem)
+        setHookFilePermissions()
+    }
+
+    private fun checkNotInstalledInHook() {
         val installed = prepareCommitMsg.readLines(fileSystem).any { it.startsWith("50-72") }
         if (installed) {
-            throw PrintMessage("Already installed.")
+            throw PrintMessage(ALREADY_INSTALLED_MSG)
         }
     }
 

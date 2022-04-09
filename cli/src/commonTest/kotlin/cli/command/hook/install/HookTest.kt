@@ -21,7 +21,7 @@ class HookTest {
 
     private val installAction = object : InstallAction {
         var called = false
-        override fun invoke() {
+        override fun invoke(markdownFormat: Boolean) {
             called = true
         }
     }

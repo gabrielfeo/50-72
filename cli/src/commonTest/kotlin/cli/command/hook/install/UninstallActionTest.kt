@@ -35,7 +35,7 @@ class UninstallActionTest {
                 
                 echo
                 
-                $FORMAT_FILE_COMMAND
+                $FORMAT_FILE_AS_PLAIN_TEXT_COMMAND
                 
             """.trimIndent()
         )
@@ -56,12 +56,35 @@ class UninstallActionTest {
             """
                 $SHEBANG
                 
-                $FORMAT_FILE_COMMAND
+                $FORMAT_FILE_AS_PLAIN_TEXT_COMMAND
                 
             """.trimIndent()
         )
         action()
         assertHookDoesntExist()
+    }
+
+    @Test
+    fun givenHookExistsWithFormatAsMarkdownCommand_ThenRemovesCommand() {
+        givenHookExists(
+            """
+                $SHEBANG
+                
+                echo
+                
+                $FORMAT_FILE_AS_MARKDOWN_COMMAND
+                
+            """.trimIndent()
+        )
+        action()
+        assertHookEquals(
+            expected = """
+                $SHEBANG
+                
+                echo
+                
+            """.trimIndent()
+        )
     }
 
     private fun givenHookExists(content: String) {
