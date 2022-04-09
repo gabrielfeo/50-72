@@ -19,7 +19,7 @@ import formatFullMessage
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-private const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
+internal const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
 
 class FormatFile(
     private val fileSystem: FileSystem = defaultFileSystem,
