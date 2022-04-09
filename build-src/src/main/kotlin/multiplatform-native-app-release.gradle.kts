@@ -57,10 +57,10 @@ fun registerSymlinkTaskFor(target: KotlinTarget) =
             val executableDir = linkage.outputs.files.singleFile.toPath()
             executableDir.resolve("cli.kexe")
         }
-        inputs.file(kexe)
+        inputs.property("kexePath", kexe.map { it.toString() })
         outputs.file(symlinkFile)
-        outputs.upToDateWhen {
-            symlinkFile.asFile.exists()
+        onlyIf {
+            !symlinkFile.asFile.exists()
         }
         doLast {
             val linkPath = symlinkFile.asFile.toPath()
