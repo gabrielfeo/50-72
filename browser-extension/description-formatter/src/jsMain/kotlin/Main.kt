@@ -33,23 +33,10 @@ fun main() {
 }
 
 private fun observePrBodyChanges(prBody: HTMLElement) {
-    val submitButton = prBody.findParentForm()
-        ?.querySelector("[type='submit']")
-        as? HTMLButtonElement
-    if (submitButton == null) {
-        console.log("Button not found")
-        return
-    }
     prBody.addEventListener("input", {
         console.log("PR body changed")
-        submitButton.maybeReplaceWithFormat()
+        maybeReplaceSubmitWithFormat()
     })
-}
-
-private fun HTMLElement.findParentForm(): HTMLFormElement? {
-    return parentElement?.let {
-        it as? HTMLFormElement ?: findParentForm()
-    }
 }
 
 private fun observe(node: Node, config: MutationObserverInit, callback: MutationObserverCallback) {
@@ -62,22 +49,32 @@ private val documentBodyObserverConfig = MutationObserverInit(
     attributes = true,
 )
 
-private fun HTMLButtonElement.maybeReplaceWithFormat(): Boolean {
+private fun maybeReplaceSubmitWithFormat(): Boolean {
     console.log("Will try to replace button")
-    if (innerText == FORMAT_TO_50_72) {
-        console.log("Button replaced already")
+    val button = gitHubBodySection
+        ?.querySelector(".comment-form-actions")
+        ?.querySelector("[type='submit']")
+        as? HTMLButtonElement
+    if (button == null) {
+        console.log("Button not found")
         return false
     }
-    val originalText = innerHTML.trim()
-    val originalOnclick = onclick
-    innerHTML = FORMAT_TO_50_72
-    onclick = {
-        format()
-        innerHTML = originalText
-        onclick = originalOnclick
-        false
+    button.apply {
+        if (innerText == FORMAT_TO_50_72) {
+            console.log("Button replaced already")
+            return false
+        }
+        val originalText = innerHTML.trim()
+        val originalOnclick = onclick
+        innerHTML = FORMAT_TO_50_72
+        onclick = {
+            format()
+            innerHTML = originalText
+            onclick = originalOnclick
+            false
+        }
+        return true
     }
-    return true
 }
 
 private fun format() {
