@@ -13,32 +13,45 @@ import org.w3c.dom.*
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 private const val FORMAT_TO_50_72 = "Format to 50/72"
 
-fun main() {
-    addFormatButton()
-}
+typealias MutationObserverCallback = (Array<MutationRecord>, MutationObserver) -> Unit
 
-private fun addFormatButton() {
-    if (!tryAdd()) {
-        MutationObserver { _, observer ->
-            if (tryAdd()) {
-                observer.disconnect()
-            }
-        }.startObserving()
+fun main() {
+    observe(document.body ?: TODO(), documentBodyObserverConfig) { mutations, observer ->
+        console.log(mutations)
+        console.log("Document body observer called")
+        document.gitHubBodyArea?.let {
+            observer.disconnect()
+            observePrBodyChanges(it)
+        }
     }
 }
 
-private fun MutationObserver.startObserving() {
-    observe(
-        // TODO Observe just the PR description node
-        target = checkNotNull(document.body),
-        options = MutationObserverInit(
-            childList = true,
-            subtree = true,
-        )
-    )
+private fun observePrBodyChanges(prBody: Element) {
+    observe(prBody, prBodyObserverConfig) { mutations, _ ->
+        console.log(mutations)
+        console.log("PR body observer called")
+        maybeReplaceSubmitWithFormat()
+    }
 }
 
-private fun tryAdd(): Boolean {
+private fun observe(node: Node, config: MutationObserverInit, callback: MutationObserverCallback) {
+    MutationObserver(callback).observe(node, config)
+}
+
+private val prBodyObserverConfig = MutationObserverInit(
+    childList = true,
+    subtree = true,
+    characterData = true,
+    characterDataOldValue = true,
+    attributes = true,
+)
+
+private val documentBodyObserverConfig = MutationObserverInit(
+    childList = true,
+    subtree = true,
+)
+
+private fun maybeReplaceSubmitWithFormat(): Boolean {
     val button = document.findGitHubSubmitButton()
     if (button == null) {
         console.log("Button not found")
