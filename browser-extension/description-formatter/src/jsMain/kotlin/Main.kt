@@ -8,13 +8,66 @@
 
 import kotlinx.browser.document
 import kotlinx.browser.window
-import org.w3c.dom.Document
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.*
 
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
+private const val FORMAT_TO_50_72 = "Format to 50/72"
 
 fun main() {
+    addFormatButton()
+}
+
+private fun addFormatButton() {
+    if (!tryAdd()) {
+        MutationObserver { _, observer ->
+            if (tryAdd()) {
+                observer.disconnect()
+            }
+        }.startObserving()
+    }
+}
+
+private fun MutationObserver.startObserving() {
+    observe(
+        // TODO Observe just the PR description node
+        target = checkNotNull(document.body),
+        options = MutationObserverInit(
+            childList = true,
+            subtree = true,
+        )
+    )
+}
+
+private fun tryAdd(): Boolean {
+    val button = document.findGitHubSubmitButton()
+    if (button == null) {
+        console.log("Button not found")
+        return false
+    }
+    if (button.innerText == FORMAT_TO_50_72) {
+        return true
+    }
+    button.apply {
+        val originalText = innerText.trim()
+        val originalOnclick = onclick
+        innerText = FORMAT_TO_50_72
+        onclick = {
+            format()
+            innerText = originalText
+            onclick = originalOnclick
+            false
+        }
+    }
+    return true
+}
+
+private fun Document.findGitHubSubmitButton(): HTMLButtonElement? {
+    return querySelector(".comment-form-actions")
+        ?.querySelector("[type='submit']")
+        as? HTMLButtonElement
+}
+
+private fun format() {
     val bodyArea = findCommitMessageBodyTextArea()
     val description = bodyArea?.value
     if (description == null || description.isBlank() || !replaceBody(bodyArea)) {

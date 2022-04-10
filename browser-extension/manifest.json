@@ -7,12 +7,14 @@
     "contextMenus",
     "scripting"
   ],
-  "background": {
-    "service_worker": "context-menu-setup.js"
-  },
-  "host_permissions": [
-    "https://*.gitlab.com/",
-    "https://*.github.com/",
-    "https://code.ifoodcorp.com.br/"
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/*/pull/*"
+      ],
+      "js": [
+        "description-formatter.js"
+      ]
+    }
   ]
 }
