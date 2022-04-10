@@ -13,24 +13,58 @@ import org.w3c.dom.*
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 private const val FORMAT_TO_50_72 = "Format to 50/72"
 
-typealias MutationObserverCallback = (Array<MutationRecord>, MutationObserver) -> Unit
-
-val gitHubBodySection = document.querySelector("[data-url*='/partials/body']")
-
 fun main() {
+    logBodySectionMutations()
+    findBodyBodyAreaAndWatch()
+}
+
+private fun findBodyBodyAreaAndWatch() {
     onBodyAreaAdded {
         watchInputChanges()
+        onNodeRemovedFrom(document.body ?: TODO()) {
+            findBodyBodyAreaAndWatch()
+        }
     }
 }
 
-private inline fun onBodyAreaAdded(crossinline block: HTMLTextAreaElement.() -> Unit) {
-    document.gitHubBodyArea?.block()
-        ?: observe(gitHubBodySection ?: TODO(), documentBodyObserverConfig) { _, observer ->
-            document.gitHubBodyArea?.run {
-                block()
-                observer.disconnect()
-            }
+// TODO When is the area element changed? Can't reproduce it
+private inline fun Node.onNodeRemovedFrom(ancestor: Node, crossinline block: () -> Unit) {
+    MutationObserver { mutations, observer ->
+        if (!ancestor.contains(this)) {
+            console.log("Node removed", this, mutations)
+            observer.disconnect()
+            block()
         }
+    }.observe(
+        ancestor,
+        MutationObserverInit(childList = true, subtree = true)
+    )
+}
+
+private fun NodeList.asIterable() = object : Iterable<Node> {
+    override fun iterator() = object : Iterator<Node> {
+        private var i = 0
+        override fun hasNext() = i < length
+        override fun next() = checkNotNull(get(i))
+    }
+}
+
+private fun logBodySectionMutations() {
+    MutationObserver { mutations, _ ->
+        console.log(mutations)
+    }.observe(gitHubBodySection ?: TODO(), documentBodyObserverConfig)
+}
+
+private inline fun onBodyAreaAdded(crossinline block: HTMLTextAreaElement.() -> Unit) {
+    document.gitHubBodyArea?.block()?.let {
+        return
+    }
+    MutationObserver { _, observer ->
+        document.gitHubBodyArea?.run {
+            block()
+            observer.disconnect()
+        }
+    }.observe(gitHubBodySection ?: TODO(), documentBodyObserverConfig)
 }
 
 private fun HTMLTextAreaElement.watchInputChanges() {
@@ -40,14 +74,9 @@ private fun HTMLTextAreaElement.watchInputChanges() {
     })
 }
 
-private fun observe(node: Node, config: MutationObserverInit, callback: MutationObserverCallback) {
-    MutationObserver(callback).observe(node, config)
-}
-
 private val documentBodyObserverConfig = MutationObserverInit(
     childList = true,
     subtree = true,
-    attributes = true,
 )
 
 private fun maybeReplaceSubmitWithFormat(): Boolean {
@@ -79,12 +108,11 @@ private fun maybeReplaceSubmitWithFormat(): Boolean {
 }
 
 private fun format() {
-    val bodyArea = findCommitMessageBodyTextArea()
-    val description = bodyArea?.value
-    if (description == null || description.isBlank() || !replaceBody(bodyArea)) {
-        alertFailedToFindBodyArea()
-        logFailedToFindBodyArea(bodyArea)
-    }
+    findCommitMessageBodyTextArea()?.let {
+        if (it.value.isNotBlank()) {
+            replaceBody(it)
+        }
+    } ?: alertFailedToFindBodyArea()
 }
 
 private fun findCommitMessageBodyTextArea(): HTMLTextAreaElement? {
@@ -94,6 +122,9 @@ private fun findCommitMessageBodyTextArea(): HTMLTextAreaElement? {
 
 private val Document.gitLabBodyArea
     get() = querySelector("#merge_request_description")
+
+private val gitHubBodySection
+    get() = document.querySelector("[data-url*='/partials/body']")
 
 private val Document.gitHubBodyArea
     get() = querySelector("[name='pull_request[body]']") as? HTMLTextAreaElement
@@ -106,17 +137,6 @@ private fun alertFailedToFindBodyArea() {
           • the current page URL (please remove any sensitive data)
           • a screenshot of the page's Console (only the log entry starting with [50-72])
     """.trimIndent())
-}
-
-private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
-    console.log(
-        """
-            [50-72] Failed to format description.
-              bodyArea=$bodyArea
-                bodyArea.textContent=${bodyArea?.textContent} 
-                bodyArea.value=${bodyArea?.value} 
-        """.trimIndent()
-    )
 }
 
 private fun replaceBody(bodyArea: HTMLTextAreaElement): Boolean {
