@@ -18,22 +18,23 @@ typealias MutationObserverCallback = (Array<MutationRecord>, MutationObserver) -
 val gitHubBodySection = document.querySelector("[data-url*='/partials/body']")
 
 fun main() {
-    observe(gitHubBodySection ?: TODO(), documentBodyObserverConfig) { mutations, observer ->
-        console.log(mutations)
-        console.log("Document body observer called")
-        for (mutation in mutations) {
-            val textArea = mutation.target as? HTMLTextAreaElement ?: continue
-            if (textArea.name == "pull_request[body]") {
-                observer.disconnect()
-                observePrBodyChanges(textArea)
-                break
-            }
-        }
+    onBodyAreaAdded {
+        watchInputChanges()
     }
 }
 
-private fun observePrBodyChanges(prBody: HTMLElement) {
-    prBody.addEventListener("input", {
+private inline fun onBodyAreaAdded(crossinline block: HTMLTextAreaElement.() -> Unit) {
+    document.gitHubBodyArea?.block()
+        ?: observe(gitHubBodySection ?: TODO(), documentBodyObserverConfig) { _, observer ->
+            document.gitHubBodyArea?.run {
+                block()
+                observer.disconnect()
+            }
+        }
+}
+
+private fun HTMLTextAreaElement.watchInputChanges() {
+    addEventListener("input", {
         console.log("PR body changed")
         maybeReplaceSubmitWithFormat()
     })
@@ -95,8 +96,7 @@ private val Document.gitLabBodyArea
     get() = querySelector("#merge_request_description")
 
 private val Document.gitHubBodyArea
-    get() = querySelector("#pull_request_body")
-        ?: querySelector("[name='pull_request[body]']")
+    get() = querySelector("[name='pull_request[body]']") as? HTMLTextAreaElement
 
 private fun alertFailedToFindBodyArea() {
     window.alert("""
