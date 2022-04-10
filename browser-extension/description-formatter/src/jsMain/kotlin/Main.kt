@@ -15,22 +15,40 @@ private const val FORMAT_TO_50_72 = "Format to 50/72"
 
 typealias MutationObserverCallback = (Array<MutationRecord>, MutationObserver) -> Unit
 
+val gitHubBodySection = document.querySelector("[data-url*='/partials/body']")
+
 fun main() {
-    observe(document.body ?: TODO(), documentBodyObserverConfig) { mutations, observer ->
+    observe(gitHubBodySection ?: TODO(), documentBodyObserverConfig) { mutations, observer ->
         console.log(mutations)
         console.log("Document body observer called")
-        document.gitHubBodyArea?.let {
-            observer.disconnect()
-            observePrBodyChanges(it)
+        for (mutation in mutations) {
+            val textArea = mutation.target as? HTMLTextAreaElement ?: continue
+            if (textArea.name == "pull_request[body]") {
+                observer.disconnect()
+                observePrBodyChanges(textArea)
+                break
+            }
         }
     }
 }
 
-private fun observePrBodyChanges(prBody: Element) {
-    observe(prBody, prBodyObserverConfig) { mutations, _ ->
-        console.log(mutations)
-        console.log("PR body observer called")
-        maybeReplaceSubmitWithFormat()
+private fun observePrBodyChanges(prBody: HTMLElement) {
+    val submitButton = prBody.findParentForm()
+        ?.querySelector("[type='submit']")
+        as? HTMLButtonElement
+    if (submitButton == null) {
+        console.log("Button not found")
+        return
+    }
+    prBody.addEventListener("input", {
+        console.log("PR body changed")
+        submitButton.maybeReplaceWithFormat()
+    })
+}
+
+private fun HTMLElement.findParentForm(): HTMLFormElement? {
+    return parentElement?.let {
+        it as? HTMLFormElement ?: findParentForm()
     }
 }
 
@@ -38,46 +56,28 @@ private fun observe(node: Node, config: MutationObserverInit, callback: Mutation
     MutationObserver(callback).observe(node, config)
 }
 
-private val prBodyObserverConfig = MutationObserverInit(
-    childList = true,
-    subtree = true,
-    characterData = true,
-    characterDataOldValue = true,
-    attributes = true,
-)
-
 private val documentBodyObserverConfig = MutationObserverInit(
     childList = true,
     subtree = true,
+    attributes = true,
 )
 
-private fun maybeReplaceSubmitWithFormat(): Boolean {
-    val button = document.findGitHubSubmitButton()
-    if (button == null) {
-        console.log("Button not found")
+private fun HTMLButtonElement.maybeReplaceWithFormat(): Boolean {
+    console.log("Will try to replace button")
+    if (innerText == FORMAT_TO_50_72) {
+        console.log("Button replaced already")
         return false
     }
-    if (button.innerText == FORMAT_TO_50_72) {
-        return true
-    }
-    button.apply {
-        val originalText = innerText.trim()
-        val originalOnclick = onclick
-        innerText = FORMAT_TO_50_72
-        onclick = {
-            format()
-            innerText = originalText
-            onclick = originalOnclick
-            false
-        }
+    val originalText = innerHTML.trim()
+    val originalOnclick = onclick
+    innerHTML = FORMAT_TO_50_72
+    onclick = {
+        format()
+        innerHTML = originalText
+        onclick = originalOnclick
+        false
     }
     return true
-}
-
-private fun Document.findGitHubSubmitButton(): HTMLButtonElement? {
-    return querySelector(".comment-form-actions")
-        ?.querySelector("[type='submit']")
-        as? HTMLButtonElement
 }
 
 private fun format() {
