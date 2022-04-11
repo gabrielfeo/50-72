@@ -8,6 +8,7 @@
 
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.dom.appendElement
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTextAreaElement
@@ -15,6 +16,17 @@ import org.w3c.dom.HTMLTextAreaElement
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 
 fun main() {
+    document.body?.appendElement("button") {
+        innerHTML = "Format"
+        addEventListener("click", { onFormatButtonClicked() })
+        setAttribute(
+            "style",
+            "position: absolute; bottom: 0; right: 0; z-index: 999999; font-size: large;",
+        )
+    }
+}
+
+fun onFormatButtonClicked() {
     val bodyArea = findCommitMessageBodyTextArea()
     val description = bodyArea?.value
     if (description == null || description.isBlank() || !replaceBody(bodyArea)) {

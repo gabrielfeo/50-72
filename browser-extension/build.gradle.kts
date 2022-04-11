@@ -7,5 +7,9 @@
  */
 
 plugins {
-    id("multiplatform-js-browser-extension")
+    id("multiplatform-js-browser-executable")
+}
+
+dependencies {
+    jsMainImplementation(project(":formatter"))
 }
