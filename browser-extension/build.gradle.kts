@@ -12,4 +12,5 @@ plugins {
 
 dependencies {
     jsMainImplementation(project(":formatter"))
+    jsTestImplementation(kotlin("test"))
 }

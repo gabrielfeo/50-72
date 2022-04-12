@@ -9,7 +9,7 @@
 package browser
 
 @JsName("internalBrowser")
-val browser: dynamic = when {
+val browser: dynamic get() = when {
     jsTypeOf(js("browser")) != "undefined" -> js("browser")
     jsTypeOf(js("chrome")) != "undefined" -> js("chrome")
     else -> error("Unsupported browser")
