@@ -3,6 +3,7 @@ import kotlinx.dom.appendElement
 import org.w3c.dom.Element
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class Main2Test {
@@ -13,7 +14,8 @@ class Main2Test {
     @Test
     fun addsFormatButton() {
         main2(testElement)
-        assertNotNull(testElement.querySelector("button"))
+        val button = assertNotNull(testElement.querySelector("button"))
+        assertEquals("Format", button.innerHTML)
     }
 
     @BeforeTest
