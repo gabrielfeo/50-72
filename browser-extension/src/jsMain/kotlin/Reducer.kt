@@ -6,12 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-plugins {
-    id("multiplatform-js-browser-executable")
-}
-
-dependencies {
-    jsMainImplementation(project(":formatter"))
-    jsMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
-    jsTestImplementation(kotlin("test"))
+fun interface Reducer<T, R> {
+    fun reduce(state: T, event: R): T
 }
