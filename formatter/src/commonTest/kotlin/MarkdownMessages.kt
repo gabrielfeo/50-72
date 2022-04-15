@@ -268,3 +268,65 @@ Bar
 | Before | After |
 |--------|-------|
 | Foo    | Bar   |"""
+
+const val MD_MSG_WITH_COMMENT_CHAR_HASH = """Subject
+
+# H1
+
+01234567890123456789012345678901234567890123456789012345678901234567890
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+foo foo
+
+## H2
+
+#Comment
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo
+# Comment"""
+
+const val MD_MSG_WITH_COMMENT_CHAR_HASH_STRIPPED = """Subject
+
+01234567890123456789012345678901234567890123456789012345678901234567890
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+foo foo
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo"""
+
+const val MD_MSG_WITH_COMMENT_CHAR_SEMICOLON = """Subject
+
+# H1
+
+01234567890123456789012345678901234567890123456789012345678901234567890
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+foo foo
+
+## H2
+
+;Comment
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo
+; Comment"""
+
+const val MD_MSG_WITH_COMMENT_CHAR_SEMICOLON_STRIPPED = """Subject
+
+# H1
+
+01234567890123456789012345678901234567890123456789012345678901234567890
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+foo foo
+
+## H2
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo"""

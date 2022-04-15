@@ -9,6 +9,7 @@
 package builder
 
 internal data class PlainTextCommitMessageBuilder(
+    private val commentChar: Char,
     private val sequence: FormattedCharSequence = FormattedCharSequence(),
 ) : CommitMessageBuilder {
 
@@ -30,5 +31,5 @@ internal data class PlainTextCommitMessageBuilder(
         }
     }
 
-    private fun String.isComment() = startsWith("#")
+    private fun String.isComment() = startsWith(commentChar)
 }
