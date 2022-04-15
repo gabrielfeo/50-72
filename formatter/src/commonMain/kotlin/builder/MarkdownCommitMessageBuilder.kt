@@ -70,7 +70,7 @@ private enum class MarkdownTokenMatcher(
     //language=RegExp
     val pattern: String,
 ) {
-    ParagraphBreak("""\n{2,}"""),
+    ParagraphBreak("""\n\s*\n"""),
     Heading("""#+[^\n]+"""),
     BoldText("""\*\*[^*]+\*\*"""),
     ItalicizedText("""_[^_]+_"""),

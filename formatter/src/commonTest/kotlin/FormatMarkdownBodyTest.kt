@@ -42,6 +42,12 @@ class FormatMarkdownBodyTest {
     }
 
     @Test
+    fun trimsRedundantWhitespaceBetweenParagraphs() {
+        val reformatted = formatBody(MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_BETWEEEN_PARAGRAPHS, isMarkdown = true)
+        assertEquals(MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_TRIMMED, reformatted)
+    }
+
+    @Test
     fun supportsMiscMarkdownFeatures() {
         val reformatted = formatBody(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES, isMarkdown = true)
         assertEquals(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES_FIXED, reformatted)

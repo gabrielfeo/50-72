@@ -84,6 +84,46 @@ foo
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo foo foo"""
 
+const val MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_BETWEEEN_PARAGRAPHS = """# H1
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+            
+foo
+	
+foo
+  
+- A
+  - Nested
+
+ 
+ 
+
+
+1. B
+  a. Nested
+  
+1. C
+  a. Nested"""
+
+const val MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_TRIMMED = """# H1
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+foo
+
+foo
+
+- A
+  - Nested
+
+1. B
+  a. Nested
+
+1. C
+  a. Nested"""
+
 const val MD_BODY_72_WITH_SNIPPET = """# H1
 
 01234567890123456789012345678901234567890123456789012345678901234567890
