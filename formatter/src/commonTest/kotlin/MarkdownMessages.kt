@@ -55,6 +55,75 @@ foo foo
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo foo foo"""
 
+const val MD_BODY_AT_72_WITH_LIST_ITEMS = """# H1
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+- List item A
+- List item B
+
+- List item A
+- List item B
+
+foo foo
+
+1. List item A
+2. List item B
+
+foo
+
+- A
+  - Nested
+
+1. B
+  a. Nested
+
+## H2
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo"""
+
+const val MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_BETWEEEN_PARAGRAPHS = """# H1
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+            
+foo
+	
+foo
+  
+- A
+  - Nested
+
+ 
+ 
+
+
+1. B
+  a. Nested
+  
+1. C
+  a. Nested"""
+
+const val MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_TRIMMED = """# H1
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+foo
+
+foo
+
+foo
+
+- A
+  - Nested
+
+1. B
+  a. Nested
+
+1. C
+  a. Nested"""
+
 const val MD_BODY_72_WITH_SNIPPET = """# H1
 
 01234567890123456789012345678901234567890123456789012345678901234567890
@@ -89,19 +158,32 @@ snippety snip
 
 foo foo
 
+>Quote
+
+>Multi-line quote
+>Multi-line quote
+
 ## H2
 
 foo foo
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 
+### H3
+
 **Paragraph starting** with bold. Here's _italics_ and ~strikethrough~.
 
+#### H4
+
 <img src="foo" />
+
+##### H5
 
 01234567890123456789012345678901234567890123456789012345678901234567890
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 
 ![Screenshot](/uploads/foo.png)
+
+###### H6
 
 ```
 pseudo code
@@ -111,6 +193,15 @@ pseudo code
 println("snippet")
 println("snippet")
 ```
+
+<details>
+<summary>
+Foo
+</summary>
+
+Bar
+
+</details>
 
 | Before | After |
 |--------|-------|
@@ -128,20 +219,33 @@ snippety snip
 
 foo foo
 
+>Quote
+
+>Multi-line quote
+>Multi-line quote
+
 ## H2
 
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo foo foo
 
+### H3
+
 **Paragraph starting** with bold. Here's _italics_ and ~strikethrough~.
 
+#### H4
+
 <img src="foo" />
+
+##### H5
 
 01234567890123456789012345678901234567890123456789012345678901234567890
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo
 
 ![Screenshot](/uploads/foo.png)
+
+###### H6
 
 ```
 pseudo code
@@ -151,6 +255,15 @@ pseudo code
 println("snippet")
 println("snippet")
 ```
+
+<details>
+<summary>
+Foo
+</summary>
+
+Bar
+
+</details>
 
 | Before | After |
 |--------|-------|
