@@ -10,6 +10,10 @@ set -euo pipefail
 
 tag_name="${1:?Tag name expected}"
 
-subject="$(git tag --list --format='%(contents:subject)' "$tag_name")"
-body="$(git tag --list --format='%(contents:body)' "$tag_name")"
-echo -e "$subject\n\n$body"
+if [[ "$tag_name" != */* ]] || [[ "$tag_name" == */*/* ]]; then
+  echo "Tag '$tag_name' must have exactly one prefix" >&2
+  exit 1
+fi
+
+# 'cli/v1.0.0' -> 'v1.0.0'
+echo "TAG_VERSION=${tag_name#*/}"

@@ -8,7 +8,7 @@ name: 'CLI release'
 
 on:
   push:
-    tags: [v*]
+    tags: ['*/v*']
 
 defaults:
   run:
@@ -59,6 +59,8 @@ jobs:
         run: .github/steps/fetch-actual-tag.sh "$TAG_NAME"
       - name: Require annotated tag
         run: .github/steps/require-annotated-tag.sh "$TAG_NAME"
+      - name: Parse tag version
+        run: .github/steps/parse-tag-version.sh "$TAG_NAME" | tee -a "$GITHUB_ENV"
       - name: Parse tag message
         run: ./.github/steps/parse-tag-message.sh "$TAG_NAME" | tee ./tag_message
       - name: Download artifacts
@@ -79,6 +81,6 @@ jobs:
       - name: Update Homebrew formula
         run: |
           .github/steps/update-homebrew-formula.py \
-            --version "$TAG_NAME" \
+            --version "$TAG_VERSION" \
             --trigger-source "$ACTION_RUN_URL" \
             --assets artifacts/linux/* artifacts/macos/*
