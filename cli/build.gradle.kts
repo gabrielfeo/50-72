@@ -9,6 +9,7 @@
 plugins {
     id("multiplatform-native-app")
     id("multiplatform-native-app-release")
+    id("multiplatform-native-shared-posix-source-set")
 }
 
 version = "0.0.1"

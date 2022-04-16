@@ -8,9 +8,12 @@
 
 package cli.command.hook
 
+import cli.commons.defaultCommandRunner
 import cli.commons.defaultFileSystem
 import cli.commons.readText
 import cli.commons.writeText
+import cli.env.Environment
+import cli.env.RealEnvironment
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -25,7 +28,8 @@ internal const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
 
 class FormatFile(
     private val fileSystem: FileSystem = defaultFileSystem,
-    private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
+    private val env: Environment = RealEnvironment(defaultCommandRunner),
+    private val format: (message: String, commentChar: Char, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
     name = "format-file",
     help = "Format the git commit message file (or another file)"
@@ -45,7 +49,7 @@ class FormatFile(
         try {
             val file = messageFile.toPath()
             val content = file.readText(fileSystem)
-            val formattedContent = format(content, isMarkdown)
+            val formattedContent = format(content, env.gitCommentChar(), isMarkdown)
             file.writeText(formattedContent, fileSystem)
         } catch (error: IllegalArgumentException) {
             throw PrintMessage(error.message.orEmpty(), error = true)
