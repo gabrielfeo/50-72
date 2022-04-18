@@ -8,7 +8,7 @@
 
 package cli.command
 
-import cli.commons.defaultCommandRunner
+import cli.commons.PlatformCommandRunner
 import cli.env.Environment
 import cli.env.RealEnvironment
 import com.github.ajalt.clikt.core.CliktCommand
@@ -19,7 +19,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import formatFullMessage
 
 class FormatMessage(
-    private val env: Environment = RealEnvironment(defaultCommandRunner),
+    private val env: Environment = RealEnvironment(PlatformCommandRunner()),
     private val format: (message: String, commentChar: Char, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
     name = "format",

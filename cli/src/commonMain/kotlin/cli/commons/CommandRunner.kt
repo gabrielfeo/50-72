@@ -10,7 +10,11 @@
 
 package cli.commons
 
-expect val defaultCommandRunner: CommandRunner
+value class WorkDir(val path: String)
+
+expect fun PlatformCommandRunner(
+    workDir: WorkDir = WorkDir(".")
+): CommandRunner
 
 fun interface CommandRunner {
 

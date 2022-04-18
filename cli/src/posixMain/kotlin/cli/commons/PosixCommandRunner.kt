@@ -17,9 +17,13 @@ import platform.posix.fgets
 import platform.posix.pclose
 import platform.posix.popen
 
-actual val defaultCommandRunner: CommandRunner = PosixCommandRunner()
+actual fun PlatformCommandRunner(
+    workDir: WorkDir,
+): CommandRunner = PosixCommandRunner(workDir)
 
-class PosixCommandRunner : CommandRunner {
+class PosixCommandRunner(
+    private val workDir: WorkDir,
+) : CommandRunner {
 
     /**
      * Based on https://stackoverflow.com/a/57124947/7546633
@@ -27,7 +31,11 @@ class PosixCommandRunner : CommandRunner {
     override fun run(
         command: String,
     ): Result {
-        val stdoutFile = popen(command, "r") ?: errorOpeningSubprocess(command)
+        val finalCommand = when (workDir) {
+            WorkDir(".") -> command
+            else -> "(cd ${workDir.path}; $command)"
+        }
+        val stdoutFile = popen(finalCommand, "r") ?: errorOpeningSubprocess(finalCommand)
         val stdout = buildString {
             val buffer = ByteArray(4096)
             while (true) {

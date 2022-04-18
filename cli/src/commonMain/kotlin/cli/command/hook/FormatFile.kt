@@ -8,7 +8,7 @@
 
 package cli.command.hook
 
-import cli.commons.defaultCommandRunner
+import cli.commons.PlatformCommandRunner
 import cli.commons.defaultFileSystem
 import cli.commons.readText
 import cli.commons.writeText
@@ -28,7 +28,7 @@ internal const val DEFAULT_GIT_MSG_FILE = ".git/EDIT_COMMITMSG"
 
 class FormatFile(
     private val fileSystem: FileSystem = defaultFileSystem,
-    private val env: Environment = RealEnvironment(defaultCommandRunner),
+    private val env: Environment = RealEnvironment(PlatformCommandRunner()),
     private val format: (message: String, commentChar: Char, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
     name = "format-file",
