@@ -1,6 +1,9 @@
 import org.gradle.testing.base.plugins.TestingBasePlugin.TESTS_DIR_NAME
 import org.gradle.testing.base.plugins.TestingBasePlugin.TEST_RESULTS_DIR_NAME
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 
 /*
@@ -18,37 +21,66 @@ plugins {
 
 version = "0.0.1"
 
-// TODO targets.forEach { createIntegrationTestCompilation() }
 // TODO commonIntegrationTest source set
+// TODO commonIntegrationTestImplementation
 // TODO In convention plugin
-kotlin {
-    macosX64 target@{
-        compilations {
-            val main = getByName("main")
-            val integrationTest = compilations.create("integrationTest") {
-                associateWith(main)
-                defaultSourceSet {
-                    dependencies {
-                        implementation(main.compileDependencyFiles + main.output.classesDirs)
-                    }
-                }
-            }
-            binaries {
-                test("integration", listOf(NativeBuildType.DEBUG)) {
-                    compilation = integrationTest
-                    tasks.register("${targetName}IntegrationTest", KotlinNativeHostTest::class) {
-                        targetName = target.name
-                        executable(linkTaskProvider.flatMap { it.outputFile })
-                        inputs.file(linkTaskProvider.map { it.outputFile })
-                        val resultsDir = project.layout.buildDirectory.dir("$TEST_RESULTS_DIR_NAME/$name/binary")
-                        val reportsDir = project.layout.buildDirectory.dir("$TESTS_DIR_NAME/reports/integrationTest")
-                        binaryResultsDirectory.set(resultsDir)
-                        reports {
-                            junitXml.outputLocation.set(resultsDir)
-                            html.outputLocation.set(reportsDir)
-                        }
-                    }
-                }
+configureIntegrationTestSuite()
+registerIntegrationTestConfigurations()
+
+fun Project.registerIntegrationTestConfigurations() {
+    val implementation = configurations.register("integrationTestImplementation")
+    val api = configurations.register("integrationTestApi")
+    configurations.configureEach {
+        when {
+            name.endsWith("IntegrationTestApi") -> extendsFrom(api.get())
+            name.endsWith("IntegrationTestImplementation") -> extendsFrom(implementation.get(), api.get())
+        }
+    }
+}
+
+fun Project.configureIntegrationTestSuite() {
+    // Can't configureEach because creating a compilation adds a Project.afterEvaluate, which
+    // is disallowed by the time the objects are configured
+    kotlin.targets.filterIsInstance<KotlinNativeTarget>().forEach {
+        val compilation = it.createIntegrationTestCompilation()
+        it.configureIntegrationTestBinaryAndTask(project, compilation)
+    }
+}
+
+fun KotlinNativeTarget.configureIntegrationTestBinaryAndTask(project: Project, compilation: KotlinNativeCompilation) {
+    binaries {
+        test("integration", listOf(NativeBuildType.DEBUG)) {
+            this.compilation = compilation
+            project.registerIntegrationTestTask(compilation.target, testExecutable = this)
+        }
+    }
+}
+
+fun Project.registerIntegrationTestTask(target: KotlinNativeTarget, testExecutable: TestExecutable) {
+    tasks.register("${target.name}IntegrationTest", KotlinNativeHostTest::class) {
+        targetName = testExecutable.target.name
+        executable(testExecutable.linkTaskProvider.flatMap { it.outputFile })
+        inputs.file(testExecutable.linkTaskProvider.map { it.outputFile })
+        val resultsDir = project.layout.buildDirectory.dir("$TEST_RESULTS_DIR_NAME/$name/binary")
+        val reportsDir = project.layout.buildDirectory.dir("$TESTS_DIR_NAME/reports/integrationTest")
+        binaryResultsDirectory.set(resultsDir)
+        reports {
+            junitXml.outputLocation.set(resultsDir)
+            html.outputLocation.set(reportsDir)
+        }
+    }
+}
+
+fun KotlinNativeTarget.createIntegrationTestCompilation(): KotlinNativeCompilation {
+    val mainCompilation = compilations.getByName("main")
+    return compilations.create("integrationTest") {
+        associateWith(mainCompilation)
+        defaultSourceSet {
+            mainCompilation.let {
+                dependencies.add(
+                    implementationConfigurationName,
+                    it.compileDependencyFiles + it.output.classesDirs,
+                )
             }
         }
     }
@@ -60,7 +92,7 @@ dependencies {
     commonMainImplementation("com.squareup.okio:okio:3.0.0")
     commonTestImplementation(kotlin("test"))
     commonTestImplementation("com.squareup.okio:okio-fakefilesystem:3.0.0")
-    add("macosX64IntegrationTestImplementation", kotlin("test"))
+    add("integrationTestImplementation", kotlin("test"))
 }
 
 //afterEvaluate {
