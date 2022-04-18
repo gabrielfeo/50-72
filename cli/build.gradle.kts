@@ -22,16 +22,16 @@ plugins {
 version = "0.0.1"
 
 // TODO commonIntegrationTest source set
-// TODO commonIntegrationTestImplementation
 // TODO In convention plugin
 configureIntegrationTestSuite()
 registerIntegrationTestConfigurations()
 
 fun Project.registerIntegrationTestConfigurations() {
-    val implementation = configurations.register("integrationTestImplementation")
-    val api = configurations.register("integrationTestApi")
+    val implementation = configurations.register("commonIntegrationTestImplementation")
+    val api = configurations.register("commonIntegrationTestApi")
     configurations.configureEach {
         when {
+            name.startsWith("common") -> {}
             name.endsWith("IntegrationTestApi") -> extendsFrom(api.get())
             name.endsWith("IntegrationTestImplementation") -> extendsFrom(implementation.get(), api.get())
         }
@@ -92,7 +92,7 @@ dependencies {
     commonMainImplementation("com.squareup.okio:okio:3.0.0")
     commonTestImplementation(kotlin("test"))
     commonTestImplementation("com.squareup.okio:okio-fakefilesystem:3.0.0")
-    add("integrationTestImplementation", kotlin("test"))
+    add("commonIntegrationTestImplementation", kotlin("test"))
 }
 
 //afterEvaluate {
