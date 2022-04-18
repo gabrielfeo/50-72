@@ -1,4 +1,7 @@
+import org.gradle.testing.base.plugins.TestingBasePlugin.TESTS_DIR_NAME
+import org.gradle.testing.base.plugins.TestingBasePlugin.TEST_RESULTS_DIR_NAME
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 
 /*
  * Copyright (c) 2022 Gabriel Feo
@@ -39,26 +42,28 @@ kotlin {
                 }
             }
             binaries {
-                test("integrationTest", listOf(NativeBuildType.DEBUG)) {
+                test("integration", listOf(NativeBuildType.DEBUG)) {
                     compilation = integrationTest
+                    tasks.register("${targetName}IntegrationTest", KotlinNativeHostTest::class) {
+                        targetName = target.name
+                        executable(linkTaskProvider.flatMap { it.outputFile })
+                        inputs.file(linkTaskProvider.map { it.outputFile })
+                        val resultsDir = project.layout.buildDirectory.dir("$TEST_RESULTS_DIR_NAME/$name/binary")
+                        val reportsDir = project.layout.buildDirectory.dir("$TESTS_DIR_NAME/reports/integrationTest")
+                        binaryResultsDirectory.set(resultsDir)
+                        reports {
+                            junitXml.outputLocation.set(resultsDir)
+                            html.outputLocation.set(reportsDir)
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-afterEvaluate {
-//    tasks.getByName("macosX64Test", KotlinNativeHostTest::class) {
-//        println("Task '$path': [${this.executable},]")
+//afterEvaluate {
+//    tasks.withType(KotlinNativeHostTest::class) {
+//        println(path + '=' + binaryResultsDirectory.get())
 //    }
-    kotlin {
-        macosX64 {
-            println(binaries.joinToString { it.toString() + "=" + it.linkTaskName })
-            println("[" + compilations.joinToString() + "]")
-            println(compilations.getByName("test").binariesTaskName)
-            println(compilations.getByName("test").attributes)
-            println(compilations.getByName("test").compileKotlinTaskName)
-            println(compilations.getByName("test").defaultSourceSetName)
-        }
-    }
-}
+//}
