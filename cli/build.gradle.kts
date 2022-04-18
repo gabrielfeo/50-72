@@ -18,14 +18,6 @@ plugins {
 
 version = "0.0.1"
 
-dependencies {
-    commonMainImplementation(project(":formatter"))
-    commonMainImplementation("com.github.ajalt.clikt:clikt:3.4.0")
-    commonMainImplementation("com.squareup.okio:okio:3.0.0")
-    commonTestImplementation(kotlin("test"))
-    commonTestImplementation("com.squareup.okio:okio-fakefilesystem:3.0.0")
-}
-
 // TODO targets.forEach { createIntegrationTestCompilation() }
 // TODO commonIntegrationTest source set
 // TODO In convention plugin
@@ -34,10 +26,10 @@ kotlin {
         compilations {
             val main = getByName("main")
             val integrationTest = compilations.create("integrationTest") {
+                associateWith(main)
                 defaultSourceSet {
                     dependencies {
                         implementation(main.compileDependencyFiles + main.output.classesDirs)
-                        implementation(kotlin("test"))
                     }
                 }
             }
@@ -62,8 +54,27 @@ kotlin {
     }
 }
 
+dependencies {
+    commonMainImplementation(project(":formatter"))
+    commonMainImplementation("com.github.ajalt.clikt:clikt:3.4.0")
+    commonMainImplementation("com.squareup.okio:okio:3.0.0")
+    commonTestImplementation(kotlin("test"))
+    commonTestImplementation("com.squareup.okio:okio-fakefilesystem:3.0.0")
+    add("macosX64IntegrationTestImplementation", kotlin("test"))
+}
+
 //afterEvaluate {
-//    tasks.withType(KotlinNativeHostTest::class) {
-//        println(path + '=' + binaryResultsDirectory.get())
+//    kotlin {
+//        macosX64 {
+//            compilations.map {
+//                """
+//                ${it.name}:
+//                    compileOnlyConfigurationName=${it.compileOnlyConfigurationName}
+//                    runtimeOnlyConfigurationName=${it.runtimeOnlyConfigurationName}
+//                    compileDependencyConfigurationName=${it.compileDependencyConfigurationName}
+//                    runtimeDependencyConfigurationName=${it.runtimeDependencyConfigurationName}
+//                """.trimIndent()
+//            }.joinToString("\n").let(::println)
+//        }
 //    }
 //}
