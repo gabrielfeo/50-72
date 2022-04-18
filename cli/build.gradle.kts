@@ -1,5 +1,6 @@
 import org.gradle.testing.base.plugins.TestingBasePlugin.TESTS_DIR_NAME
 import org.gradle.testing.base.plugins.TestingBasePlugin.TEST_RESULTS_DIR_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
@@ -21,29 +22,16 @@ plugins {
 
 version = "0.0.1"
 
-// TODO commonIntegrationTest source set
 // TODO In convention plugin
 configureIntegrationTestSuite()
-registerIntegrationTestConfigurations()
-
-fun Project.registerIntegrationTestConfigurations() {
-    val implementation = configurations.register("commonIntegrationTestImplementation")
-    val api = configurations.register("commonIntegrationTestApi")
-    configurations.configureEach {
-        when {
-            name.startsWith("common") -> {}
-            name.endsWith("IntegrationTestApi") -> extendsFrom(api.get())
-            name.endsWith("IntegrationTestImplementation") -> extendsFrom(implementation.get(), api.get())
-        }
-    }
-}
 
 fun Project.configureIntegrationTestSuite() {
-    // Can't configureEach because creating a compilation adds a Project.afterEvaluate, which
-    // is disallowed by the time the objects are configured
-    kotlin.targets.filterIsInstance<KotlinNativeTarget>().forEach {
-        val compilation = it.createIntegrationTestCompilation()
-        it.configureIntegrationTestBinaryAndTask(project, compilation)
+    kotlin {
+        val commonSourceSet = sourceSets.create("commonIntegrationTest")
+        targets.filterIsInstance<KotlinNativeTarget>().forEach {
+            val compilation = it.createIntegrationTestCompilation(commonSourceSet)
+            it.configureIntegrationTestBinaryAndTask(project, compilation)
+        }
     }
 }
 
@@ -71,11 +59,12 @@ fun Project.registerIntegrationTestTask(target: KotlinNativeTarget, testExecutab
     }
 }
 
-fun KotlinNativeTarget.createIntegrationTestCompilation(): KotlinNativeCompilation {
+fun KotlinNativeTarget.createIntegrationTestCompilation(commonSourceSet: KotlinSourceSet): KotlinNativeCompilation {
     val mainCompilation = compilations.getByName("main")
     return compilations.create("integrationTest") {
         associateWith(mainCompilation)
         defaultSourceSet {
+            dependsOn(commonSourceSet)
             mainCompilation.let {
                 dependencies.add(
                     implementationConfigurationName,
