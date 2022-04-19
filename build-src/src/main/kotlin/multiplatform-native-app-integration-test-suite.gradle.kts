@@ -49,7 +49,6 @@ fun KotlinNativeTarget.createIntegrationTestCompilation(
         defaultSourceSet {
             dependsOn(commonIntegrationTest)
             requiresVisibilityOf(commonMain)
-            requiresVisibilityOf(commonIntegrationTest)
             requiresVisibilityOf(mainCompilation.defaultSourceSet)
         }
     }

@@ -24,8 +24,7 @@ kotlin {
 
 fun KotlinMultiplatformExtension.configureSharedPosixSourceSet(): KotlinSourceSet {
     val commonMain = sourceSets.getByName("commonMain")
-    return sourceSets.create("posixMain").apply {
+    return sourceSets.create("posixMain") {
         dependsOn(commonMain)
-        requiresVisibilityOf(commonMain)
     }
 }
