@@ -9,33 +9,38 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithTests
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
-import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 
 plugins {
     id("multiplatform-native-app")
 }
 
 kotlin {
-    val commonMain = sourceSets.getByName("commonMain")
+    val commonMain = kotlin.sourceSets.getByName("commonMain")
     val commonIntegrationTest = sourceSets.create("commonIntegrationTest") {
         dependsOn(commonMain)
+        requiresVisibilityOf(commonMain)
     }
-    targets.filterIsInstance<KotlinNativeTarget>().forEach {
-        val compilation = it.createIntegrationTestCompilation(commonIntegrationTest)
-        it.configureIntegrationTestBinaryAndTask(project, compilation)
+    targets.filterIsInstance<KotlinNativeTargetWithTests<*>>().forEach {
+        val compilation = it.createIntegrationTestCompilation(commonIntegrationTest, commonMain)
+        it.createIntegrationTestBinary(compilation)
+        it.createIntegrationTestRun()
     }
 }
 
 fun KotlinNativeTarget.createIntegrationTestCompilation(
     commonIntegrationTest: KotlinSourceSet,
+    commonMain: KotlinSourceSet,
 ): KotlinNativeCompilation {
     val mainCompilation = compilations.getByName("main")
     return compilations.create("integrationTest") {
         associateWith(mainCompilation)
         defaultSourceSet {
             dependsOn(commonIntegrationTest)
+            requiresVisibilityOf(commonMain)
+            requiresVisibilityOf(commonIntegrationTest)
+            requiresVisibilityOf(mainCompilation.defaultSourceSet)
             addImplementationDependencyOn(mainCompilation)
         }
     }
@@ -49,36 +54,21 @@ fun KotlinSourceSet.addImplementationDependencyOn(
     }
 }
 
-fun KotlinNativeTarget.configureIntegrationTestBinaryAndTask(
-    project: Project,
+fun KotlinNativeTarget.createIntegrationTestBinary(
     compilation: KotlinNativeCompilation,
 ) {
     binaries {
         test("integration", listOf(NativeBuildType.DEBUG)) {
             this.compilation = compilation
-            project.registerIntegrationTestTask(compilation.target, testExecutable = this)
         }
     }
 }
 
-fun Project.registerIntegrationTestTask(
-    target: KotlinNativeTarget,
-    testExecutable: TestExecutable,
-) {
-    tasks.register("${target.name}IntegrationTest", KotlinNativeHostTest::class) {
-        targetName = testExecutable.target.name
-        executable(testExecutable.linkTaskProvider.flatMap { it.outputFile })
-        inputs.file(testExecutable.linkTaskProvider.map { it.outputFile })
-        configureTestReports()
-    }
-}
-
-fun KotlinNativeHostTest.configureTestReports() {
-    val resultsDir = project.layout.buildDirectory.dir("${TestingBasePlugin.TEST_RESULTS_DIR_NAME}/$name/binary")
-    val reportsDir = project.layout.buildDirectory.dir("${TestingBasePlugin.TESTS_DIR_NAME}/reports/integrationTest")
-    binaryResultsDirectory.set(resultsDir)
-    reports {
-        junitXml.outputLocation.set(resultsDir)
-        html.outputLocation.set(reportsDir)
+fun KotlinNativeTargetWithTests<*>.createIntegrationTestRun() {
+    testRuns {
+        create("integration") {
+            val integrationTestBinary = binaries.getTest("integration", NativeBuildType.DEBUG)
+            setExecutionSourceFrom(integrationTestBinary)
+        }
     }
 }

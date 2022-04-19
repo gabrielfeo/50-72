@@ -26,5 +26,6 @@ fun KotlinMultiplatformExtension.configureSharedPosixSourceSet(): KotlinSourceSe
     val commonMain = sourceSets.getByName("commonMain")
     return sourceSets.create("posixMain").apply {
         dependsOn(commonMain)
+        requiresVisibilityOf(commonMain)
     }
 }
