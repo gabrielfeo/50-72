@@ -9,7 +9,6 @@
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
 
 private const val LINUX = "Linux"
@@ -19,21 +18,12 @@ fun Project.configureNativeTargets(
     configure: KotlinNativeTargetWithHostTests.() -> Unit
 ) {
     configure<KotlinMultiplatformExtension> {
-        val posixMain = configureSharedPosixSourceSet()
-        configureTargets(this, posixMain, configure)
-    }
-}
-
-private fun KotlinMultiplatformExtension.configureSharedPosixSourceSet(): KotlinSourceSet {
-    val commonMain = sourceSets.getByName("commonMain")
-    return sourceSets.create("posixMain").apply {
-        dependsOn(commonMain)
+        configureTargets(this, configure)
     }
 }
 
 private fun Project.configureTargets(
     extension: KotlinMultiplatformExtension,
-    posixMain: KotlinSourceSet,
     configure: KotlinNativeTargetWithHostTests.() -> Unit,
 ) {
     extension.apply {
@@ -42,26 +32,22 @@ private fun Project.configureTargets(
         }
         val configureAll = shouldConfigureAllTargets()
         if (hostOs == LINUX || configureAll)
-            configureLinuxTargets(posixMain, configure)
+            configureLinuxTargets(configure)
         if (hostOs == MAC_OS || configureAll)
-            configureMacOsTargets(posixMain, configure)
+            configureMacOsTargets(configure)
     }
 }
 
 private fun KotlinMultiplatformExtension.configureMacOsTargets(
-    posixMain: KotlinSourceSet,
     configure: KotlinNativeTargetWithHostTests.() -> Unit,
 ) {
     macosX64(configure = configure)
-    sourceSets.getByName("macosX64Main").dependsOn(posixMain)
 }
 
 private fun KotlinMultiplatformExtension.configureLinuxTargets(
-    posixMain: KotlinSourceSet,
     configure: KotlinNativeTargetWithHostTests.() -> Unit,
 ) {
     linuxX64(configure = configure)
-    sourceSets.getByName("linuxX64Main").dependsOn(posixMain)
 }
 
 private fun Project.hostOs(): String? =
