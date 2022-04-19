@@ -6,26 +6,37 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithTests
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
     id("multiplatform-native-app")
 }
 
 kotlin {
-    val commonMain = kotlin.sourceSets.getByName("commonMain")
-    val commonIntegrationTest = sourceSets.create("commonIntegrationTest") {
+    val commonMain = sourceSets.getByName("commonMain")
+    val commonIntegrationTest = createCommonIntegrationTestSourceSet(commonMain)
+    targets
+        .filterIsInstance<KotlinNativeTargetWithTests<*>>()
+        .forEach { it.configureIntegrationTest(commonIntegrationTest, commonMain) }
+}
+
+fun KotlinMultiplatformExtension.createCommonIntegrationTestSourceSet(
+    commonMain: KotlinSourceSet,
+): KotlinSourceSet {
+    return sourceSets.create("commonIntegrationTest") {
         requiresVisibilityOf(commonMain)
     }
-    targets.filterIsInstance<KotlinNativeTargetWithTests<*>>().forEach {
-        val compilation = it.createIntegrationTestCompilation(commonIntegrationTest, commonMain)
-        it.createIntegrationTestBinary(compilation)
-        it.createIntegrationTestRun()
-    }
+}
+
+fun KotlinNativeTargetWithTests<*>.configureIntegrationTest(
+    commonIntegrationTest: KotlinSourceSet,
+    commonMain: KotlinSourceSet,
+) {
+    val compilation = createIntegrationTestCompilation(commonIntegrationTest, commonMain)
+    val binary = createIntegrationTestBinary(compilation)
+    createIntegrationTestRun(binary)
 }
 
 fun KotlinNativeTarget.createIntegrationTestCompilation(
@@ -46,19 +57,19 @@ fun KotlinNativeTarget.createIntegrationTestCompilation(
 
 fun KotlinNativeTarget.createIntegrationTestBinary(
     compilation: KotlinNativeCompilation,
-) {
-    binaries {
-        test("integration", listOf(NativeBuildType.DEBUG)) {
-            this.compilation = compilation
-        }
+): TestExecutable {
+    binaries.test("integration", listOf(NativeBuildType.DEBUG)) {
+        this.compilation = compilation
     }
+    return binaries.getTest("integration", NativeBuildType.DEBUG)
 }
 
-fun KotlinNativeTargetWithTests<*>.createIntegrationTestRun() {
+fun KotlinNativeTargetWithTests<*>.createIntegrationTestRun(
+    binary: TestExecutable,
+) {
     testRuns {
         create("integration") {
-            val integrationTestBinary = binaries.getTest("integration", NativeBuildType.DEBUG)
-            setExecutionSourceFrom(integrationTestBinary)
+            setExecutionSourceFrom(binary)
         }
     }
 }
