@@ -1,5 +1,6 @@
 import cli.commons.PlatformCommandRunner
 import cli.commons.WorkDir
+import cli.commons.defaultFileSystem
 import okio.FileSystem
 import okio.IOException
 import okio.Path
@@ -16,7 +17,7 @@ class RealEnvironmentIntegrationTest {
     }
 }
 
-val realFileSystem get() = FileSystem.SYSTEM
+val realFileSystem get() = defaultFileSystem
 
 fun Path.toWorkDir() = WorkDir(this.toString())
 
@@ -24,7 +25,7 @@ fun Any.tempDir(): Path {
     val rootTempDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY
     val tempDirForClass = rootTempDir.resolve(this::class.simpleName!!)
     try {
-        FileSystem.SYSTEM.createDirectories(tempDirForClass, mustCreate = true)
+        realFileSystem.createDirectories(tempDirForClass, mustCreate = true)
     } catch (e: IOException) {
         if ("already exist" in e.message.orEmpty()) {
             throw IllegalStateException("Some class isn't cleaning up its tempDir after tests", e)

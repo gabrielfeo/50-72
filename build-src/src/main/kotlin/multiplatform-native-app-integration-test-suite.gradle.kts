@@ -18,21 +18,24 @@ plugins {
 }
 
 kotlin {
-    val commonSourceSet = sourceSets.create("commonIntegrationTest")
+    val commonMain = sourceSets.getByName("commonMain")
+    val commonIntegrationTest = sourceSets.create("commonIntegrationTest") {
+        dependsOn(commonMain)
+    }
     targets.filterIsInstance<KotlinNativeTarget>().forEach {
-        val compilation = it.createIntegrationTestCompilation(commonSourceSet)
+        val compilation = it.createIntegrationTestCompilation(commonIntegrationTest)
         it.configureIntegrationTestBinaryAndTask(project, compilation)
     }
 }
 
 fun KotlinNativeTarget.createIntegrationTestCompilation(
-    commonSourceSet: KotlinSourceSet,
+    commonIntegrationTest: KotlinSourceSet,
 ): KotlinNativeCompilation {
     val mainCompilation = compilations.getByName("main")
     return compilations.create("integrationTest") {
         associateWith(mainCompilation)
         defaultSourceSet {
-            dependsOn(commonSourceSet)
+            dependsOn(commonIntegrationTest)
             addImplementationDependencyOn(mainCompilation)
         }
     }
