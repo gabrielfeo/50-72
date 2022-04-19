@@ -12,6 +12,7 @@ import cli.commons.FilePermissionSetter
 import cli.commons.PermissionSet
 import cli.commons.readText
 import cli.commons.writeText
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -93,7 +94,7 @@ class InstallActionTest {
     @Test
     fun givenNoHook_AndSetPermissionsFails_ThenPrintsError() {
         permissionSetter.shouldFail = true
-        val exception = assertFails {
+        val exception = assertFailsWith(CliktError::class) {
             action()
         }
         assertIs<PrintMessage>(exception)

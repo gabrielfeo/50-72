@@ -11,10 +11,14 @@ package cli.command.hook
 import cli.commons.readText
 import cli.commons.writeText
 import cli.env.Environment
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class FormatFileTest {
 
@@ -55,7 +59,7 @@ class FormatFileTest {
         val file = "./msgfile"
         file.toPath().writeText("any", fileSystem)
 
-        assertFails {
+        assertFailsWith(CliktError::class) {
             run(file, formatErrorMessage = "any error")
         }
 

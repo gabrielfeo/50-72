@@ -11,9 +11,10 @@ package cli.env
 import cli.commons.CommandRunner
 import cli.commons.CommandRunner.Exit
 import cli.commons.CommandRunner.StdOut
+import com.github.ajalt.clikt.core.CliktError
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class RealEnvironmentTest {
 
@@ -35,7 +36,7 @@ class RealEnvironmentTest {
     fun givenGetCommentCharExit127ThenFails() {
         val commandRunner = givenGetCommentCharExit127()
         val environment = RealEnvironment(commandRunner)
-        assertFails {
+        assertFailsWith(CliktError::class) {
             environment.gitCommentChar()
         }
     }
@@ -44,7 +45,7 @@ class RealEnvironmentTest {
     fun givenGetCommentCharExit0WithInvalidCharThenFailsWithMessage() {
         val commandRunner = givenGetCommentCharExit0(";;")
         val environment = RealEnvironment(commandRunner)
-        val error = assertFails {
+        val error = assertFailsWith(CliktError::class) {
             environment.gitCommentChar()
         }
         assertEquals(INVALID_COMMENT_CHAR_ERROR, error.message)

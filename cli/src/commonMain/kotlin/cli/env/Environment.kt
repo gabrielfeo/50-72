@@ -9,6 +9,7 @@
 package cli.env
 
 import cli.commons.CommandRunner
+import com.github.ajalt.clikt.core.CliktError
 
 interface Environment {
     fun gitCommentChar(): Char
@@ -28,7 +29,7 @@ class RealEnvironment(
     }
 
     private fun errorGettingCommentChar(status: Int): Nothing {
-        error("Failed to get git commentChar setting. Exit $status")
+        throw CliktError("Failed to get git commentChar setting. Exit $status")
     }
 
     private fun checkIsValidCommentChar(string: String): Char {

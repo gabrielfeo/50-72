@@ -8,6 +8,7 @@
 
 package cli.command.hook.install
 
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.UsageError
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -55,7 +56,7 @@ class HookTest {
 
     @Test
     fun givenCurrentDirIsNotGitDir_whenInstall_ThenPrintsError() {
-        val error = assertFails {
+        val error = assertFailsWith(CliktError::class) {
             requestInstall()
         }
         assertIsGitDirError(error)
@@ -63,7 +64,7 @@ class HookTest {
 
     @Test
     fun givenCurrentDirIsNotGitDir_whenUninstall_ThenPrintsError() {
-        val error = assertFails {
+        val error = assertFailsWith(CliktError::class) {
             requestUninstall()
         }
         assertIsGitDirError(error)
@@ -71,14 +72,14 @@ class HookTest {
 
     @Test
     fun whenBothInstallAndUninstall_ThenPrintsError() {
-        assertFails {
+        assertFailsWith(CliktError::class) {
             requestBoth()
         }
     }
 
     @Test
     fun whenNoAction_ThenPrintsError() {
-        assertFails {
+        assertFailsWith(CliktError::class) {
             requestNothing()
         }
     }
