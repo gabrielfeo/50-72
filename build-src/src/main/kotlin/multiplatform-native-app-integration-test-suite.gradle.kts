@@ -19,7 +19,6 @@ plugins {
 kotlin {
     val commonMain = kotlin.sourceSets.getByName("commonMain")
     val commonIntegrationTest = sourceSets.create("commonIntegrationTest") {
-        dependsOn(commonMain)
         requiresVisibilityOf(commonMain)
     }
     targets.filterIsInstance<KotlinNativeTargetWithTests<*>>().forEach {
@@ -41,16 +40,7 @@ fun KotlinNativeTarget.createIntegrationTestCompilation(
             requiresVisibilityOf(commonMain)
             requiresVisibilityOf(commonIntegrationTest)
             requiresVisibilityOf(mainCompilation.defaultSourceSet)
-            addImplementationDependencyOn(mainCompilation)
         }
-    }
-}
-
-fun KotlinSourceSet.addImplementationDependencyOn(
-    compilation: KotlinNativeCompilation,
-) {
-    dependencies {
-        implementation(compilation.compileDependencyFiles + compilation.output.classesDirs)
     }
 }
 
