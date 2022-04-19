@@ -12,6 +12,7 @@ import cli.commons.FilePermissionSetter
 import cli.commons.PermissionSet
 import cli.commons.readText
 import cli.commons.writeText
+import cli.env.Environment
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
@@ -117,9 +118,15 @@ class InstallActionTest {
     }
 
     @Test
-    fun givenNoHookAndHashCommentCharSet_WhenInstallAsMarkdown_ThenPrintsCommentCharAdvice() {
-        action(markdownFormat = true)
+    fun givenNoHookAndCommentCharIsMarkdownHeadingChar_WhenInstallAsMarkdown_ThenPrintsCommentCharAdvice() {
+        action(markdownFormat = true, commentChar = MARKDOWN_HEADING_CHAR)
         assertContains(stdout, MARKDOWN_COMMENT_CHAR_ADVICE)
+    }
+
+    @Test
+    fun givenNoHookAndCommentCharIsNotMarkdownHeadingChar_WhenInstallAsMarkdown_ThenPrintsCommentCharAdvice() {
+        action(markdownFormat = true, commentChar = ';')
+        assertFalse(MARKDOWN_COMMENT_CHAR_ADVICE in stdout, "Expected it to not print advice")
     }
 
     @Test
@@ -180,10 +187,14 @@ class InstallActionTest {
 
     private fun action(
         markdownFormat: Boolean = false,
+        commentChar: Char = '#',
     ) {
         InstallActionImpl(
             fileSystem,
             permissionSetter,
+            env = object : Environment {
+                override fun gitCommentChar() = commentChar
+            },
             echo = { stdout += "$it\n" },
         ).invoke(
             markdownFormat,

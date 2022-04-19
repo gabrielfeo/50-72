@@ -9,6 +9,8 @@
 package cli.command.hook.install
 
 import cli.commons.*
+import cli.env.Environment
+import cli.env.RealEnvironment
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.output.TermUi
 import okio.FileSystem
@@ -26,6 +28,7 @@ Please set permissions manually by running 'chmod' so that Git can run the hook:
 
 const val INSTALL_DONE_MSG = "Done! Please ensure 50-72 is in your PATH."
 
+const val MARKDOWN_HEADING_CHAR = '#'
 const val MARKDOWN_COMMENT_CHAR_ADVICE = """
 You must set 'git config core.commentChar' to something other than default '#',
 otherwise git will ignore Markdown headers, which also start with '#'.
@@ -37,6 +40,7 @@ internal const val ALREADY_INSTALLED_MSG = "Already installed."
 class InstallActionImpl(
     private val fileSystem: FileSystem = defaultFileSystem,
     private val permissionSetter: FilePermissionSetter = createFilePermissionSetter(),
+    private val env: Environment = RealEnvironment(defaultCommandRunner),
     private val echo: (msg: String) -> Unit = { TermUi.echo(it) },
 ) : InstallAction {
 
@@ -44,7 +48,7 @@ class InstallActionImpl(
         val command = commandForOption(markdownFormat)
         install(command)
         echo(INSTALL_DONE_MSG)
-        if (markdownFormat) {
+        if (markdownFormat && env.gitCommentChar() == MARKDOWN_HEADING_CHAR) {
             echo(MARKDOWN_COMMENT_CHAR_ADVICE)
         }
     }
