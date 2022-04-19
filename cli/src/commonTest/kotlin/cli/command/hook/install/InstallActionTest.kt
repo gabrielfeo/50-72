@@ -25,6 +25,8 @@ class InstallActionTest {
         createDirectories(".git/hooks".toPath())
     }
 
+    private var stdout = ""
+
     private val permissionSetter = object : FilePermissionSetter {
         var shouldFail = false
         var called = false
@@ -109,6 +111,18 @@ class InstallActionTest {
     }
 
     @Test
+    fun whenInstall_ThenPrintsDoneMessage() {
+        action()
+        assertContains(stdout, INSTALL_DONE_MSG)
+    }
+
+    @Test
+    fun givenNoHookAndHashCommentCharSet_WhenInstallAsMarkdown_ThenPrintsCommentCharAdvice() {
+        action(markdownFormat = true)
+        assertContains(stdout, MARKDOWN_COMMENT_CHAR_ADVICE)
+    }
+
+    @Test
     fun givenAlreadyInstalledAsPlainText_WhenInstallAsPlainText_ThenDoesNotInstall() {
         givenHookExists("""
             $SHEBANG
@@ -170,6 +184,7 @@ class InstallActionTest {
         InstallActionImpl(
             fileSystem,
             permissionSetter,
+            echo = { stdout += "$it\n" },
         ).invoke(
             markdownFormat,
         )
