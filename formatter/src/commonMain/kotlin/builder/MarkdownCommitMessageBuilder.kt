@@ -100,7 +100,7 @@ private sealed interface Matcher {
         CodeSnippet("""```[^`]+```"""),
         HtmlElement("""<[^\/>]+\/>|<(\w+)[^\/>]*>[\s\S]*?<\/\1>"""),
         Link("""!?\[[^\]]+\][\[(][^\])]+[\])]"""),
-        PlainText("""(?:\w+\S*)+"""),
+        PlainText("""(?:\S*\w+\S*)+"""),
         WordSpacing(" +"),
         SingleLineBreak("""\n"""),
         Punctuation("""[^\w\s]"""),

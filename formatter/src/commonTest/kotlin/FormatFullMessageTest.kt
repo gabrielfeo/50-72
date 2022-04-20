@@ -96,6 +96,12 @@ class FormatFullMessageTest {
     }
 
     @Test
+    fun reformatsMovingParenthesesAlongsideWords() {
+        val reformatted = formatFullMessage(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN)
+        assertEquals(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN_FIXED, reformatted)
+    }
+
+    @Test
     fun stripsCommentsWithDefaultGitCommentChar() {
         val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENT_CHAR_HASH)
         assertEquals(MESSAGE_73_WITH_COMMENT_CHAR_HASH_FIXED, reformatted)
