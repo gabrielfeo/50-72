@@ -96,9 +96,15 @@ class FormatFullMessageTest {
     }
 
     @Test
-    fun stripsMessageComments() {
-        val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENTS)
-        assertEquals(MESSAGE_73_WITH_COMMENTS_FIXED, reformatted)
+    fun stripsCommentsWithDefaultGitCommentChar() {
+        val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENT_CHAR_HASH)
+        assertEquals(MESSAGE_73_WITH_COMMENT_CHAR_HASH_FIXED, reformatted)
+    }
+
+    @Test
+    fun stripsCommentsWithAlternativeGitCommentChar() {
+        val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENT_CHAR_SEMICOLON, commentChar = ';')
+        assertEquals(MESSAGE_73_WITH_COMMENT_CHAR_SEMICOLON_FIXED, reformatted)
     }
 
     /**

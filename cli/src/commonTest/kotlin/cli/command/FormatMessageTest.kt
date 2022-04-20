@@ -8,6 +8,7 @@
 
 package cli.command
 
+import cli.env.Environment
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.output.CliktConsole
@@ -24,6 +25,7 @@ class FormatMessageTest {
     private var stderr = ""
     private val formatArgs = object {
         var message: String? = null
+        var commentChar: Char? = null
         var isMarkdown: Boolean? = null
     }
 
@@ -57,6 +59,12 @@ class FormatMessageTest {
     }
 
     @Test
+    fun usesEnvironmentCommentCharInFormat() {
+        run("message", environmentCommentChar = ';')
+        assertEquals(';', formatArgs.commentChar)
+    }
+
+    @Test
     fun acceptsArgumentOrdering1() {
         run("message", "--markdown")
         assertEquals(true, formatArgs.isMarkdown)
@@ -71,10 +79,18 @@ class FormatMessageTest {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun run(vararg args: String, formatThrows: Boolean = false) {
+    private fun run(
+        vararg args: String,
+        formatThrows: Boolean = false,
+        environmentCommentChar: Char = '#',
+    ) {
         FormatMessage(
-            format = { message, isMarkdown ->
+            env = object : Environment {
+                override fun gitCommentChar() = environmentCommentChar
+            },
+            format = { message, commentChar, isMarkdown ->
                 formatArgs.isMarkdown = isMarkdown
+                formatArgs.commentChar = commentChar
                 formatArgs.message = message
                 if (formatThrows) throw IllegalArgumentException(ERROR_MESSAGE)
                 else message

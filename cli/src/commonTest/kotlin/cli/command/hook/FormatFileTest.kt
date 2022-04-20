@@ -10,10 +10,15 @@ package cli.command.hook
 
 import cli.commons.readText
 import cli.commons.writeText
+import cli.env.Environment
+import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.PrintMessage
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class FormatFileTest {
 
@@ -23,6 +28,7 @@ class FormatFileTest {
 
     private val formatArgs = object {
         var isMarkdown: Boolean? = null
+        var commentChar: Char? = null
     }
 
     @Test
@@ -53,7 +59,7 @@ class FormatFileTest {
         val file = "./msgfile"
         file.toPath().writeText("any", fileSystem)
 
-        assertFails {
+        assertFailsWith(CliktError::class) {
             run(file, formatErrorMessage = "any error")
         }
 
@@ -90,16 +96,31 @@ class FormatFileTest {
         assertEquals(true, formatArgs.isMarkdown)
     }
 
+    @Test
+    fun usesEnvironmentCommentCharInFormat() {
+        val file = "./msgfile"
+        file.toPath().writeText("msg", fileSystem)
+
+        run(file, environmentCommentChar = ';')
+
+        assertEquals(';', formatArgs.commentChar)
+    }
+
     @Suppress("UNCHECKED_CAST")
     private fun run(
         vararg args: String,
         formatReturnValue: String = "",
         formatErrorMessage: String? = null,
+        environmentCommentChar: Char = '#',
     ) {
         FormatFile(
             fileSystem,
-            format = { _, isMarkdown ->
+            env = object : Environment {
+                override fun gitCommentChar() = environmentCommentChar
+            },
+            format = { _, commentChar, isMarkdown ->
                 formatArgs.isMarkdown = isMarkdown
+                formatArgs.commentChar = commentChar
                 formatErrorMessage?.let { throw IllegalArgumentException(it) }
                     ?: formatReturnValue
             }

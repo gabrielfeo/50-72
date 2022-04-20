@@ -11,45 +11,47 @@ import kotlin.test.assertEquals
 
 class FormatMarkdownBodyTest {
 
+    private fun formatBody(text: String) = formatBody(text, isMarkdown = true, commentChar = ';')
+
     @Test
     fun whenFormatBodyWithMarkdownOptionTrueThenFormatsAsMarkdown() {
-        val reformatted = formatBody(MD_BODY_72_WITH_SNIPPET, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_72_WITH_SNIPPET)
         assertEquals(MD_BODY_72_WITH_SNIPPET, reformatted)
     }
 
     @Test
     fun reformatsMarkdownBodyGivenParagraphLineOver72() {
-        val reformatted = formatBody(MD_BODY_OVER_72, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_OVER_72)
         assertEquals(MD_BODY_OVER_72_FIXED, reformatted)
     }
 
     @Test
     fun returnsSameMessageGivenAllParagraphLinesAt72() {
-        val reformatted = formatBody(MD_BODY_72, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_72)
         assertEquals(MD_BODY_72, reformatted)
     }
 
     @Test
     fun returnsSameMessageGivenAllParagraphLinesUpTo72() {
-        val reformatted = formatBody(MD_BODY_71, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_71)
         assertEquals(MD_BODY_71, reformatted)
     }
 
     @Test
     fun doesntTouchListItems() {
-        val reformatted = formatBody(MD_BODY_AT_72_WITH_LIST_ITEMS, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_AT_72_WITH_LIST_ITEMS)
         assertEquals(MD_BODY_AT_72_WITH_LIST_ITEMS, reformatted)
     }
 
     @Test
     fun trimsRedundantWhitespaceBetweenParagraphs() {
-        val reformatted = formatBody(MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_BETWEEEN_PARAGRAPHS, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_BETWEEEN_PARAGRAPHS)
         assertEquals(MD_BODY_AT_72_WITH_REDUNDANT_WHITESPACE_TRIMMED, reformatted)
     }
 
     @Test
     fun supportsMiscMarkdownFeatures() {
-        val reformatted = formatBody(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES, isMarkdown = true)
+        val reformatted = formatBody(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES)
         assertEquals(MD_BODY_OVER_72_WITH_MORE_MD_FEATURES_FIXED, reformatted)
     }
 }

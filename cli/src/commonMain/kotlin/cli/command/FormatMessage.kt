@@ -8,6 +8,9 @@
 
 package cli.command
 
+import cli.commons.defaultCommandRunner
+import cli.env.Environment
+import cli.env.RealEnvironment
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -16,7 +19,8 @@ import com.github.ajalt.clikt.parameters.options.option
 import formatFullMessage
 
 class FormatMessage(
-    private val format: (message: String, isMarkdown: Boolean) -> String = ::formatFullMessage,
+    private val env: Environment = RealEnvironment(defaultCommandRunner),
+    private val format: (message: String, commentChar: Char, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
     name = "format",
     help = "Format a message string."
@@ -31,7 +35,7 @@ class FormatMessage(
 
     override fun run() {
         try {
-            val formattedMessage = format(message, isMarkdown)
+            val formattedMessage = format(message, env.gitCommentChar(), isMarkdown)
             echo(formattedMessage)
         } catch (error: IllegalArgumentException) {
             throw PrintMessage(error.message.orEmpty(), error = true)

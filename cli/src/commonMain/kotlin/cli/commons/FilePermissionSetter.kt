@@ -8,6 +8,8 @@
 
 package cli.commons
 
+import com.github.ajalt.clikt.core.CliktError
+
 interface FilePermissionSetter {
     fun set(path: String, permissions: PermissionSet)
 }
@@ -27,7 +29,7 @@ class ChmodFilePermissionSetter(
     override fun set(path: String, permissions: PermissionSet) {
         val result = chmod(path, permissions)
         if (result != 0) {
-            error("Failed to set ${permissions.name} permissions on $path: errno=${errno()}")
+            throw CliktError("Failed to set ${permissions.name} permissions on $path: errno=${errno()}")
         }
     }
 }

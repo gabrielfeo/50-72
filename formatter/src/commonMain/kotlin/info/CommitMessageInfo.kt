@@ -10,12 +10,15 @@ package info
 
 import kotlin.text.RegexOption.MULTILINE
 
+internal const val DEFAULT_GIT_COMMENT_CHAR = '#'
+
 internal data class CommitMessageInfo(
-    val fullText: String
+    val fullText: String,
+    val commentChar: Char = DEFAULT_GIT_COMMENT_CHAR,
 ) {
 
     private val indexOfFirstMessageChar: Int = run {
-        val match = Regex("^[^#\n]", MULTILINE).find(fullText)
+        val match = Regex("^[^$commentChar\n]", MULTILINE).find(fullText)
         checkNotNull(match?.range?.first)
     }
 

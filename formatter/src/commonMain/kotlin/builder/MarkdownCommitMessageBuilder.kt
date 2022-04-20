@@ -8,9 +8,11 @@
 
 package builder
 
-import builder.MarkdownTokenMatcher.*
+import builder.Matcher.Comment
+import builder.Matcher.MarkdownToken.*
 
 internal data class MarkdownCommitMessageBuilder(
+    private val commentChar: Char,
     private val sequence: FormattedCharSequence = FormattedCharSequence(),
 ) : CommitMessageBuilder {
 
@@ -21,17 +23,18 @@ internal data class MarkdownCommitMessageBuilder(
         sequence.breakParagraph()
     }
 
+    @Suppress("RemoveRedundantQualifierName")
     override fun appendBody(body: String) {
-        val matchers = MarkdownTokenMatcher.values()
+        val matchers = arrayOf(Comment(commentChar), *Matcher.MarkdownToken.values())
         var currentPosition = 0
         while (currentPosition < body.lastIndex) {
-            val (matcher, match) = tokenizeMarkdownBodyPosition(currentPosition, body, matchers)
+            val (matcher, match) = matchBodyPosition(currentPosition, body, matchers)
             when (matcher) {
                 BoldText,
                 ItalicizedText,
                 Strikethrough,
                 PlainText,
-                Link -> sequence.append(match.value)
+                Link -> sequence.append(match)
                 BulletListItem,
                 NumberedListItem,
                 Table,
@@ -39,51 +42,67 @@ internal data class MarkdownCommitMessageBuilder(
                 HtmlElement,
                 Quote,
                 Heading,
-                Punctuation -> sequence.appendRaw(match.value)
+                Punctuation -> sequence.appendRaw(match)
                 ParagraphBreak -> sequence.breakParagraph()
+                is Comment,
                 WordSpacing,
                 SingleLineBreak -> {
                 }
             }
-            currentPosition = match.range.last + 1
+            currentPosition += match.length
         }
     }
 
-    private fun tokenizeMarkdownBodyPosition(
+    private fun matchBodyPosition(
         currentPosition: Int,
         body: String,
-        matchers: Array<MarkdownTokenMatcher>,
-    ): Pair<MarkdownTokenMatcher, MatchResult> {
+        matchers: Array<Matcher>,
+    ): Pair<Matcher, String> {
         for (matcher in matchers) {
-            val match = Regex(matcher.pattern).find(body, currentPosition)
-            if (match?.range?.first == currentPosition) {
-                return Pair(matcher, match)
-            }
+            val match = matcher.matchAtStart(body, currentPosition) ?: continue
+            return matcher to match
         }
         val currentPositionSnippet = body.substring(currentPosition, currentPosition + 10)
         error("No match for position $currentPosition: $currentPositionSnippet...")
     }
 }
 
-@Suppress("RegExpRedundantEscape") // Some are needed for JS
-private enum class MarkdownTokenMatcher(
-    //language=RegExp
-    val pattern: String,
-) {
-    ParagraphBreak("""\n\s*\n"""),
-    Heading("""#+[^\n]+"""),
-    BoldText("""\*\*[^*]+\*\*"""),
-    ItalicizedText("""_[^_]+_"""),
-    Strikethrough("""~[^~]+~"""),
-    Quote(""">[^\n]+(?:\n>[^\n]+)*"""),
-    Table("""\|.*\|(?:\n\|.*\|){2,}"""),
-    BulletListItem("""[ \t]*- [^\n]+(?:\n[ \t]*- [^\n]+)*"""),
-    NumberedListItem("""[\t ]*[\d\w]+\. [^\n]+(?:\n[\t ]*[\d\w]+\. [^\n]+)*"""),
-    CodeSnippet("""```[^`]+```"""),
-    HtmlElement("""<[^\/>]+\/>|<(\w+)[^\/>]*>[\s\S]*?<\/\1>"""),
-    Link("""!?\[[^\]]+\][\[(][^\])]+[\])]"""),
-    PlainText("""(?:\w+\S*)+"""),
-    WordSpacing(" +"),
-    SingleLineBreak("""\n"""),
-    Punctuation("""[^\w\s]"""),
+private sealed interface Matcher {
+
+    val pattern: String
+
+    fun matchAtStart(string: String, startIndex: Int): String? {
+        val result = Regex(pattern).find(string, startIndex)
+        return result?.takeIf { it.range.first == startIndex }?.value
+    }
+
+    data class Comment(
+        val commentChar: Char,
+    ) : Matcher {
+        //language=RegExp
+        override val pattern = "$commentChar.*"
+    }
+
+    @Suppress("RegExpRedundantEscape") // Some are needed for JS
+    enum class MarkdownToken(
+        //language=RegExp
+        override val pattern: String,
+    ) : Matcher {
+        ParagraphBreak("""\n\s*\n"""),
+        Heading("""#+[^\n]+"""),
+        BoldText("""\*\*[^*]+\*\*"""),
+        ItalicizedText("""_[^_]+_"""),
+        Strikethrough("""~[^~]+~"""),
+        Quote(""">[^\n]+(?:\n>[^\n]+)*"""),
+        Table("""\|.*\|(?:\n\|.*\|){2,}"""),
+        BulletListItem("""[ \t]*- [^\n]+(?:\n[ \t]*- [^\n]+)*"""),
+        NumberedListItem("""[\t ]*[\d\w]+\. [^\n]+(?:\n[\t ]*[\d\w]+\. [^\n]+)*"""),
+        CodeSnippet("""```[^`]+```"""),
+        HtmlElement("""<[^\/>]+\/>|<(\w+)[^\/>]*>[\s\S]*?<\/\1>"""),
+        Link("""!?\[[^\]]+\][\[(][^\])]+[\])]"""),
+        PlainText("""(?:\w+\S*)+"""),
+        WordSpacing(" +"),
+        SingleLineBreak("""\n"""),
+        Punctuation("""[^\w\s]"""),
+    }
 }

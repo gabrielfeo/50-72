@@ -8,8 +8,9 @@
 
 package cli.commons
 
+import com.github.ajalt.clikt.core.CliktError
 import kotlin.test.Test
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 const val EXAMPLE_ERRNO = 129
@@ -40,7 +41,7 @@ class ChmodFilePermissionSetterTest {
     @Test
     fun givenChmodFails_whenSet_thenThrows() {
         chmodFails = true
-        val error = assertFails {
+        val error = assertFailsWith(CliktError::class) {
             setter.set("anypath", PermissionSet.`755`)
         }
         assertTrue(EXAMPLE_ERRNO.toString() in error.message.orEmpty(), "Did not mention errno")

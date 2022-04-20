@@ -15,12 +15,13 @@ internal interface CommitMessageBuilder {
 }
 
 internal inline fun buildMessage(
-    isMarkdown: Boolean = false,
+    commentChar: Char,
+    isMarkdown: Boolean,
     block: CommitMessageBuilder.() -> Unit
 ): String {
     val builder = when {
-        isMarkdown -> MarkdownCommitMessageBuilder()
-        else -> PlainTextCommitMessageBuilder()
+        isMarkdown -> MarkdownCommitMessageBuilder(commentChar)
+        else -> PlainTextCommitMessageBuilder(commentChar)
     }
     return builder.apply(block).build()
 }
