@@ -65,19 +65,31 @@ foo
 
 - List item A
 - List item B
+- List item C over 72 foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo foo
+- List item D
+- List item E
 
 foo foo
 
 1. List item A
 2. List item B
+3. List item C over 72 foo foo foo foo foo foo foo foo foo foo foo foo
+foo foo foo foo
+4. List item D
+5. List item E
 
 foo
 
 - A
   - Nested
+  - Nested over 72 foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+  - Nested
 
 1. B
   a. Nested
+  b. Nested over 72 foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+  c. Nested
 
 ## H2
 
@@ -102,7 +114,7 @@ foo
 
 1. B
   a. Nested
-  
+
 1. C
   a. Nested"""
 
