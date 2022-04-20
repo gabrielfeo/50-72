@@ -35,7 +35,10 @@ class PosixCommandRunner : CommandRunner {
                 append(input.toKString())
             }
         }
-        val status = pclose(stdoutFile)
+        val status = pclose(stdoutFile).let {
+            // To get the real status in the absence of WEXITSTATUS, divide by 256
+            it / 256
+        }
         return Exit(status, StdOut(stdout))
     }
 
