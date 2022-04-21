@@ -180,6 +180,37 @@ const val SQUASH_MESSAGE_SUBJECT_50_BODY_72_STRIPPED = """a
 
 b"""
 
+const val MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN = """Subject
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo (foo foo)
+foo
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo (foo)
+foo
+
+In POSIX, to get the real status code WEXITSTATUS must be used with the
+return of wait() (https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+
+In POSIX, to get the real status code WEXITSTATUS must be used with the
+return of wait()(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+"""
+
+const val MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN_FIXED = """Subject
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+(foo foo) foo
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
+(foo) foo
+
+In POSIX, to get the real status code WEXITSTATUS must be used with the
+return of wait()
+(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+
+In POSIX, to get the real status code WEXITSTATUS must be used with the
+return of
+wait()(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html)."""
+
 val miscMessages = mapOf(
     //0------------------------------------------------------------------
     """

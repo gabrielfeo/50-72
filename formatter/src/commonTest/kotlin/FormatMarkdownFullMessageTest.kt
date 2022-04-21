@@ -41,4 +41,14 @@ class FormatMarkdownFullMessageTest {
         )
         assertEquals(MD_MSG_WITH_COMMENT_CHAR_SEMICOLON_STRIPPED, reformatted)
     }
+
+    @Test
+    fun reformatsMovingParenthesesAlongsideWords() {
+        val reformatted = formatFullMessage(
+            MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN,
+            isMarkdown = true,
+            commentChar = ';',
+        )
+        assertEquals(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN_FIXED, reformatted)
+    }
 }
