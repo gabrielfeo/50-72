@@ -8,7 +8,7 @@
 
 package builder.markdown
 
-data class Token(
+internal data class Token(
     val type: TokenType,
     val text: String,
 )
