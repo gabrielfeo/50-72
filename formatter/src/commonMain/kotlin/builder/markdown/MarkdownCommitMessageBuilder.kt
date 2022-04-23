@@ -6,11 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package builder
+package builder.markdown
 
-import builder.TokenType.Comment
-import builder.TokenType.MarkdownToken
-import builder.TokenType.MarkdownToken.*
+import builder.CommitMessageBuilder
+import builder.FormattedCharSequence
+import builder.markdown.TokenType.Comment
+import builder.markdown.TokenType.MarkdownToken
+import builder.markdown.TokenType.MarkdownToken.*
 
 internal data class MarkdownCommitMessageBuilder(
     private val commentChar: Char,
@@ -44,14 +46,12 @@ internal data class MarkdownCommitMessageBuilder(
                 HtmlElement,
                 Quote,
                 Heading,
-                EndPunctuation,
-                -> sequence.appendRaw(token.text)
+                EndPunctuation -> sequence.appendRaw(token.text)
                 StandalonePunctuation -> sequence.append(token.text.trim())
                 ParagraphBreak -> sequence.breakParagraph()
                 is Comment,
                 WordSpacing,
-                SingleLineBreak,
-                -> {
+                SingleLineBreak -> {
                 }
             }
             currentPosition += token.text.length

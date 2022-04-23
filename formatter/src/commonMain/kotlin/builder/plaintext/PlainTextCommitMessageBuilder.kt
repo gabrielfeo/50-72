@@ -6,7 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package builder
+package builder.plaintext
+
+import builder.CommitMessageBuilder
+import builder.FormattedCharSequence
 
 internal data class PlainTextCommitMessageBuilder(
     private val commentChar: Char,
