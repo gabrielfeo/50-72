@@ -353,6 +353,8 @@ foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a || b
 
 *alsm bla.
 
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo Closes issue #33
+
 bla bla ( bla )
 
 alsm bla?
@@ -372,6 +374,9 @@ foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
 || b
 
 *alsm bla.
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo Closes issue
+#33
 
 bla bla ( bla )
 

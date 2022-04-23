@@ -25,7 +25,7 @@ internal sealed interface TokenType {
         override val pattern: String,
     ) : TokenType {
         ParagraphBreak("""\n\s*\n"""),
-        Heading("""#+[^\n]+"""),
+        Heading("""^#+[^\n]+"""),
         BoldText("""\*\*[^*]+\*\*"""),
         ItalicizedText("""_[^_]+_"""),
         Strikethrough("""~[^~]+~"""),
