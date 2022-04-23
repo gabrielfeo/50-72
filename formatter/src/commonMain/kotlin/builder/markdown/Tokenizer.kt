@@ -11,7 +11,7 @@ package builder.markdown
 import builder.markdown.TokenType.GitComment
 import builder.markdown.TokenType.MarkdownToken
 
-data class Tokenizer(
+internal data class Tokenizer(
     private val commentChar: Char,
 ) {
 

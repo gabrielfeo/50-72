@@ -8,7 +8,7 @@
 
 package builder.markdown
 
-sealed interface TokenType {
+internal sealed interface TokenType {
 
     val pattern: String
 
