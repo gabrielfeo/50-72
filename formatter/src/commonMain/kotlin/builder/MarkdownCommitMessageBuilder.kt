@@ -59,7 +59,7 @@ internal data class MarkdownCommitMessageBuilder(
         matchers: Array<Matcher>,
     ): Pair<Matcher, String> {
         for (matcher in matchers) {
-            val match = matcher.matchAtStart(body, currentPosition) ?: continue
+            val match = matcher.matchAt(body, currentPosition) ?: continue
             return matcher to match
         }
         val currentPositionSnippet = body.substring(currentPosition, currentPosition + 10)
@@ -71,10 +71,9 @@ private sealed interface Matcher {
 
     val pattern: String
 
-    fun matchAtStart(string: String, startIndex: Int): String? {
-        val result = Regex(pattern).find(string, startIndex)
-        return result?.takeIf { it.range.first == startIndex }?.value
-    }
+    @OptIn(ExperimentalStdlibApi::class)
+    fun matchAt(string: String, index: Int): String? =
+        Regex(pattern).matchAt(string, index)?.value
 
     data class Comment(
         val commentChar: Char,
