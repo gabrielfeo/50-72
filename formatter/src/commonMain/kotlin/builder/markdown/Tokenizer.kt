@@ -10,8 +10,9 @@ package builder.markdown
 
 import builder.markdown.TokenType.GitComment
 import builder.markdown.TokenType.MarkdownToken
+import kotlin.text.RegexOption.MULTILINE
 
-data class Tokenizer(
+internal data class Tokenizer(
     private val commentChar: Char,
 ) {
 
@@ -37,7 +38,7 @@ data class Tokenizer(
         string: String,
         index: Int,
     ): String? {
-        val match = Regex(pattern).matchAt(string, index)
+        val match = Regex(pattern, option = MULTILINE).matchAt(string, index)
         return match?.value
     }
 }

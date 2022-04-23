@@ -8,7 +8,7 @@
 
 package builder.markdown
 
-sealed interface TokenType {
+internal sealed interface TokenType {
 
     val pattern: String
 
@@ -25,7 +25,7 @@ sealed interface TokenType {
         override val pattern: String,
     ) : TokenType {
         ParagraphBreak("""\n\s*\n"""),
-        Heading("""#+[^\n]+"""),
+        Heading("""^#+[^\n]+"""),
         BoldText("""\*\*[^*]+\*\*"""),
         ItalicizedText("""_[^_]+_"""),
         Strikethrough("""~[^~]+~"""),
