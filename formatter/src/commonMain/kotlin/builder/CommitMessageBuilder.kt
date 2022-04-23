@@ -8,6 +8,9 @@
 
 package builder
 
+import builder.markdown.MarkdownCommitMessageBuilder
+import builder.plaintext.PlainTextCommitMessageBuilder
+
 internal interface CommitMessageBuilder {
     fun appendSubject(subject: String)
     fun appendBody(body: String)
