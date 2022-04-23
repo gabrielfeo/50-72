@@ -7,14 +7,9 @@
  */
 
 plugins {
-    id("multiplatform-native-library")
-    id("multiplatform-js-browser-library")
-    id("multiplatform-opt-in")
+    id("multiplatform")
 }
 
-group = "com.gabrielfeo"
-version = "1.0-SNAPSHOT"
-
-dependencies {
-    commonTestImplementation(kotlin("test"))
+kotlin.sourceSets.configureEach {
+    languageSettings.optIn("kotlin.RequiresOptIn")
 }
