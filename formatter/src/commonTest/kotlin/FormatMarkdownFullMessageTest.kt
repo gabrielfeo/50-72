@@ -51,4 +51,14 @@ class FormatMarkdownFullMessageTest {
         )
         assertEquals(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN_FIXED, reformatted)
     }
+
+    @Test
+    fun reformatsCorrectlyWithMiscPunctuation() {
+        val reformatted = formatFullMessage(
+            MD_BODY_WITH_MISC_PUNCTUATION,
+            isMarkdown = true,
+            commentChar = ';',
+        )
+        assertEquals(MD_BODY_WITH_MISC_PUNCTUATION_FIXED, reformatted)
+    }
 }

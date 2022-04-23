@@ -342,3 +342,37 @@ foo foo
 
 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 foo foo foo"""
+
+const val MD_BODY_WITH_MISC_PUNCTUATION = """[JIRA-1] (subject): bla bla. Bla (bla...) or 'bla'
+
+bla. 1bla `bla`; bla\bla bla/bla bla+bla bla+ bla++ --bla -bla -b. "bla"? bla@bla bla?! US${'$'} 40.00 | 2¢ {£4} ~3%
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a && b
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a || b
+
+*alsm bla.
+
+bla bla ( bla )
+
+alsm bla?
+
+
+"""
+
+const val MD_BODY_WITH_MISC_PUNCTUATION_FIXED = """[JIRA-1] (subject): bla bla. Bla (bla...) or 'bla'
+
+bla. 1bla `bla`; bla\bla bla/bla bla+bla bla+ bla++ --bla -bla -b.
+"bla"? bla@bla bla?! US${'$'} 40.00 | 2¢ {£4} ~3%
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
+&& b
+
+foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
+|| b
+
+*alsm bla.
+
+bla bla ( bla )
+
+alsm bla?"""

@@ -42,7 +42,8 @@ internal data class MarkdownCommitMessageBuilder(
                 HtmlElement,
                 Quote,
                 Heading,
-                Punctuation -> sequence.appendRaw(match)
+                EndPunctuation -> sequence.appendRaw(match)
+                StandalonePunctuation -> sequence.append(match.trim())
                 ParagraphBreak -> sequence.breakParagraph()
                 is Comment,
                 WordSpacing,
@@ -95,13 +96,14 @@ private sealed interface Matcher {
         Quote(""">[^\n]+(?:\n>[^\n]+)*"""),
         Table("""\|.*\|(?:\n\|.*\|){2,}"""),
         BulletListItem("""[ \t]*- [^\n]+(?:\n[^\n]+|[ \t]*- [^\n]+)*"""),
-        NumberedListItem("""[\t ]*[\d\w]+\. [^\n]+(?:\n[^\n]+|\n[\t ]*[\d\w]+\. [^\n]+)*"""),
+        NumberedListItem("""[\t ]*\d{1,9}\. [^\n]+(?:\n[^\n]+|\n[\t ]*\d{1,9}\. [^\n]+)*"""),
         CodeSnippet("""```[^`]+```"""),
         HtmlElement("""<[^\/>]+\/>|<(\w+)[^\/>]*>[\s\S]*?<\/\1>"""),
         Link("""!?\[[^\]]+\][\[(][^\])]+[\])]"""),
         PlainText("""(?:\S*\w+\S*)+"""),
+        StandalonePunctuation("""[\t ]+[^\w\s]+(?=\s)"""),
         WordSpacing(" +"),
         SingleLineBreak("""\n"""),
-        Punctuation("""[^\w\s]"""),
+        EndPunctuation("""\s*[^\w\s](?=$|\n\n)"""),
     }
 }
