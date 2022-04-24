@@ -4,9 +4,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
-package cli.command.hook.install
+package cli.command.hook
 
 import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.UsageError
@@ -14,7 +14,7 @@ import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.*
 
-class HookTest {
+class HookCommandTest {
 
     private val fileSystem = FakeFileSystem().apply {
         emulateUnix()
@@ -34,7 +34,7 @@ class HookTest {
         }
     }
 
-    private val hook = Hook(
+    private val hook = HookCommand(
         fileSystem,
         installAction,
         uninstallAction,

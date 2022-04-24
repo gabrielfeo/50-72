@@ -4,9 +4,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
-package cli.command
+package cli.command.format
 
 import cli.env.Environment
 import com.github.ajalt.clikt.core.PrintMessage
@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 
 private const val ERROR_MESSAGE = "formatOut"
 
-class FormatMessageTest {
+class FormatMessageCommandTest {
 
     private var stdout = ""
     private var stderr = ""
@@ -84,7 +84,7 @@ class FormatMessageTest {
         formatThrows: Boolean = false,
         environmentCommentChar: Char = '#',
     ) {
-        FormatMessage(
+        FormatMessageCommand(
             env = object : Environment {
                 override fun gitCommentChar() = environmentCommentChar
             },

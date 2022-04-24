@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package cli.command.hook
+package cli.command.format
 
 import cli.commons.readText
 import cli.commons.writeText
@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class FormatFileTest {
+class FormatMessageFileCommandTest {
 
     private val fileSystem = FakeFileSystem().apply {
         emulateUnix()
@@ -113,7 +113,7 @@ class FormatFileTest {
         formatErrorMessage: String? = null,
         environmentCommentChar: Char = '#',
     ) {
-        FormatFile(
+        FormatMessageFileCommand(
             fileSystem,
             env = object : Environment {
                 override fun gitCommentChar() = environmentCommentChar

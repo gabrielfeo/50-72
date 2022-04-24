@@ -6,6 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */        
 
-import cli.command.Root
+import cli.command.RootCommand
 
-fun main(args: Array<String>) = Root().main(args)
+fun main(args: Array<String>) = RootCommand().main(args)
