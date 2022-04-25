@@ -14,44 +14,85 @@ class FormatFullMessageTest {
 
     @Test
     fun whenFormatFullMessageWithMarkdownOptionFalseThenFormatsAsPlainText() {
-        val reformatted = formatFullMessage(MD_FULL_MSG_72_WITH_SNIPPET)
-        assertEquals(MD_FULL_MSG_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT, reformatted)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                # H1
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                ```kotlin
+                println("snippet")
+                println("snippet")
+                ```
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                ```kotlin println("snippet") println("snippet") ```
+            """.trimIndent()
+        )
     }
 
     @Test
     fun failsGivenSingleLineOver50() {
         val error = assertFails {
-            formatFullMessage(SINGLE_LINE_51)
+            formatFullMessage("012345678901234567890123456789012345678901234567890")
         }
         assertEquals(HEADING_OVER_50_MESSAGE, error.message)
     }
 
     @Test
     fun doesntFailGivenSingleLineAt50() {
-        formatFullMessage(SINGLE_LINE_50)
+        formatFullMessage("01234567890123456789012345678901234567890123456789")
     }
 
     @Test
     fun doesntFailGivenSingleLineUnder50() {
-        formatFullMessage(SINGLE_LINE_40)
+        formatFullMessage("0123456789012345678901234567890123456789")
     }
 
     @Test
     fun failsGivenSubjectLineOver50() {
         val error = assertFails {
-            formatFullMessage(SUBJECT_51_BODY_72)
+            formatFullMessage("""
+                012345678901234567890123456789012345678901234567890
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent())
         }
-        assertEquals(HEADING_OVER_50_MESSAGE, error.message)
+        error.message shouldEqual HEADING_OVER_50_MESSAGE
     }
 
     @Test
     fun doesntFailGivenSubjectLineAt50() {
-        formatFullMessage(SUBJECT_50_BODY_72)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenSubjectLineUnder50() {
-        formatFullMessage(SUBJECT_40_BODY_72)
+        formatFullMessage(
+            """
+                0123456789012345678901234567890123456789
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -69,48 +110,215 @@ class FormatFullMessageTest {
 
     @Test
     fun reformatsBodyGivenBodyLineOver72() {
-        val reformatted = formatFullMessage(SUBJECT_50_BODY_73)
-        assertEquals(SUBJECT_50_BODY_73_FIXED, reformatted)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+    
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenBodyLineUnder72() {
-        formatFullMessage(SUBJECT_50_BODY_71)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenBodyLineAt72() {
-        formatFullMessage(SUBJECT_50_BODY_72)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        )
     }
 
     @Test
     fun reformatsPreservingParagraphsWithSingleNewline() {
-        val reformatted = formatFullMessage(SUBJECT_50_BODY_73_TWO_PARAGRAPHS)
-        assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_FIXED, reformatted)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+    
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem
+    
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
     fun reformatsIgnoringExcessiveNewlinesBetweenParagraphs() {
-        val reformatted = formatFullMessage(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_TRIPLE_NEWLINE)
-        assertEquals(SUBJECT_50_BODY_73_TWO_PARAGRAPHS_TRIPLE_NEWLINE_FIXED, reformatted)
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+
+
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+    
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem
+    
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
     fun reformatsMovingParenthesesAlongsideWords() {
-        val reformatted = formatFullMessage(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN)
-        assertEquals(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN_FIXED, reformatted)
+        formatFullMessage(
+            """
+                |Subject
+                |
+                |foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo (foo foo)
+                |foo
+                |
+                |foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo (foo)
+                |foo
+                |
+                |In POSIX, to get the real status code WEXITSTATUS must be used with the
+                |return of wait() (https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+                |
+                |In POSIX, to get the real status code WEXITSTATUS must be used with the
+                |return of wait()(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+                |
+            """.trimMargin()
+        ) shouldEqual(
+            """
+                Subject
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                (foo foo) foo
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
+                (foo) foo
+
+                In POSIX, to get the real status code WEXITSTATUS must be used with the
+                return of wait()
+                (https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+
+                In POSIX, to get the real status code WEXITSTATUS must be used with the
+                return of
+                wait()(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+            """.trimIndent()
+        )
     }
 
     @Test
     fun stripsCommentsWithDefaultGitCommentChar() {
-        val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENT_CHAR_HASH)
-        assertEquals(MESSAGE_73_WITH_COMMENT_CHAR_HASH_FIXED, reformatted)
+        formatFullMessage(
+            """
+                Lorem ipsum
+
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem
+                #Useless comment
+
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                # Another one
+                lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum
+                # Please enter the commit message for your changes. Lines starting
+                # with '#' will be ignored, and an empty message aborts the commit.
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                Lorem ipsum
+    
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem
+    
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
     fun stripsCommentsWithAlternativeGitCommentChar() {
-        val reformatted = formatFullMessage(MESSAGE_73_WITH_COMMENT_CHAR_SEMICOLON, commentChar = ';')
-        assertEquals(MESSAGE_73_WITH_COMMENT_CHAR_SEMICOLON_FIXED, reformatted)
+        formatFullMessage(
+            """
+                Lorem ipsum
+
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem
+                ;Useless comment
+
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                ; Another one
+                lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum
+                ; Please enter the commit message for your changes. Lines starting
+                ; with '#' will be ignored, and an empty message aborts the commit.
+            """.trimIndent(),
+            commentChar = ';',
+        ) shouldEqual(
+            """
+                Lorem ipsum
+                
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem
+                
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     /**
@@ -119,34 +327,353 @@ class FormatFullMessageTest {
      */
     @Test
     fun stripsCommentsAndEmptyLinesBeforeSubject() {
-        val reformatted = formatFullMessage(SQUASH_MESSAGE_SUBJECT_50_BODY_72)
-        assertEquals(SQUASH_MESSAGE_SUBJECT_50_BODY_72_STRIPPED, reformatted)
+        formatFullMessage(
+            """
+                |# This is a combination of 2 commits.
+                |# This is the 1st commit message:
+                |
+                |a
+                |
+                |012345678901234567890123456789012345678901234567890
+                |
+                |# This is the commit message #2:
+                |
+                |012345678901234567890123456789012345678901234567890123456789012345678901
+                |lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                |ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                |
+                |# Please enter the commit message for your changes. Lines starting
+                |# with '#' will be ignored, and an empty message aborts the commit.
+                |#
+                |# Date:      Fri Apr 1 11:21:10 2022 +0100
+                |#
+                |# interactive rebase in progress; onto 11e86f9
+                |# Last commands done (2 commands done):
+                |#    pick 019360b a
+                |#    squash c442edd b
+                |# No commands remaining.
+                |# You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
+                |#
+                |# Changes to be committed:
+                |#	new file:   a
+                |#	new file:   b
+                |#
+                |
+            """.trimMargin()
+        ) shouldEqual(
+            """
+                a
+                
+                012345678901234567890123456789012345678901234567890
+                
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
-    fun reformatsMiscMessages() {
-        for ((i, case) in miscMessages.iterator().withIndex()) {
-            val (original, expected) = case
-            try {
-                val actual = formatFullMessage(original)
-                assertEquals(expected, actual, "Message differs at case $i")
-            } catch (error: Throwable) {
-                if (error is AssertionError) {
-                    throw error
-                }
-                throw AssertionError("Exception thrown at case $i: ${error.stackTraceToString()}")
-            }
+    fun stillReportsInvalidSubjectWhenCommentLinesBeforeSubject() {
+        val error = assertFails {
+            formatFullMessage(
+                """
+                    # This is a combination of 2 commits.
+                    # This is the 1st commit message:
+                    
+                    012345678901234567890123456789012345678901234567890
+                    
+                    # This is the commit message #2:
+                    
+                    b
+                    
+                    # Please enter the commit message for your changes. Lines starting
+                    # with '#' will be ignored, and an empty message aborts the commit.
+                    #
+                    # Date:      Fri Apr 1 11:21:10 2022 +0100
+                    #
+                    # interactive rebase in progress; onto 11e86f9
+                    # Last commands done (2 commands done):
+                    #    pick 019360b a
+                    #    squash c442edd b
+                    # No commands remaining.
+                    # You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
+                    #
+                    # Changes to be committed:
+                    #	new file:   a
+                    #	new file:   b
+                    #
+                """.trimIndent()
+            )
         }
+        error.message shouldEqual HEADING_OVER_50_MESSAGE
     }
 
     @Test
-    fun reformatsMiscInvalidMessages() {
-        for ((i, case) in miscInvalidMessages.iterator().withIndex()) {
-            val (original, expectedErrorMessage) = case
-            val error = assertFails {
-                formatFullMessage(original)
-            }
-            assertEquals(expectedErrorMessage, error.message, "Error message differs at case $i")
-        }
+    fun stripsRedundantWhitespaceBetweenParagraphs() {
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+    
+    
+                foo
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                foo
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun stripsRedundantWhitespaceAtEndOfMessage() {
+        formatFullMessage(
+            """
+                |01234567890123456789012345678901234567890123456789
+                |
+                |foo
+                |
+            """.trimMargin()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                foo
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun stripsRedundantWhitespaceInsideParagraphs() {
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                     foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo foo bar foo foo foo foo    foo foo foo foo bar foo foo foo foo foo foo foo 
+                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum 
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo foo foo foo foo foo bar foo foo foo foo foo foo foo foo bar
+                foo foo foo foo foo foo foo ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun formatsReallyTallMessages() {
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long long                
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun formatsReallyLargeMessages() {
+        formatFullMessage(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long long
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789
+                
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long long long long long long long long long long long long long long
+                long
+            """.trimIndent()
+        )
     }
 }

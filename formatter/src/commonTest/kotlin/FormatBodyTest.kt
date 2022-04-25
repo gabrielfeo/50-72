@@ -7,31 +7,71 @@
  */        
 
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class FormatBodyTest {
 
     @Test
     fun reformatsBodyGivenBodyLineOver72() {
-        val reformatted = formatBody(BODY_73)
-        assertEquals(BODY_73_FIXED, reformatted)
+        formatBody(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenBodyLinesAt72() {
-        val reformatted = formatBody(BODY_72)
-        assertEquals(BODY_72, reformatted)
+        formatBody(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenBodyLineUnder72() {
-        val reformatted = formatBody(BODY_71)
-        assertEquals(BODY_71, reformatted)
+        formatBody(
+            "01234567890123456789012345678901234567890123456789012345678901234567890"
+        ) shouldEqual
+            "01234567890123456789012345678901234567890123456789012345678901234567890"
     }
 
     @Test
     fun whenFormatBodyWithMarkdownOptionFalseThenFormatsAsPlainText() {
-        val reformatted = formatBody(MD_BODY_72_WITH_SNIPPET)
-        assertEquals(MD_BODY_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT, reformatted)
+        formatBody(
+            """
+                # H1
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                ```kotlin
+                println("snippet")
+                println("snippet")
+                ```
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                ```kotlin println("snippet") println("snippet") ```
+            """.trimIndent()
+        )
     }
 }

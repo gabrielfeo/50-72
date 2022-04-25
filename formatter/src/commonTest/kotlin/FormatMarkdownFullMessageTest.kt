@@ -8,57 +8,192 @@
 
 import info.DEFAULT_GIT_COMMENT_CHAR
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class FormatMarkdownFullMessageTest {
 
     @Test
     fun whenFormatFullMessageWithMarkdownOptionTrueThenFormatsAsMarkdown() {
-        val reformatted = formatFullMessage(
-            MD_FULL_MSG_72_WITH_SNIPPET,
-            isMarkdown = true,
-            commentChar = ';',
-        )
-        assertEquals(MD_FULL_MSG_72_WITH_SNIPPET, reformatted)
+        val original = """
+            01234567890123456789012345678901234567890123456789
+
+            # H1
+
+            01234567890123456789012345678901234567890123456789012345678901234567890
+            foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+            ```kotlin
+            println("snippet")
+            println("snippet")
+            ```
+        """.trimIndent()
+        val formatted = formatFullMessage(original, isMarkdown = true, commentChar = ';')
+        formatted shouldEqual original
     }
 
     @Test
     fun stripsCommentsWithDefaultGitCommentChar() {
-        val reformatted = formatFullMessage(
-            MD_MSG_WITH_COMMENT_CHAR_HASH,
+        formatFullMessage(
+            """
+                Subject
+
+                # H1
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo
+
+                foo foo
+
+                ## H2
+
+                #Comment
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo
+                # Comment
+            """.trimIndent(),
             isMarkdown = true,
             commentChar = DEFAULT_GIT_COMMENT_CHAR,
+        ).shouldEqual(
+            """
+                Subject
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo
+
+                foo foo
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo
+            """.trimIndent()
         )
-        assertEquals(MD_MSG_WITH_COMMENT_CHAR_HASH_STRIPPED, reformatted)
     }
 
     @Test
     fun stripsCommentsWithAlternativeGitCommentChar() {
-        val reformatted = formatFullMessage(
-            MD_MSG_WITH_COMMENT_CHAR_SEMICOLON,
+        formatFullMessage(
+            """
+                Subject
+
+                # H1
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo
+
+                ## H2
+
+                ;Comment
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo
+                ; Comment
+            """.trimIndent(),
             isMarkdown = true,
             commentChar = ';',
+        ).shouldEqual(
+            """
+                Subject
+
+                # H1
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo
+
+                ## H2
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo
+            """.trimIndent()
         )
-        assertEquals(MD_MSG_WITH_COMMENT_CHAR_SEMICOLON_STRIPPED, reformatted)
     }
 
     @Test
     fun reformatsMovingParenthesesAlongsideWords() {
-        val reformatted = formatFullMessage(
-            MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN,
+        formatFullMessage(
+            """
+                |Subject
+                |
+                |foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo (foo foo)
+                |foo
+                |
+                |foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo (foo)
+                |foo
+                |
+                |In POSIX, to get the real status code WEXITSTATUS must be used with the
+                |return of wait() (https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+                |
+                |In POSIX, to get the real status code WEXITSTATUS must be used with the
+                |return of wait()(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+                |
+            """.trimMargin(),
             isMarkdown = true,
             commentChar = ';',
+        ) shouldEqual(
+            """
+                Subject
+                
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                (foo foo) foo
+                
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
+                (foo) foo
+                
+                In POSIX, to get the real status code WEXITSTATUS must be used with the
+                return of wait()
+                (https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+                
+                In POSIX, to get the real status code WEXITSTATUS must be used with the
+                return of
+                wait()(https://pubs.opengroup.org/onlinepubs/9699919799/functions/wait.html).
+            """.trimIndent()
         )
-        assertEquals(MESSAGE_WITH_PARENTHESIZED_WORDS_ON_72_COLUMN_FIXED, reformatted)
     }
 
     @Test
     fun reformatsCorrectlyWithMiscPunctuation() {
-        val reformatted = formatFullMessage(
-            MD_BODY_WITH_MISC_PUNCTUATION,
+        formatFullMessage(
+            """
+                [JIRA-1] (subject): bla bla. Bla (bla...) or 'bla'
+
+                bla. 1bla `bla`; bla\bla bla/bla bla+bla bla+ bla++ --bla -bla -b. "bla"? bla@bla bla?! US${'$'} 40.00 | 2¢ {£4} ~3%
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a && b
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a || b
+
+                *alsm bla.
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo Closes issue #33
+
+                bla bla ( bla )
+
+                alsm bla?
+            """.trimIndent(),
             isMarkdown = true,
             commentChar = ';',
+        ).shouldEqual(
+            """
+                [JIRA-1] (subject): bla bla. Bla (bla...) or 'bla'
+
+                bla. 1bla `bla`; bla\bla bla/bla bla+bla bla+ bla++ --bla -bla -b.
+                "bla"? bla@bla bla?! US${'$'} 40.00 | 2¢ {£4} ~3%
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
+                && b
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
+                || b
+
+                *alsm bla.
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo Closes issue
+                #33
+
+                bla bla ( bla )
+
+                alsm bla?
+            """.trimIndent()
         )
-        assertEquals(MD_BODY_WITH_MISC_PUNCTUATION_FIXED, reformatted)
     }
 }
