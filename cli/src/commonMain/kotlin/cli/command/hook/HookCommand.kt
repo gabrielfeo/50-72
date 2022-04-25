@@ -4,9 +4,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
-package cli.command.hook.install
+package cli.command.hook
 
 import cli.commons.defaultFileSystem
 import cli.commons.exists
@@ -27,7 +27,7 @@ const val FORMAT_FILE_AS_MARKDOWN_COMMAND = "50-72 format-file --markdown \"$1\"
 
 const val NOT_A_GIT_DIR_MSG = "Current directory is not a git repository"
 
-class Hook(
+class HookCommand(
     private val fileSystem: FileSystem = defaultFileSystem,
     private val installAction: InstallAction = InstallActionImpl(),
     private val uninstallAction: UninstallAction = UninstallActionImpl(),

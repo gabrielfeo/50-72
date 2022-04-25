@@ -4,9 +4,9 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
-package cli.command
+package cli.command.format
 
 import cli.commons.defaultCommandRunner
 import cli.env.Environment
@@ -18,7 +18,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import formatFullMessage
 
-class FormatMessage(
+class FormatMessageCommand(
     private val env: Environment = RealEnvironment(defaultCommandRunner),
     private val format: (message: String, commentChar: Char, isMarkdown: Boolean) -> String = ::formatFullMessage,
 ) : CliktCommand(
@@ -42,4 +42,3 @@ class FormatMessage(
         }
     }
 }
-

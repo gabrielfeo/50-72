@@ -4,16 +4,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
 package cli.command
 
-import cli.command.hook.FormatFile
-import cli.command.hook.install.Hook
+import cli.command.format.FormatMessageCommand
+import cli.command.format.FormatMessageFileCommand
+import cli.command.hook.HookCommand
 import com.github.ajalt.clikt.core.NoOpCliktCommand
 import com.github.ajalt.clikt.core.subcommands
 
-class Root : NoOpCliktCommand(
+class RootCommand : NoOpCliktCommand(
     name = "50-72",
     help = """
         Format commit messages to the 50/72 rule automatically.
@@ -34,9 +35,9 @@ class Root : NoOpCliktCommand(
 ) {
     init {
         subcommands(
-            FormatMessage(),
-            FormatFile(),
-            Hook(),
+            FormatMessageCommand(),
+            FormatMessageFileCommand(),
+            HookCommand(),
         )
     }
 }
