@@ -4,50 +4,25 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
 import info.DEFAULT_GIT_COMMENT_CHAR
 import kotlin.test.Test
 import kotlin.test.assertFails
 
-class FormatFullMessageTest {
+abstract class FormatFullMessageTest {
 
-    private fun formatFullMessage(
+    abstract val isMarkdown: Boolean
+
+    protected fun formatFullMessage(
         message: String,
         commentChar: Char = DEFAULT_GIT_COMMENT_CHAR,
     ) = formatFullMessage(
         message,
         commentChar,
+        isMarkdown,
         validator = {},
     )
-
-    @Test
-    fun whenFormatFullMessageWithMarkdownOptionFalseThenFormatsAsPlainText() {
-        formatFullMessage(
-            """
-                01234567890123456789012345678901234567890123456789
-
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                ```kotlin
-                println("snippet")
-                println("snippet")
-                ```
-            """.trimIndent()
-        ).shouldEqual(
-            """
-                01234567890123456789012345678901234567890123456789
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                ```kotlin println("snippet") println("snippet") ```
-            """.trimIndent()
-        )
-    }
 
     @Test
     fun validatesMessage() {
@@ -72,7 +47,7 @@ class FormatFullMessageTest {
         ) shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-    
+
                 012345678901234567890123456789012345678901234567890123456789012345678901
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
@@ -82,24 +57,89 @@ class FormatFullMessageTest {
     }
 
     @Test
-    fun doesntFailGivenBodyLineUnder72() {
+    fun reformatsBodyGivenParagraphLineOver72() {
         formatFullMessage(
             """
-                01234567890123456789012345678901234567890123456789
+                Subject
 
                 01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                foo foo
+
+                foo foo
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                Subject
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo
+
+                foo foo
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+                foo foo foo
             """.trimIndent()
         )
     }
 
     @Test
-    fun doesntFailGivenBodyLineAt72() {
+    fun returnsSameMessageGivenAllParagraphLinesAt72() {
         formatFullMessage(
             """
-                01234567890123456789012345678901234567890123456789
+                Subject
 
-                012345678901234567890123456789012345678901234567890123456789012345678901
-                012345678901234567890123456789012345678901234567890123456789012345678901
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+            """.trimIndent()
+        ).shouldEqual(
+            """
+                Subject
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+            """.trimIndent()
+        )
+    }
+
+    @Test
+    fun returnsSameMessageGivenAllParagraphLinesUpTo72() {
+        formatFullMessage(
+            """
+                Subject
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
+
+                foo foo foo
+
+                foo foo foo
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                Subject
+
+                01234567890123456789012345678901234567890123456789012345678901234567890
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
+
+                foo foo foo
+
+                foo foo foo
             """.trimIndent()
         )
     }
@@ -121,12 +161,12 @@ class FormatFullMessageTest {
         ) shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-    
+
                 012345678901234567890123456789012345678901234567890123456789012345678901
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem
-    
+
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
                 ipsum ipsum ipsum ipsum
@@ -152,12 +192,12 @@ class FormatFullMessageTest {
         ) shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-    
+
                 012345678901234567890123456789012345678901234567890123456789012345678901
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem
-    
+
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
                 ipsum ipsum ipsum ipsum
@@ -206,6 +246,53 @@ class FormatFullMessageTest {
     }
 
     @Test
+    fun reformatsCorrectlyWithMiscPunctuation() {
+        formatFullMessage(
+            """
+                [JIRA-1] (subject): bla bla. Bla (bla...) or 'bla'
+
+                bla. 1bla `bla`; bla\bla bla/bla bla+bla bla+ bla++ --bla -bla -b. "bla"? bla@bla bla?! US${'$'} 40.00 | 2¢ {£4} ~3%
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a && b
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a || b
+
+                *alsm bla.
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo Closes issue #33
+
+                bla bla ( bla )
+
+                alsm bla?
+            """.trimIndent(),
+            isMarkdown = true,
+            commentChar = ';',
+        ).shouldEqual(
+            """
+                [JIRA-1] (subject): bla bla. Bla (bla...) or 'bla'
+
+                bla. 1bla `bla`; bla\bla bla/bla bla+bla bla+ bla++ --bla -bla -b.
+                "bla"? bla@bla bla?! US${'$'} 40.00 | 2¢ {£4} ~3%
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
+                && b
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo a
+                || b
+
+                *alsm bla.
+
+                foo foo foo foo foo foo foo foo foo foo foo foo foo foo Closes issue
+                #33
+
+                bla bla ( bla )
+
+                alsm bla?
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun stripsCommentsWithDefaultGitCommentChar() {
         formatFullMessage(
             """
@@ -226,11 +313,11 @@ class FormatFullMessageTest {
         ) shouldEqual(
             """
                 Lorem ipsum
-    
+
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem
-    
+
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
                 ipsum ipsum ipsum ipsum
@@ -260,11 +347,11 @@ class FormatFullMessageTest {
         ) shouldEqual(
             """
                 Lorem ipsum
-                
+
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem
-                
+
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
                 ipsum ipsum ipsum ipsum
@@ -314,9 +401,9 @@ class FormatFullMessageTest {
         ) shouldEqual(
             """
                 a
-                
+
                 012345678901234567890123456789012345678901234567890
-                
+
                 012345678901234567890123456789012345678901234567890123456789012345678901
                 lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
                 lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
@@ -330,14 +417,14 @@ class FormatFullMessageTest {
         formatFullMessage(
             """
                 01234567890123456789012345678901234567890123456789
-    
-    
+
+
                 foo
             """.trimIndent()
         ).shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 foo
             """.trimIndent()
         )
@@ -355,7 +442,7 @@ class FormatFullMessageTest {
         ).shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 foo
             """.trimIndent()
         )
@@ -366,15 +453,15 @@ class FormatFullMessageTest {
         formatFullMessage(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                      foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-                foo foo foo foo bar foo foo foo foo    foo foo foo foo bar foo foo foo foo foo foo foo 
-                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum 
+                foo foo foo foo bar foo foo foo foo    foo foo foo foo bar foo foo foo foo foo foo foo
+                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
             """.trimIndent()
         ).shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
                 foo foo foo foo foo foo foo foo bar foo foo foo foo foo foo foo foo bar
                 foo foo foo foo foo foo foo ipsum ipsum ipsum ipsum ipsum ipsum ipsum
@@ -388,7 +475,7 @@ class FormatFullMessageTest {
         formatFullMessage(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
@@ -446,12 +533,12 @@ class FormatFullMessageTest {
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
-                long long long long long long long long long long long long long long long                
+                long long long long long long long long long long long long long long long
             """.trimIndent()
         ).shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
@@ -520,7 +607,7 @@ class FormatFullMessageTest {
         formatFullMessage(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long long
@@ -528,7 +615,7 @@ class FormatFullMessageTest {
         ).shouldEqual(
             """
                 01234567890123456789012345678901234567890123456789
-                
+
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long
                 long long long long long long long long long long long long long long

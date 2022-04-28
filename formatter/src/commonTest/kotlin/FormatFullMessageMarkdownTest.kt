@@ -4,146 +4,38 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
 import kotlin.test.Test
 
-class FormatMarkdownBodyTest {
+class FormatFullMessageMarkdownTest : FormatFullMessageTest() {
 
-    private fun formatBody(text: String) = formatBody(text, isMarkdown = true, commentChar = ';')
-
-    @Test
-    fun whenFormatBodyWithMarkdownOptionTrueThenFormatsAsMarkdown() {
-        formatBody(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                ```kotlin
-                println("snippet")
-                println("snippet")
-                ```
-            """.trimIndent()
-        ).shouldEqual(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                ```kotlin
-                println("snippet")
-                println("snippet")
-                ```
-            """.trimIndent()
-        )
-    }
+    override val isMarkdown = true
 
     @Test
-    fun reformatsMarkdownBodyGivenParagraphLineOver72() {
-        formatBody(
-            """
-                # H1
+    fun whenFormatFullMessageWithMarkdownOptionTrueThenFormatsAsMarkdown() {
+        val original = """
+            01234567890123456789012345678901234567890123456789
 
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
+            # H1
 
-                foo foo
+            01234567890123456789012345678901234567890123456789012345678901234567890
+            foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
 
-                ## H2
-
-                foo foo
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-            """.trimIndent()
-        ).shouldEqual(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-                foo
-
-                foo foo
-
-                ## H2
-
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-                foo foo foo
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun returnsSameMessageGivenAllParagraphLinesAt72() {
-        formatBody(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                ## H2
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-            """.trimIndent()
-        ).shouldEqual(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-
-                ## H2
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun returnsSameMessageGivenAllParagraphLinesUpTo72() {
-        formatBody(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
-
-                foo foo foo
-
-                ## H2
-
-                foo foo foo
-            """.trimIndent()
-        ) shouldEqual(
-            """
-                # H1
-
-                01234567890123456789012345678901234567890123456789012345678901234567890
-                foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo fo
-
-                foo foo foo
-
-                ## H2
-
-                foo foo foo
-            """.trimIndent()
-        )
+            ```kotlin
+            println("snippet")
+            println("snippet")
+            ```
+        """.trimIndent()
+        val formatted = formatFullMessage(original, isMarkdown = true, commentChar = ';')
+        formatted shouldEqual original
     }
 
     @Test
     fun doesntTouchListItems() {
         val original = """
+            Subject
+
             # H1
 
             foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
@@ -185,13 +77,15 @@ class FormatMarkdownBodyTest {
             foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
             foo foo foo
         """.trimIndent()
-        formatBody(original) shouldEqual original
+        formatFullMessage(original, commentChar = ';') shouldEqual original
     }
 
     @Test
     fun trimsRedundantWhitespaceBetweenParagraphs() {
-        formatBody(
+        formatFullMessage(
             """
+                Subject
+
                 # H1
 
                 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
@@ -208,19 +102,22 @@ class FormatMarkdownBodyTest {
 
                 1. B
                   a. Nested
-            """.trimIndent()
+            """.trimIndent(),
+            commentChar = '%'
         ).shouldEqual(
             """
+                Subject
+
                 # H1
 
                 foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo foo
                 foo
-                
+
                 foo
-                
+
                 - A
                   - Nested
-                
+
                 1. B
                   a. Nested
             """.trimIndent()
@@ -229,8 +126,10 @@ class FormatMarkdownBodyTest {
 
     @Test
     fun supportsMiscMarkdownFeatures() {
-        formatBody(
+        formatFullMessage(
             """
+                Subject
+
                 # H1
 
                 01234567890123456789012345678901234567890123456789012345678901234567890
@@ -290,9 +189,12 @@ class FormatMarkdownBodyTest {
                 | Before | After |
                 |--------|-------|
                 | Foo    | Bar   |
-            """.trimIndent()
+            """.trimIndent(),
+            commentChar = '%'
         ).shouldEqual(
             """
+                Subject
+
                 # H1
 
                 01234567890123456789012345678901234567890123456789012345678901234567890
