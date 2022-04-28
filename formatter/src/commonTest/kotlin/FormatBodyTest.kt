@@ -4,34 +4,62 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */        
+ */
 
+import info.DEFAULT_GIT_COMMENT_CHAR
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
-class FormatBodyTest {
+abstract class FormatBodyTest {
+
+    abstract val isMarkdown: Boolean
+
+    protected fun formatBody(
+        message: String,
+        commentChar: Char = DEFAULT_GIT_COMMENT_CHAR,
+    ) = formatBody(
+        message,
+        commentChar,
+        isMarkdown,
+    )
 
     @Test
     fun reformatsBodyGivenBodyLineOver72() {
-        val reformatted = formatBody(BODY_73)
-        assertEquals(BODY_73_FIXED, reformatted)
+        formatBody(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem
+                lorem lorem ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum ipsum
+                ipsum ipsum
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenBodyLinesAt72() {
-        val reformatted = formatBody(BODY_72)
-        assertEquals(BODY_72, reformatted)
+        formatBody(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        ) shouldEqual(
+            """
+                012345678901234567890123456789012345678901234567890123456789012345678901
+                012345678901234567890123456789012345678901234567890123456789012345678901
+            """.trimIndent()
+        )
     }
 
     @Test
     fun doesntFailGivenBodyLineUnder72() {
-        val reformatted = formatBody(BODY_71)
-        assertEquals(BODY_71, reformatted)
-    }
-
-    @Test
-    fun whenFormatBodyWithMarkdownOptionFalseThenFormatsAsPlainText() {
-        val reformatted = formatBody(MD_BODY_72_WITH_SNIPPET)
-        assertEquals(MD_BODY_72_WITH_SNIPPET_FORMATTED_AS_PLAIN_TEXT, reformatted)
+        formatBody(
+            "01234567890123456789012345678901234567890123456789012345678901234567890"
+        ) shouldEqual
+            "01234567890123456789012345678901234567890123456789012345678901234567890"
     }
 }

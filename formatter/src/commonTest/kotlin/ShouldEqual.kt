@@ -6,12 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class FormatMessageFileTest {
-
-    @Test
-    fun givenMessageFileWithNewlineAtEofThenDoesNotFail() {
-        formatFullMessage("$SINGLE_LINE_40\n")
-    }
-}
+infix fun <T> T.shouldEqual(expected: T) = assertEquals(expected, this)
