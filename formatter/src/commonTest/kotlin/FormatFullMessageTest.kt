@@ -591,4 +591,10 @@ class FormatFullMessageTest {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun doesNotFailForTrailingNewline() {
+        formatFullMessage("0123456789012345678901234567890123456789\n")
+        formatFullMessage("0123456789012345678901234567890123456789\n\nabc\n")
+    }
 }
