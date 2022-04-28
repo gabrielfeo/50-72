@@ -6,11 +6,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */        
 
+import info.DEFAULT_GIT_COMMENT_CHAR
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
 class FormatFullMessageTest {
+
+    private fun formatFullMessage(
+        message: String,
+        commentChar: Char = DEFAULT_GIT_COMMENT_CHAR,
+    ) = formatFullMessage(
+        message,
+        commentChar,
+        validator = {},
+    )
 
     @Test
     fun whenFormatFullMessageWithMarkdownOptionFalseThenFormatsAsPlainText() {
@@ -41,71 +50,13 @@ class FormatFullMessageTest {
     }
 
     @Test
-    fun failsGivenSingleLineOver50() {
-        val error = assertFails {
-            formatFullMessage("012345678901234567890123456789012345678901234567890")
-        }
-        assertEquals(HEADING_OVER_50_MESSAGE, error.message)
-    }
-
-    @Test
-    fun doesntFailGivenSingleLineAt50() {
-        formatFullMessage("01234567890123456789012345678901234567890123456789")
-    }
-
-    @Test
-    fun doesntFailGivenSingleLineUnder50() {
-        formatFullMessage("0123456789012345678901234567890123456789")
-    }
-
-    @Test
-    fun failsGivenSubjectLineOver50() {
-        val error = assertFails {
-            formatFullMessage("""
-                012345678901234567890123456789012345678901234567890
-
-                012345678901234567890123456789012345678901234567890123456789012345678901
-                012345678901234567890123456789012345678901234567890123456789012345678901
-            """.trimIndent())
-        }
-        error.message shouldEqual HEADING_OVER_50_MESSAGE
-    }
-
-    @Test
-    fun doesntFailGivenSubjectLineAt50() {
+    fun validatesMessage() {
+        var validated = false
         formatFullMessage(
-            """
-                01234567890123456789012345678901234567890123456789
-
-                012345678901234567890123456789012345678901234567890123456789012345678901
-                012345678901234567890123456789012345678901234567890123456789012345678901
-            """.trimIndent()
+            "any",
+            validator = { validated = true }
         )
-    }
-
-    @Test
-    fun doesntFailGivenSubjectLineUnder50() {
-        formatFullMessage(
-            """
-                0123456789012345678901234567890123456789
-
-                012345678901234567890123456789012345678901234567890123456789012345678901
-                012345678901234567890123456789012345678901234567890123456789012345678901
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun failsGivenNoSubjectBodySeparator() {
-        val error = assertFails {
-            formatFullMessage("a\na")
-        }
-        assertEquals(NO_SUBJECT_BODY_SEPARATOR_MESSAGE, error.message)
-    }
-
-    @Test
-    fun doesntFailGivenNoSubjectBodySeparator() {
-        formatFullMessage("a\n\na")
+        validated shouldEqual true
     }
 
     @Test
@@ -372,42 +323,6 @@ class FormatFullMessageTest {
                 ipsum ipsum
             """.trimIndent()
         )
-    }
-
-    @Test
-    fun stillReportsInvalidSubjectWhenCommentLinesBeforeSubject() {
-        val error = assertFails {
-            formatFullMessage(
-                """
-                    # This is a combination of 2 commits.
-                    # This is the 1st commit message:
-                    
-                    012345678901234567890123456789012345678901234567890
-                    
-                    # This is the commit message #2:
-                    
-                    b
-                    
-                    # Please enter the commit message for your changes. Lines starting
-                    # with '#' will be ignored, and an empty message aborts the commit.
-                    #
-                    # Date:      Fri Apr 1 11:21:10 2022 +0100
-                    #
-                    # interactive rebase in progress; onto 11e86f9
-                    # Last commands done (2 commands done):
-                    #    pick 019360b a
-                    #    squash c442edd b
-                    # No commands remaining.
-                    # You are currently rebasing branch 'fix/error-on-squash-messages' on '11e86f9'.
-                    #
-                    # Changes to be committed:
-                    #	new file:   a
-                    #	new file:   b
-                    #
-                """.trimIndent()
-            )
-        }
-        error.message shouldEqual HEADING_OVER_50_MESSAGE
     }
 
     @Test
