@@ -9,7 +9,6 @@
 package cli.command.hook
 
 import cli.commons.*
-import com.github.ajalt.clikt.output.TermUi.echo
 import okio.FileSystem
 
 fun interface UninstallAction {
@@ -18,6 +17,7 @@ fun interface UninstallAction {
 
 class UninstallActionImpl(
     private val fileSystem: FileSystem = defaultFileSystem,
+    private val echo: (msg: String) -> Unit,
 ) : UninstallAction {
 
     override fun invoke() {

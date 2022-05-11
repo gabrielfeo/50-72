@@ -41,7 +41,7 @@ class InstallActionImpl(
     private val fileSystem: FileSystem = defaultFileSystem,
     private val permissionSetter: FilePermissionSetter = createFilePermissionSetter(),
     private val env: Environment = RealEnvironment(defaultCommandRunner),
-    private val echo: (msg: String) -> Unit = { TermUi.echo(it) },
+    private val echo: (msg: String) -> Unit,
 ) : InstallAction {
 
     override fun invoke(markdownFormat: Boolean) {
