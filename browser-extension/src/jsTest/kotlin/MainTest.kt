@@ -1,3 +1,4 @@
+import fixture.GitHubEditingPrBody
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.events.Event
 import kotlin.test.*
@@ -8,6 +9,7 @@ class Main2Test : DomManipulationTest() {
 
     @Test
     fun addsFormatButton() {
+        prepareDocument()
         main2(testElement, fakeFormat)
         val button = assertNotNull(testElement.querySelector("button"))
         assertEquals("Format", button.innerHTML)
@@ -16,10 +18,20 @@ class Main2Test : DomManipulationTest() {
 
     @Test
     fun callsFormatOnButtonClick() {
+        prepareDocument()
         var formatCalled = false
         main2(testElement, format = { _, _, _ -> formatCalled = true; "" })
         requireFormatButton().dispatchEvent(Event("click"))
         assertTrue(formatCalled)
+    }
+
+    @Test
+    fun givenIsEditingPrThenFormatsTextFromPrBody() {
+        prepareDocument(GitHubEditingPrBody("My body"))
+        var textToFormat: String? = null
+        main(testElement, format = { text, _, _ -> textToFormat = text; "" })
+        requireFormatButton().dispatchEvent(Event("click"))
+        assertEquals("My Body", textToFormat)
     }
 
     private fun requireFormatButton() = assertNotNull(testElement.querySelector("button"))

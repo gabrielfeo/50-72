@@ -10,15 +10,19 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.dom.appendElement
 import org.w3c.dom.Document
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTextAreaElement
 
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
 
-fun main() {
-    document.body?.appendElement("button") {
+fun main(
+    root: Element = checkNotNull(document.body),
+    format: (String, Char, Boolean) -> String = ::formatBody,
+) {
+    root.appendElement("button") {
         innerHTML = "Format"
-        addEventListener("click", { onFormatButtonClicked() })
+        addEventListener("click", { onFormatButtonClicked(format) })
         setAttribute(
             "style",
             "position: absolute; bottom: 0; right: 0; z-index: 999999; font-size: large;",
@@ -26,10 +30,10 @@ fun main() {
     }
 }
 
-fun onFormatButtonClicked() {
+fun onFormatButtonClicked(format: (String, Char, Boolean) -> String) {
     val bodyArea = findCommitMessageBodyTextArea()
     val description = bodyArea?.value
-    if (description == null || description.isBlank() || !replaceBody(bodyArea)) {
+    if (description == null || description.isBlank() || !replaceBody(bodyArea, format)) {
         alertFailedToFindBodyArea()
         logFailedToFindBodyArea(bodyArea)
     }
@@ -68,10 +72,10 @@ private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
     )
 }
 
-private fun replaceBody(bodyArea: HTMLTextAreaElement): Boolean {
+private fun replaceBody(bodyArea: HTMLTextAreaElement, format: (String, Char, Boolean) -> String): Boolean {
     val previouslyFocused = document.activeElement as? HTMLElement
     try {
-        val formattedBody = formatBody(bodyArea.value, isMarkdown = true)
+        val formattedBody = format(bodyArea.value, '#', true)
         bodyArea.run { focus(); select() }
         return document.execCommand("insertText", showUI = false, value = formattedBody)
     } finally {
