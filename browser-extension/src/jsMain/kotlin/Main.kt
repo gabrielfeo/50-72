@@ -9,9 +9,7 @@
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.dom.appendElement
-import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTextAreaElement
 
 const val SUPPORT_ADDRESS = "gabriel@gabrielfeo.com"
@@ -31,11 +29,12 @@ fun main(
 }
 
 fun onFormatButtonClicked(root: Element, format: (String, Char, Boolean) -> String) {
-    val bodyArea = RealMessageBodyFinder.find(root)
-    val description = bodyArea?.value
-    if (description == null || description.isBlank() || !replaceBody(bodyArea, format)) {
+    val body = RealMessageBodyFinder.find(root)
+    if (body != null) {
+        RealMessageBodyFormatter.format(body, format)
+    } else {
         alertFailedToFindBodyArea()
-        logFailedToFindBodyArea(bodyArea)
+        logFailedToFindBodyArea(body)
     }
 }
 
@@ -58,15 +57,4 @@ private fun logFailedToFindBodyArea(bodyArea: HTMLTextAreaElement?) {
                 bodyArea.value=${bodyArea?.value} 
         """.trimIndent()
     )
-}
-
-private fun replaceBody(bodyArea: HTMLTextAreaElement, format: (String, Char, Boolean) -> String): Boolean {
-    val previouslyFocused = document.activeElement as? HTMLElement
-    try {
-        val formattedBody = format(bodyArea.value, '#', true)
-        bodyArea.run { focus(); select() }
-        return document.execCommand("insertText", showUI = false, value = formattedBody)
-    } finally {
-        previouslyFocused?.focus()
-    }
 }
