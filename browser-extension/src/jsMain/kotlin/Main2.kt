@@ -3,12 +3,12 @@ import org.w3c.dom.Element
 
 fun main2(
     parent: Element,
-    format: (String, Boolean) -> String = ::formatBody,
+    format: (String, Char, Boolean) -> String = ::formatBody,
 ) {
     parent.appendElement("button") {
         innerHTML = "Format"
+        addEventListener("click", { format("", '#', true) })
     }
-    format("", true)
 }
 
 
