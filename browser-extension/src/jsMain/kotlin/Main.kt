@@ -22,7 +22,7 @@ fun main(
 ) {
     root.appendElement("button") {
         innerHTML = "Format"
-        addEventListener("click", { onFormatButtonClicked(format) })
+        addEventListener("click", { onFormatButtonClicked(root, format) })
         setAttribute(
             "style",
             "position: absolute; bottom: 0; right: 0; z-index: 999999; font-size: large;",
@@ -30,26 +30,14 @@ fun main(
     }
 }
 
-fun onFormatButtonClicked(format: (String, Char, Boolean) -> String) {
-    val bodyArea = findCommitMessageBodyTextArea()
+fun onFormatButtonClicked(root: Element, format: (String, Char, Boolean) -> String) {
+    val bodyArea = RealMessageBodyFinder.find(root)
     val description = bodyArea?.value
     if (description == null || description.isBlank() || !replaceBody(bodyArea, format)) {
         alertFailedToFindBodyArea()
         logFailedToFindBodyArea(bodyArea)
     }
 }
-
-private fun findCommitMessageBodyTextArea(): HTMLTextAreaElement? {
-    val element = document.run { gitHubBodyArea ?: gitLabBodyArea }
-    return element as? HTMLTextAreaElement
-}
-
-private val Document.gitLabBodyArea
-    get() = querySelector("#merge_request_description")
-
-private val Document.gitHubBodyArea
-    get() = querySelector("#pull_request_body")
-        ?: querySelector("[name='pull_request[body]']")
 
 private fun alertFailedToFindBodyArea() {
     window.alert("""

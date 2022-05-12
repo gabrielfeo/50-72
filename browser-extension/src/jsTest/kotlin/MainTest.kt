@@ -25,14 +25,5 @@ class Main2Test : DomManipulationTest() {
         assertTrue(formatCalled)
     }
 
-    @Test
-    fun givenIsEditingPrThenFormatsTextFromPrBody() {
-        prepareDocument(GitHubEditingPrBody("My body"))
-        var textToFormat: String? = null
-        main(testElement, format = { text, _, _ -> textToFormat = text; "" })
-        requireFormatButton().dispatchEvent(Event("click"))
-        assertEquals("My Body", textToFormat)
-    }
-
     private fun requireFormatButton() = assertNotNull(testElement.querySelector("button"))
 }
