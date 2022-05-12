@@ -29,8 +29,8 @@ const val NOT_A_GIT_DIR_MSG = "Current directory is not a git repository"
 
 class HookCommand(
     private val fileSystem: FileSystem = defaultFileSystem,
-    private val installAction: InstallAction = InstallActionImpl(),
-    private val uninstallAction: UninstallAction = UninstallActionImpl(),
+    installAction: InstallAction? = null,
+    uninstallAction: UninstallAction? = null,
 ) : CliktCommand(
     name = "hook",
     help = """
@@ -40,6 +40,9 @@ class HookCommand(
         hook file exists, it will be appended to, else a new one will be created.
     """.trimIndent()
 ) {
+
+    private val installAction: InstallAction = installAction ?: InstallActionImpl(echo = ::echo)
+    private val uninstallAction: UninstallAction = uninstallAction ?: UninstallActionImpl(echo = ::echo)
 
     private val install: Boolean by option(
         help = "Install the hook"

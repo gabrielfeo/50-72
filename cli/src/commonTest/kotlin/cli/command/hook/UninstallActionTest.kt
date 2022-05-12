@@ -25,6 +25,7 @@ class UninstallActionTest {
 
     private val action: UninstallAction = UninstallActionImpl(
         fileSystem,
+        echo = {},
     )
 
     @Test
