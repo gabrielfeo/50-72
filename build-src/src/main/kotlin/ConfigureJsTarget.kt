@@ -15,6 +15,6 @@ fun Project.configureJsTarget(
     configure: KotlinJsTargetDsl.() -> Unit
 ) {
     configure<KotlinMultiplatformExtension> {
-        js(LEGACY, configure)
+        js(IR, configure)
     }
 }
