@@ -10,6 +10,10 @@ plugins {
     id("multiplatform-js-browser-executable")
 }
 
+kotlin {
+    jvm()
+}
+
 dependencies {
     commonMainImplementation(project(":formatter"))
     commonMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
