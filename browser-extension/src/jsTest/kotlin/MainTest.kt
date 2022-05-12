@@ -1,13 +1,7 @@
-import kotlinx.browser.document
-import kotlinx.dom.appendElement
-import org.w3c.dom.Element
 import org.w3c.dom.HTMLButtonElement
 import kotlin.test.*
 
-class Main2Test {
-
-    private val testElement: Element
-        get() = checkNotNull(document.getElementById("test")) { "Test element not found" }
+class Main2Test : DomManipulationTest() {
 
     private var formatCalled = false
     private val format: (String, Boolean) -> String = { _, _ ->
@@ -31,13 +25,5 @@ class Main2Test {
         button.click()
 
         assertTrue(formatCalled)
-    }
-
-    @BeforeTest
-    fun resetTestNode() {
-        document.getElementById("test")?.remove()
-        checkNotNull(document.body).appendElement("div") {
-            id = "test"
-        }
     }
 }
