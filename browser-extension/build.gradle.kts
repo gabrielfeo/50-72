@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    jsMainImplementation(project(":formatter"))
-    jsMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
-    jsTestImplementation(kotlin("test"))
+    commonMainImplementation(project(":formatter"))
+    commonMainImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    commonTestImplementation(kotlin("test"))
 }

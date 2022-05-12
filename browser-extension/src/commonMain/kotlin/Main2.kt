@@ -1,5 +1,4 @@
-import kotlinx.dom.appendElement
-import org.w3c.dom.Element
+import browser.dom.Element
 
 fun main2(
     parent: Element,
