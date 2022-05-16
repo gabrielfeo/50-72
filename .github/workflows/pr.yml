@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run license-eye
-        uses: apache/skywalking-eyes@v0.2.0
+        uses: apache/skywalking-eyes@v0.3.0
 
   check-build:
     runs-on: ${{ matrix.runner }}
