@@ -17,7 +17,7 @@ version = "0.0.1"
 dependencies {
     commonMainImplementation(project(":formatter"))
     commonMainImplementation("com.github.ajalt.clikt:clikt:3.4.2")
-    commonMainImplementation("com.squareup.okio:okio:3.1.0")
+    commonMainImplementation("com.squareup.okio:okio:3.2.0")
     commonTestImplementation(kotlin("test"))
     commonTestImplementation("com.squareup.okio:okio-fakefilesystem:3.1.0")
 }
