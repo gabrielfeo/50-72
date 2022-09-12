@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Check for modified code
         id: diff
-        uses: tj-actions/changed-files@v29.0.2
+        uses: tj-actions/changed-files@v29.0.4
         with:
           files: |
             **/src/**
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Check for modified scripts
         id: diff
-        uses: tj-actions/changed-files@v29.0.2
+        uses: tj-actions/changed-files@v29.0.4
         with:
           files: '**/*.sh'
       - name: shellcheck
