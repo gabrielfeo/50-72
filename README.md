@@ -1,6 +1,7 @@
 # 50-72
 
-![CLI version shield][cli-version-shield]
+ℹ️ This project is archived now that GitHub formats commit messages to 72 columns automatically.
+While GitHub doesn't hint about over-50-column message titles, it's good enough.
 
 `50-72` is an utility to format your git commit messages to the [50/72 rule][rule-about]
 _automatically_:
